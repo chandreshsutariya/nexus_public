@@ -77,8 +77,7 @@ async def module_assistant(body: ModuleRequest):
         chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": "You are a module expert that identifies software project modules."},
-                # {"role": "user", "content": f"Using the project example context: {body.project_context}, list all potential modules that could be part of this project."}
-                {"role": "user", "content": f"Using the project example context: {body.project_context}, list modules 1 to 2"}
+                {"role": "user", "content": f"Using the project example context: {body.project_context}, list all potential modules that could be part of this project."}
             ],
             model="gpt-4o"
         )
