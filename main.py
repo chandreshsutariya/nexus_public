@@ -30,6 +30,9 @@ class TaskDescription(BaseModel):
     project_description: str
     task_description: str
 
+class ModuleRequest(BaseModel):
+    project_context: str
+
 @app.post('/project_assistant/')
 async def project_assistant(body: ProjectDescription):
     try:
@@ -64,5 +67,23 @@ async def task_assistant(body: TaskDescription):
         sln = chat_completion.choices[0].message.content
         print(sln)
         return JSONResponse(content={"solution": sln})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post('/module_assistant/')
+async def module_assistant(body: ModuleRequest):
+    try:
+        # Use OpenAI API to generate the list of possible modules
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "You are a module expert that identifies software project modules."},
+                # {"role": "user", "content": f"Using the project example context: {body.project_context}, list all potential modules that could be part of this project."}
+                {"role": "user", "content": f"Using the project example context: {body.project_context}, list modules 1 to 2"}
+            ],
+            model="gpt-4o"
+        )
+        modules = chat_completion.choices[0].message.content
+        print(modules)
+        return JSONResponse(content={"modules": modules})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
