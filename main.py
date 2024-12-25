@@ -64,6 +64,7 @@ def find_module(project_id, is_tech=None):
         except Exception as e:
             print("error extract ing project[name]")
             print(f"{e}")
+        
         try:
             project_id = project['description']
         except Exception as e:
@@ -73,8 +74,9 @@ def find_module(project_id, is_tech=None):
         try:
             project_module = project['modules']
         except Exception as e:
-            print("error extract ing project[modules]")
+            print("error extracting project[modules]")
             print(f"{e}")
+            return(f"error extracting project[modules]: {e}")
         
         try:
             if(not(is_tech) and project['technology']):
@@ -276,6 +278,8 @@ async def feature_assistant(body: FeatureAssistant):
         return JSONResponse(content={"features": features})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
 # @app.post('/feature_assistant/')
 # async def feature_assistant(body: FeatureAssistant):
 #     try:
