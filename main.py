@@ -76,7 +76,7 @@ def find_module(project_id, is_tech=None):
         except Exception as e:
             print("error extracting project[modules]")
             print(f"{e}")
-            return(f"error extracting project[modules]: {e}")
+            return(f"PROJECT MODULES ARE NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD MODULES, SO ACCORDING TO THAT I CAN ANSWER: {e}")
         
         try:
             if(not(is_tech) and project['technology']):
