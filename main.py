@@ -156,7 +156,7 @@ async def platform_suggestion(body: ProjectDescription):
         print(platforms)
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
-            {'$set': {'platform_suggestions': platforms}}  # Add/Update the technology field
+            {'$set': {'platform': platforms}}  # Add/Update the technology field
         )
         if result.modified_count > 0:
             print("Platform field added successfully.")
@@ -211,7 +211,7 @@ async def tools_and_lib_suggestions(body: ToolsAndLibSuggestions):
         print(tools_lib)
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
-            {'$set': {'tools_Lib': tools_lib}}  # Add/Update the technology field
+            {'$set': {'tools': tools_lib}}  # Add/Update the technology field
         )
         if result.modified_count > 0:
             print("Tools & Lib field added successfully.")
@@ -240,7 +240,7 @@ async def module_assistant(body: ModuleRequest):
         # Add/update the technology field in the project document
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
-            {'$set': {'modules': modules}}  # Add/Update the technology field
+            {'$set': {'module': modules}}  # Add/Update the technology field
         )
         if result.modified_count > 0:
             print("Modules field added successfully.")
