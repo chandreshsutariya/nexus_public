@@ -16,3 +16,4 @@ secrets/.api_key
 src/pdfengine/loader/BDCC-07-00097-v3.pdf
 src/pdfengine/loader/pdf.ipynb
 src/pdfengine/loader/test.pdf
+.env

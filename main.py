@@ -6,6 +6,7 @@ import os
 from openai import OpenAI
 import json
 from dotenv import load_dotenv
+import re
 
 # Import variables from .env file
 load_dotenv()
@@ -76,7 +77,7 @@ def find_module(project_id, is_tech=None):
         except Exception as e:
             print("error extracting project[modules]")
             print(f"{e}")
-            return(f"PROJECT MODULES ARE NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD MODULES, SO ACCORDING TO THAT I CAN ANSWER: {e}")
+            return(f"PROJECT MODULES ARE NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD MODULES, SO ACCORDING TO THAT I CAN ANSWER:G {e}")
         
         try:
             if(not(is_tech) and project['technology']):
@@ -86,6 +87,33 @@ def find_module(project_id, is_tech=None):
             pass
 
         return project_module
+
+def find_features(project_id, is_tech=None):
+    if not project_id:
+        return "project_id is required."
+    else:
+        project = collection.find_one({'_id': ObjectId(project_id)})
+
+        try:
+            project_features = project['features']
+        except Exception as e:
+            print("error extracting project[features]")
+            print(f"{e}")
+            return(f"PROJECT features ARE NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD features, SO ACCORDING TO THAT I CAN ANSWER:G {e}")
+
+        return project_features
+
+def extract_tasks_without_asterisks(content):
+    tasks = []
+    # Match bullet points starting with "-" or numbers like "1."
+    pattern = r"(?:\d+\.\s|\s*-\s)(.+)"
+    matches = re.findall(pattern, content)
+    for match in matches:
+        task = match.strip()
+        # Exclude lines containing '*'
+        if '*' not in task:
+            tasks.append(task)
+    return tasks
 
 # Configure your OpenAI API key from environment variable
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -111,6 +139,9 @@ class ToolsAndLibSuggestions(BaseModel):
     project_id: str
 
 class Panels(BaseModel):
+    project_id: str
+
+class TaskList(BaseModel):
     project_id: str
 
 
@@ -306,6 +337,37 @@ async def feature_assistant(body: FeatureAssistant):
 #     except Exception as e:
 #         raise HTTPException(status_code=500, detail=str(e))
 
+# 6 :: TASK LIST
+@app.post('/task_list/')
+async def task_assistant(body: TaskList):
+    try:
+        # Use OpenAI API with `ChatCompletion` to generate small code snippets
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "Please provide concise and specific information about the project"},
+                {"role": "user", "content": f"Given the project description: {find_project(body.project_id)}, and the \
+                                            features list: {find_features(body.project_id)}, give me the list of tasks to implement features in list format."}
+            ],
+            model="gpt-4o-mini"
+        )
+        task_list = chat_completion.choices[0].message.content
+        # print(task_list)
+        # print("################################################################")
+        extracted_tasks = extract_tasks_without_asterisks(task_list)
+        print(extracted_tasks)
+        result = collection.update_one(
+            {'_id': ObjectId(body.project_id)},  # Filter by _id
+            {'$set': {f'tasks': extracted_tasks}}  # Add/Update the technology field
+        )
+        if result.modified_count > 0:
+            print("tasks field added successfully.")
+        else:
+            print("No document found or no changes made.")
+        return JSONResponse(content={"tasks": extracted_tasks})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # 6 :: TASK DETAILS
 @app.post('/task_assistant/')
 async def task_assistant(body: TaskDescription):
@@ -322,14 +384,15 @@ async def task_assistant(body: TaskDescription):
         )
         task_assistant = chat_completion.choices[0].message.content
         print(task_assistant)
-        result = collection.update_one(
-            {'_id': ObjectId(body.project_id)},  # Filter by _id
-            {'$set': {f'task_{body.task_description}': task_assistant}}  # Add/Update the technology field
-        )
-        if result.modified_count > 0:
-            print("task_assistant field added successfully.")
-        else:
-            print("No document found or no changes made.")
+        ################################################################ we are not storing the response in the database #########################################################################
+        # result = collection.update_one(
+        #     {'_id': ObjectId(body.project_id)},  # Filter by _id
+        #     {'$set': {f'task_{body.task_description}': task_assistant}}  # Add/Update the technology field
+        # )
+        # if result.modified_count > 0:
+        #     print("task_assistant field added successfully.")
+        # else:
+        #     print("No document found or no changes made.")
         return JSONResponse(content={"task_assistant": task_assistant})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
