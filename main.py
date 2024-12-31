@@ -402,6 +402,34 @@ async def task_assistant(body: TaskDescription):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@app.post('/setup/')
+async def setup(body: Setup):
+    try:
+        # Use OpenAI API with `ChatCompletion` to generate small code snippets
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "Please provide concise and specific information about the project"},
+                {"role": "user", "content": f"Given the project description: {find_project(body.project_id)}, and the \
+                                             user input {body.user_input} help me setup project for the first time."} #help me setup the project for coding"}
+            ],
+            model="gpt-4o-mini"
+        )
+        setup = chat_completion.choices[0].message.content
+        print(setup)
+        ################################################################ we are storing the response in the database #########################################################################
+        result = collection.update_one(
+            {'_id': ObjectId(body.project_id)},  # Filter by _id
+            {'$set': {f'setup': setup}}  # Add/Update the technology field
+        )
+        if result.modified_count > 0:
+            print("task_assistant field added successfully.")
+        else:
+            print("No document found or no changes made.")
+        return JSONResponse(content={"setup": setup})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
     
 
 
