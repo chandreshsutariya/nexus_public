@@ -124,6 +124,7 @@ class ProjectDescription(BaseModel):
 class TaskDescription(BaseModel):
     project_id: str
     task_description: str
+    comment: str
 
 class ModuleRequest(BaseModel):
     project_id: str
@@ -143,6 +144,10 @@ class Panels(BaseModel):
 
 class TaskList(BaseModel):
     project_id: str
+
+class Setup(BaseModel):
+    project_id: str
+    user_input: str
 
 
 # 1 :: TECHNOLOGY STACK
@@ -377,7 +382,7 @@ async def task_assistant(body: TaskDescription):
             messages=[
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Given the project description: {find_project(body.project_id)}, and the \
-                                            task description: {body.task_description}, provide path-way including a small code snippets\
+                                            task description: {body.task_description} and comment: {body.comment}, provide path-way including a small code snippets\
                                                 to complete the task."}
             ],
             model="gpt-4o-mini"
@@ -396,7 +401,6 @@ async def task_assistant(body: TaskDescription):
         return JSONResponse(content={"task_assistant": task_assistant})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
     
 
