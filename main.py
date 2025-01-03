@@ -11,6 +11,8 @@ import re
 # Import variables from .env file
 load_dotenv()
 
+mongodb_path = os.getenv('mongo_connnection_string')
+print(mongodb_path)
 app = FastAPI()
 
 # Set up CORS middleware to allow access from any origin
@@ -26,7 +28,7 @@ import pymongo
 from bson import ObjectId
 # from pymongo import ObjectId
 
-client_mongo = pymongo.MongoClient('mongodb+srv://elaunch_edge:eojUC5rtfRLQjMsy@elaunchedge.i37y0.mongodb.net/ELaunch-Nexus')
+client_mongo = pymongo.MongoClient(mongodb_path)
 
 collection = client_mongo['ELaunch-Nexus']['projects']
 
