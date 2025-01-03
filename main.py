@@ -11,6 +11,8 @@ import re
 # Import variables from .env file
 load_dotenv()
 
+mongodb_path = os.getenv('mongo_connnection_string')
+print(mongodb_path)
 app = FastAPI()
 
 # Set up CORS middleware to allow access from any origin
@@ -26,7 +28,7 @@ import pymongo
 from bson import ObjectId
 # from pymongo import ObjectId
 
-client_mongo = pymongo.MongoClient('mongodb+srv://elaunch_edge:eojUC5rtfRLQjMsy@elaunchedge.i37y0.mongodb.net/ELaunch-Nexus')
+client_mongo = pymongo.MongoClient(mongodb_path)
 
 collection = client_mongo['ELaunch-Nexus']['projects']
 
@@ -41,18 +43,28 @@ def find_project(project_id, is_tech=None):
             print("error extract ing project[name]")
             print(f"{e}")
         try:
-            project_id = project['description']
+            project_description = project['description']
         except Exception as e:
             print("error extract ing project[description]")
             print(f"{e}")
 
         try:
-            if(not(is_tech) and project['technology']):
-                project_technology = project['technology']
-                return project_name, project_id, project_technology
+            if(not(is_tech) and project['tools']):
+                # tools = project['tools']
+                print("extracted project name, id and tools")
+                return project_name, project_id, tools
         except:
             pass
 
+        try:
+            if(is_tech and project['tools']):
+                tools = project['tools']
+                print("extracted project name, id and tools")
+                return project_name, project_id, tools
+        except:
+            pass
+
+        print("extracted project name, id")
         return project_name, project_id
 
 def find_module(project_id, is_tech=None):
@@ -410,7 +422,7 @@ async def setup(body: Setup):
         chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
-                {"role": "user", "content": f"Given the project description: {find_project(body.project_id)}, and the \
+                {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
                                              user input {body.user_input} help me setup project for the first time."} #help me setup the project for coding"}
             ],
             model="gpt-4o-mini"
