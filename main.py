@@ -42,6 +42,7 @@ def find_project(project_id, is_tech=None):
         except Exception as e:
             print("error extract ing project[name]")
             print(f"{e}")
+        
         try:
             project_description = project['description']
         except Exception as e:
@@ -52,10 +53,11 @@ def find_project(project_id, is_tech=None):
             if(not(is_tech) and project['tools']):
                 # tools = project['tools']
                 print("extracted project name, id and tools")
-                return project_name, project_id, tools
+                return project_name, project_description
         except:
             pass
 
+        
         try:
             if(is_tech and project['tools']):
                 tools = project['tools']
@@ -64,8 +66,8 @@ def find_project(project_id, is_tech=None):
         except:
             pass
 
-        print("extracted project name, id")
-        return project_name, project_id
+        print("line 69: extracted project name, description")
+        return project_name, project_description
 
 def find_module(project_id, is_tech=None):
     if not project_id:
@@ -280,7 +282,7 @@ async def module_assistant(body: ModuleRequest):
         chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
-                {"role": "user", "content": f"Using the project example context: {find_project(body.project_id)} assist on modules\
+                {"role": "user", "content": f"Using the project example context: {find_project(body.project_id)} list the modules\
                  that could be used."}
             ],
             model="gpt-4o"
