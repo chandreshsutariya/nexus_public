@@ -40,19 +40,19 @@ def find_project(project_id, is_tech=None):
         try:
             project_name = project['name']
         except Exception as e:
-            print("error extract ing project[name]")
+            print("43: error extract ing project[name]")
             print(f"{e}")
         
         try:
             project_description = project['description']
         except Exception as e:
-            print("error extract ing project[description]")
+            print("49: error extract ing project[description]")
             print(f"{e}")
 
         try:
             if(not(is_tech) and project['tools']):
                 # tools = project['tools']
-                print("extracted project name, id and tools")
+                print("55: extracted project name, id and tools")
                 return project_name, project_description
         except:
             pass
@@ -61,7 +61,7 @@ def find_project(project_id, is_tech=None):
         try:
             if(is_tech and project['tools']):
                 tools = project['tools']
-                print("extracted project name, id and tools")
+                print("64: extracted project name, id and tools")
                 return project_name, project_id, tools
         except:
             pass
@@ -117,6 +117,36 @@ def find_features(project_id, is_tech=None):
 
         return project_features
 
+def find_list_of_tasks(project_id):
+    if not project_id:
+        return "project_id is required."
+    else:
+        project = collection.find_one({'_id': ObjectId(project_id)})
+
+        try:
+            project_list = project['tasks']
+        except Exception as e:
+            print("error extracting project[features]")
+            print(f"{e}")
+            return(f"TASK-LIST IS NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD features, SO ACCORDING TO THAT I CAN ANSWER:G {e}")
+
+        return project_list
+
+def find_file_structure(project_id):
+    if not project_id:
+        return "project_id is required."
+    else:
+        project = collection.find_one({'_id': ObjectId(project_id)})
+
+        try:
+            project_file_structure = project['setup']
+        except Exception as e:
+            print("error extracting project[features]")
+            print(f"{e}")
+            return(f"PROJECT STURCTURE IS NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD features, SO ACCORDING TO THAT I CAN ANSWER:G {e}")
+
+        return project_file_structure
+
 def extract_tasks_without_asterisks(content):
     tasks = []
     # Match bullet points starting with "-" or numbers like "1."
@@ -162,6 +192,10 @@ class TaskList(BaseModel):
 class Setup(BaseModel):
     project_id: str
     user_input: str
+
+class Kickoff(BaseModel):
+    project_id: str
+    user_input: str = None
 
 
 # 1 :: TECHNOLOGY STACK
@@ -282,7 +316,7 @@ async def module_assistant(body: ModuleRequest):
         chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
-                {"role": "user", "content": f"Using the project example context: {find_project(body.project_id)} list the modules\
+                {"role": "user", "content": f"Using the project example context: {find_project(body.project_id, )} list the modules\
                  that could be used."}
             ],
             model="gpt-4o"
@@ -441,6 +475,36 @@ async def setup(body: Setup):
         else:
             print("No document found or no changes made.")
         return JSONResponse(content={"setup": setup})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post('/kickoff/')
+async def setup(body: Kickoff):
+    try:
+        # Use OpenAI API with `ChatCompletion` to generate small code snippets
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "Please provide concise and specific information about the project"},
+                {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = False)}, and the \
+                                             list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
+                                                {find_file_structure(body.project_id)}, and user input:{body.user_input} \
+                                                    help me kickoff the coding by giving code."} #help me setup the project for coding"}
+            ],
+            model="gpt-4o-mini"
+        )
+        kickoff = chat_completion.choices[0].message.content
+        print(kickoff)
+        ################################################################ we are storing the response in the database #########################################################################
+        # result = collection.update_one(
+        #     {'_id': ObjectId(body.project_id)},  # Filter by _id
+        #     {'$set': {f'setup': setup}}  # Add/Update the technology field
+        # )
+        # if result.modified_count > 0:
+        #     print("task_assistant field added successfully.")
+        # else:
+        #     print("No document found or no changes made.")
+        return JSONResponse(content={"kickoff": kickoff})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
