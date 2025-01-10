@@ -404,7 +404,7 @@ async def task_assistant(body: TaskList):
                                                     I want the tasks in series and at granular level such that I can\
                                                         use agile method while developement."}
             ],
-            model="gpt-4o-mini"
+            model="gpt-4o" #gpt-4o-mini
         )
         task_list = chat_completion.choices[0].message.content
         # print(task_list)
