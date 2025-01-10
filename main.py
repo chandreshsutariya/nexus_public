@@ -399,7 +399,8 @@ async def task_assistant(body: TaskList):
             messages=[
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Given the project description: {find_project(body.project_id)}, and the \
-                                            features list: {find_features(body.project_id)}, give me the list of tasks to implement features in list format."}
+                                            features list: {find_features(body.project_id)}, give me the list of coding tasks \
+                                                to implement features in list format."}
             ],
             model="gpt-4o-mini"
         )
