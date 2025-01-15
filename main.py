@@ -155,8 +155,8 @@ def extract_tasks_without_asterisks(content):
     for match in matches:
         task = match.strip()
         # Exclude lines containing '*'
-        if '#' not in task:
-            tasks.append(task)
+        # if '*' in task:
+        tasks.append(task)
     return tasks
 
 # Configure your OpenAI API key from environment variable
@@ -471,7 +471,7 @@ async def task_assistant(body: TaskList):
             model="gpt-4o" #gpt-4o-mini
         )
         task_list = chat_completion.choices[0].message.content
-        # print(task_list)
+        print(task_list)
         # print("################################################################")
         extracted_tasks = extract_tasks_without_asterisks(task_list)
         print(extracted_tasks)
