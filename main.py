@@ -399,57 +399,68 @@ async def task_assistant(body: TaskList):
             messages=[
         {
             "role": "system",
-            "content": """You are a technical project planner who breaks down features into sequential development tasks. 
-            
-            Follow these strict rules:
-            1. Process features IN THE EXACT ORDER they appear in documentation
-            2. For each feature:
-               - Read its complete description
-               - Break it into as many granular tasks as needed
-               - Include ALL implementation details mentioned
-               - Maintain natural development sequence
-               - Consider dependencies
-            
-            Task Generation Rules:
-            1. Format: * [TaskNumber] Specific task description
-            2. Start with task number 1 and increment sequentially
-            3. Break features into smallest possible implementable units
-            4. Include both frontend and backend work in logical order
-            5. Never group tasks by domain (UI/DB/API etc.)
-            6. Follow the natural development flow
-            7. Ensure each task is independently testable
-            8. Cover every single detail mentioned in feature description
-            
-            You must ALWAYS generate detailed tasks, never summarize or list features only.
-            Each feature might require 5-20 tasks depending on complexity."""
+            "content": """You are an expert technical project planner who breaks down features into comprehensive development tasks. 
+
+            Core Task Generation Rules:
+            1. Format: * [TaskNumber] [Label] Specific task description
+               Labels: [UI/UX], [AUTH], [API], [DB], [SECURITY], [TESTING], [INTEGRATION], [FEATURE]
+            2. Tasks MUST follow documentation order, NOT label order
+            3. Each feature requires:
+               - Essential UI/UX tasks (only where user interaction is needed)
+               - All implementation tasks (backend, frontend, database)
+               - Security and validation tasks
+               - Testing tasks for critical features
+            4. Use AI intelligence to:
+               - Add necessary tasks not explicitly mentioned
+               - Identify dependencies
+               - Include industry best practices
+               - Consider edge cases
+               - Add essential security measures
+
+            Task Generation Process:
+            1. Read feature and description completely
+            2. Break into smallest possible tasks
+            3. Include ALL implementation details
+            4. Add necessary UI tasks only where needed
+            5. Consider full development lifecycle
+            6. Add intelligent suggestions
+            7. Maintain sequential order based on natural development flow
+            8. Never group or order by labels
+
+            ALWAYS generate detailed tasks, never summarize."""
         },
         {
             "role": "user",
             "content": f"""Using this dating app documentation: {find_project(body.project_id)}
 
-            Generate detailed development tasks following these requirements:
+            Create a comprehensive task list that:
 
-            1. Process each feature IN ORDER of documentation
-            2. For every feature and its description:
-               - Create multiple atomic development tasks
-               - Include ALL mentioned functionality
-               - Cover both frontend and backend needs
-               - Add necessary validation/security tasks
-               - Include testing requirements
+            1. Processes features IN DOCUMENTATION ORDER
+            2. For each feature and description:
+               - Generate multiple atomic tasks
+               - Include essential UI/UX tasks where needed
+               - Cover all implementation details
+               - Add security and validation
+               - Include testing for critical features
+               - Use AI intelligence to add necessary tasks
                
-            3. Tasks must be:
-               - Numbered sequentially (1,2,3...)
-               - Specific and actionable
-               - Completable in 1-2 days
-               - Cover every detail in description
+            3. Each task must:
+               - Start with sequential number
+               - Include appropriate label
+               - Be specific and actionable
+               - Be completable in 1-2 days
                - Follow natural implementation order
                
-            4. Never skip any implementation detail
-            5. Never group by technical domain
-            6. Always generate full task list
-            7. Maintain consistent detail level on regeneration
-            
-            Generate tasks now, ensuring COMPLETE coverage of ALL features and descriptions."""
+            4. Requirements:
+               - Never skip any implementation detail
+               - Never group by labels
+               - Always maintain full coverage
+               - Include intelligent additions
+               - Consider user experience
+               - Add essential security measures
+               - Include necessary integrations
+               
+            Generate comprehensive task list now, Don't skip any backend related task ensuring COMPLETE feature coverage with intelligent additions."""
         }
                                             #             "Given the project description: {find_project(body.project_id)}, and the \
                                             # features list: {find_features(body.project_id)}, give me the list of coding\
