@@ -155,7 +155,7 @@ def extract_tasks_without_asterisks(content):
     for match in matches:
         task = match.strip()
         # Exclude lines containing '*'
-        if '*' not in task:
+        if '#' not in task:
             tasks.append(task)
     return tasks
 
@@ -564,14 +564,14 @@ async def setup(body: Kickoff):
         kickoff = chat_completion.choices[0].message.content
         print(kickoff)
         ################################################################ we are storing the response in the database #########################################################################
-        # result = collection.update_one(
-        #     {'_id': ObjectId(body.project_id)},  # Filter by _id
-        #     {'$set': {f'setup': setup}}  # Add/Update the technology field
-        # )
-        # if result.modified_count > 0:
-        #     print("task_assistant field added successfully.")
-        # else:
-        #     print("No document found or no changes made.")
+        result = collection.update_one(
+            {'_id': ObjectId(body.project_id)},  # Filter by _id
+            {'$set': {f'kickoff': kickoff}}  # /Update the technology field
+        )
+        if result.modified_count > 0:
+            print("kickoff field added successfully.")
+        else:
+            print("No document found or no changes made.")
         return JSONResponse(content={"kickoff": kickoff})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
