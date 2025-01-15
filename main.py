@@ -399,85 +399,58 @@ async def task_assistant(body: TaskList):
             messages=[
         {
             "role": "system",
-            "content": """You are a senior technical architect specializing in dating app development. Your role is to:
-            1. Break down each feature into implementable development tasks
-            2. Prioritize backend functionality while including necessary frontend tasks
-            3. Ensure complete coverage of all features regardless of their size
-            4. Focus on creating modular, scalable components
+            "content": """You are a technical project planner who breaks down features into sequential development tasks. 
             
-            Task Categories:
-            CORE: Core system architecture and setup
-            AUTH: Authentication and authorization
-            API: API endpoints and services
-            DB: Database models and operations
-            SOCKET: Real-time features and socket connections
-            PAYMENT: Payment processing and coin system
-            CHAT: Messaging and communication features
-            MEDIA: Media handling and storage
-            UI: Essential user interface components
-            INTEGRATION: Third-party service integration
+            Follow these strict rules:
+            1. Process features IN THE EXACT ORDER they appear in documentation
+            2. For each feature:
+               - Read its complete description
+               - Break it into as many granular tasks as needed
+               - Include ALL implementation details mentioned
+               - Maintain natural development sequence
+               - Consider dependencies
             
-            For each feature, consider:
-            - Data models and relationships
-            - API endpoints needed
-            - Real-time requirements
-            - Payment processing if applicable
-            - File/media handling if needed
-            - Essential UI components
-            - Security requirements
-            - Integration points
+            Task Generation Rules:
+            1. Format: * [TaskNumber] Specific task description
+            2. Start with task number 1 and increment sequentially
+            3. Break features into smallest possible implementable units
+            4. Include both frontend and backend work in logical order
+            5. Never group tasks by domain (UI/DB/API etc.)
+            6. Follow the natural development flow
+            7. Ensure each task is independently testable
+            8. Cover every single detail mentioned in feature description
             
-            Never skip small features or sub-features as they may be critical dependencies."""
+            You must ALWAYS generate detailed tasks, never summarize or list features only.
+            Each feature might require 5-20 tasks depending on complexity."""
         },
         {
-            "role": "user", 
-            "content": f"""Analyze this dating app documentation: {find_project(body.project_id)}
+            "role": "user",
+            "content": f"""Using this dating app documentation: {find_project(body.project_id)}
+
+            Generate detailed development tasks following these requirements:
+
+            1. Process each feature IN ORDER of documentation
+            2. For every feature and its description:
+               - Create multiple atomic development tasks
+               - Include ALL mentioned functionality
+               - Cover both frontend and backend needs
+               - Add necessary validation/security tasks
+               - Include testing requirements
+               
+            3. Tasks must be:
+               - Numbered sequentially (1,2,3...)
+               - Specific and actionable
+               - Completable in 1-2 days
+               - Cover every detail in description
+               - Follow natural implementation order
+               
+            4. Never skip any implementation detail
+            5. Never group by technical domain
+            6. Always generate full task list
+            7. Maintain consistent detail level on regeneration
             
-            Generate detailed development tasks following these rules:
-            1. Every feature must be broken down, no matter how small
-            2. Always include all necessary backend components:
-               - Database models
-               - API endpoints
-               - Business logic
-               - Services
-               - Integrations
-            
-            3. For UI/UX features:
-               - Only include UI tasks that are explicitly mentioned
-               - Focus on functionality over design
-               - Include UI tasks critical for feature operation
-            
-            4. Break complex features into sub-tasks:
-               - Database schema changes
-               - API endpoint creation
-               - Service layer implementation
-               - Integration requirements
-               - Essential UI components
-            
-            5. Consider all technical requirements:
-               - Real-time features (socket/WebRTC)
-               - Payment processing
-               - File uploads
-               - Third-party integrations
-               - Security measures
-            
-            6. Task sequence should follow logical development order:
-               - Core setup first
-               - Authentication system
-               - Basic features
-               - Complex features
-               - Integrations last
-            
-            Format each task as:
-            * [Category] Task description - (Parent Feature Name)
-            
-            Ensure tasks are:
-            - Specific and implementable
-            - Properly categorized
-            - Traceable to original features
-            - Complete in coverage
-            - Logically sequenced"""
-            }
+            Generate tasks now, ensuring COMPLETE coverage of ALL features and descriptions."""
+        }
                                             #             "Given the project description: {find_project(body.project_id)}, and the \
                                             # features list: {find_features(body.project_id)}, give me the list of coding\
                                             #     tasks in series to implement features in list format. Please note that\
