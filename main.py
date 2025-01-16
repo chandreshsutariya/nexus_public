@@ -398,70 +398,63 @@ async def task_assistant(body: TaskList):
         chat_completion = client.chat.completions.create(
             messages=[
         {
-            "role": "system",
-            "content": """You are an expert technical project planner who breaks down features into comprehensive development tasks. 
-
-            Core Task Generation Rules:
-            1. Format: * [TaskNumber] [Label] Specific task description
-               Labels: [UI/UX], [AUTH], [API], [DB], [SECURITY], [TESTING], [INTEGRATION], [FEATURE]
-            2. Tasks MUST follow documentation order, NOT label order
-            3. Each feature requires:
-               - Essential UI/UX tasks (only where user interaction is needed)
-               - All implementation tasks (backend, frontend, database)
-               - Security and validation tasks
-               - Testing tasks for critical features
-            4. Use AI intelligence to:
-               - Add necessary tasks not explicitly mentioned
-               - Identify dependencies
-               - Include industry best practices
-               - Consider edge cases
-               - Add essential security measures
-
-            Task Generation Process:
-            1. Read feature and description completely
-            2. Break into smallest possible tasks
-            3. Include ALL implementation details
-            4. Add necessary UI tasks only where needed
-            5. Consider full development lifecycle
-            6. Add intelligent suggestions
-            7. Maintain sequential order based on natural development flow
-            8. Never group or order by labels
-
-            ALWAYS generate detailed tasks, never summarize."""
-        },
-        {
-            "role": "user",
-            "content": f"""Using this dating app documentation: {find_project(body.project_id)}
-
-            Create a comprehensive task list that:
-
-            1. Processes features IN DOCUMENTATION ORDER
-            2. For each feature and description:
-               - Generate multiple atomic tasks
-               - Include essential UI/UX tasks where needed
-               - Cover all implementation details
-               - Add security and validation
-               - Include testing for critical features
-               - Use AI intelligence to add necessary tasks
-               
-            3. Each task must:
-               - Start with sequential number
-               - Include appropriate label
-               - Be specific and actionable
-               - Be completable in 1-2 days
-               - Follow natural implementation order
-               
-            4. Requirements:
-               - Never skip any implementation detail
-               - Never group by labels
-               - Always maintain full coverage
-               - Include intelligent additions
-               - Consider user experience
-               - Add essential security measures
-               - Include necessary integrations
-               
-            Generate comprehensive task list now, Don't skip any backend related task ensuring COMPLETE feature coverage with intelligent additions."""
-        }
+                "role": "system",
+                "content": """You are a technical project manager breaking down features into development tasks. Follow these rules:
+                1. Every feature in the documentation MUST have corresponding tasks - no skipping
+                2. For UI/UX features, break down into specific design and implementation tasks
+                3. Create separate tasks for frontend and backend components
+                4. Security and infrastructure tasks should be included where relevant
+                5. Testing tasks should only be created for critical features
+                6. Each task should be completable within 1-2 days
+                Task Categories:
+                DESIGN: UI/UX design tasks
+                UI: Frontend implementation tasks
+                API: Backend API development
+                DB: Database-related tasks
+                AUTH: Authentication/authorization
+                SECURITY: Security implementations
+                INFRA: Infrastructure setup
+                
+                When processing features:
+                1. First identify ALL features from the documentation
+                2. Create tasks starting with design (if applicable)
+                3. Then create implementation tasks
+                4. Include infrastructure tasks where needed
+                5. Add security tasks for sensitive features
+                6. Ensure proper sequencing of dependent tasks"""
+            },
+            {
+                "role": "user", 
+                "content": f"""Analyze this dating app documentation: {find_project(body.project_id)} 
+                and create development tasks following these requirements:
+                1. MUST create tasks for EVERY feature and sub-feature in the documentation
+                2. For Design Principles section, break down each UI/UX requirement into specific design tasks
+                3. For each feature section, create tasks in this order:
+                - Design tasks (if UI/UX is involved)
+                - Frontend implementation
+                - Backend implementation
+                - Infrastructure (if needed)
+                - Security (if needed)
+                Special Focus Areas:
+                1. UI/UX Implementation:
+                - Break down each design principle into concrete tasks
+                - Include tasks for color schemes, layouts, and navigation
+                - Create specific tasks for each UI component
+                - Include responsive design requirements
+                2. Feature Implementation:
+                - Break complex features into smaller tasks
+                - Consider both online and offline functionality
+                - Include error handling and edge cases
+                - Consider performance optimization
+                3. Integration Points:
+                - Include tasks for third-party integrations
+                - Consider payment gateway integration
+                - Include notification system setup
+                - Plan for analytics integration
+                Format each task as:
+                * [Category] Specific task description
+                Do not skip any feature or sub-feature mentioned in the documentation."""
+            }
                                             #             "Given the project description: {find_project(body.project_id)}, and the \
                                             # features list: {find_features(body.project_id)}, give me the list of coding\
                                             #     tasks in series to implement features in list format. Please note that\
