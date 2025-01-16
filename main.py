@@ -155,8 +155,8 @@ def extract_tasks_without_asterisks(content):
     for match in matches:
         task = match.strip()
         # Exclude lines containing '*'
-        # if '*' in task:
-        tasks.append(task)
+        if '#' not in task:
+            tasks.append(task)
     return tasks
 
 # Configure your OpenAI API key from environment variable
