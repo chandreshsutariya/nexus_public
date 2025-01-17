@@ -597,8 +597,9 @@ async def download_project(body: DownloadProject):
 # to download any directory structure.
 
 class DirectoryGenerator:
-    def __init__(self):
+    def __init__(self, body):
         self.paths = []
+        self.body = body
         
     def _get_level(self, line: str) -> int:
         """Get the nesting level of a line"""
@@ -659,7 +660,7 @@ class DirectoryGenerator:
                     file.write(content)
                 print(f"Created file: {full_path}")
     
-    def get_content(self, path):
+    def get_content(self, path, body = self.body):
         chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
