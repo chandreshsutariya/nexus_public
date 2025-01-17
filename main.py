@@ -551,42 +551,42 @@ async def setup(body: Setup):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# @app.post('/kickoff/')
+# async def setup(body: Kickoff):
+#     try:
+#         # Use OpenAI API with `ChatCompletion` to generate small code snippets
+#         chat_completion = client.chat.completions.create(
+#             messages=[
+#                 {"role": "system", "content": "Please provide concise and specific information about the project"},
+#                 {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = False)}, and the \
+#                                              list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
+#                                                 {find_file_structure(body.project_id)}, and user input:{body.user_input} \
+#                                                     help me kickoff the coding by giving code."} #help me setup the project for coding"}
+#             ],
+#             model="gpt-4o-mini"
+#         )
+#         kickoff = chat_completion.choices[0].message.content
+#         print(kickoff)
+#         ################################################################ we are storing the response in the database #########################################################################
+#         result = collection.update_one(
+#             {'_id': ObjectId(body.project_id)},  # Filter by _id
+#             {'$set': {f'kickoff': kickoff}}  # /Update the technology field
+#         )
+#         if result.modified_count > 0:
+#             print("kickoff field added successfully.")
+#         else:
+#             print("No document found or no changes made.")
+#         return JSONResponse(content={"kickoff": kickoff})
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post('/kickoff/')
-async def setup(body: Kickoff):
-    try:
-        # Use OpenAI API with `ChatCompletion` to generate small code snippets
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": "Please provide concise and specific information about the project"},
-                {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = False)}, and the \
-                                             list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
-                                                {find_file_structure(body.project_id)}, and user input:{body.user_input} \
-                                                    help me kickoff the coding by giving code."} #help me setup the project for coding"}
-            ],
-            model="gpt-4o-mini"
-        )
-        kickoff = chat_completion.choices[0].message.content
-        print(kickoff)
-        ################################################################ we are storing the response in the database #########################################################################
-        result = collection.update_one(
-            {'_id': ObjectId(body.project_id)},  # Filter by _id
-            {'$set': {f'kickoff': kickoff}}  # /Update the technology field
-        )
-        if result.modified_count > 0:
-            print("kickoff field added successfully.")
-        else:
-            print("No document found or no changes made.")
-        return JSONResponse(content={"kickoff": kickoff})
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post('/download_project/')
-async def download_project(body: DownloadProject):
+async def download_project(body: Kickoff):
     try:
         generator = DirectoryGenerator(body)
 
-        project_directory_structure = {body.directory_structure}        # user input
+        project_directory_structure = body.user_input
 
         generator.create_structure(f"./{body.project_id}", project_directory_structure)
 
@@ -655,12 +655,12 @@ class DirectoryGenerator:
                 # Ensure directory exists
                 os.makedirs(dir_path, exist_ok=True)
                 # Create file
-                content = get_content(full_path)
+                content = self.get_content(full_path)
                 with open(full_path, 'w') as file:
                     file.write(content)
                 print(f"Created file: {full_path}")
     
-    def get_content(self, path, body = self.body):
+    def get_content(self, path, body):
         chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
