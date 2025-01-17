@@ -7,6 +7,7 @@ from openai import OpenAI
 import json
 from dotenv import load_dotenv
 import re
+from typing import List, Dict, Tuple
 
 # Import variables from .env file
 load_dotenv()
@@ -574,3 +575,90 @@ async def setup(body: Kickoff):
         return JSONResponse(content={"kickoff": kickoff})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+# to download any directory structure.
+
+class DirectoryGenerator:
+    def __init__(self):
+        self.paths = []
+        
+    def _get_level(self, line: str) -> int:
+        """Get the nesting level of a line"""
+        # Count the number of │ and spaces to determine level
+        return line.count('│') + line.count('    ')
+        
+    def _parse_path(self, line: str) -> str:
+        """Extract the file/directory name from a tree line"""
+        # Remove tree symbols and whitespace
+        name = re.sub(r'^[├└│──\s]+', '', line).strip()
+        return name
+        
+    def parse_structure(self, text: str) -> None:
+        """Parse the directory structure text into paths"""
+        lines = [line for line in text.split('\n') if line.strip()]
+        path_stack: List[Tuple[int, str]] = []  # Stack to keep track of (level, name)
+        
+        for line in lines:
+            if not any(char in line for char in '├└│'):
+                continue
+                
+            level = self._get_level(line)
+            name = self._parse_path(line)
+            
+            # Remove any paths from stack that are at a higher or equal level
+            while path_stack and path_stack[-1][0] >= level:
+                path_stack.pop()
+            
+            # Add current path to stack
+            path_stack.append((level, name))
+            
+            # Construct full path from stack
+            full_path = '/'.join(component[1] for component in path_stack)
+            self.paths.append(full_path)
+
+    def create_structure(self, base_path: str, text: str) -> None:
+        """Create the directory structure"""
+        self.paths = []  # Reset paths before parsing
+        self.parse_structure(text)
+        
+        # First create all directories (paths ending with /)
+        for path in self.paths:
+            full_path = os.path.join(base_path, path)
+            if path.endswith('/'):
+                os.makedirs(full_path, exist_ok=True)
+                print(f"Created directory: {full_path}")
+                
+        # Then create all files
+        for path in self.paths:
+            if not path.endswith('/'):
+                full_path = os.path.join(base_path, path)
+                dir_path = os.path.dirname(full_path)
+                # Ensure directory exists
+                os.makedirs(dir_path, exist_ok=True)
+                # Create file
+                open(full_path, 'w').close()
+                print(f"Created file: {full_path}")
+
+# Example usage
+if __name__ == "__main__":
+    generator = DirectoryGenerator()
+    
+    # Test structure
+    input_structure = """
+    ni3singh-stock_price_forcasting/
+    ├── README.md
+    ├── ACGL_DATA.csv
+    ├── Time_Series_Forcasting_Keras.ipynb
+    ├── Time_Series_Forcasting_Pytorch.ipynb
+    ├── Time_Series_Forcasting_Tensorflow.ipynb
+    ├── microsoft_stocks.csv
+    └── Statsmodel_Forecasting/
+        ├── Cleaned_ACGL_data2.csv
+        ├── app.py
+        ├── model.py
+        └── requirements.txt"""
+
+
+    print("Creating directory structure...")
+    generator.create_structure("./test_complex4", input_structure)
