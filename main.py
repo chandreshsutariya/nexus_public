@@ -584,7 +584,7 @@ async def setup(body: Kickoff):
 @app.post('/download_project/')
 async def download_project(body: DownloadProject):
     try:
-        generator = DirectoryGenerator()
+        generator = DirectoryGenerator(body)
 
         project_directory_structure = {body.directory_structure}        # user input
 
