@@ -582,7 +582,7 @@ async def setup(body: Setup):
 
 
 @app.post('/kickoff/')
-async def download_project(body: Kickoff):
+async def setup(body: Kickoff):
     try:
         generator = DirectoryGenerator(body)
 
@@ -590,7 +590,7 @@ async def download_project(body: Kickoff):
 
         generator.create_structure(f"./{body.project_id}", project_directory_structure)
 
-        return JSONResponse(content={"kickoff": kickoff})
+        return JSONResponse(content={"kickoff": project_directory_structure})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -655,7 +655,7 @@ class DirectoryGenerator:
                 # Ensure directory exists
                 os.makedirs(dir_path, exist_ok=True)
                 # Create file
-                content = self.get_content(full_path)
+                content = self.get_content(full_path, self.body)
                 with open(full_path, 'w') as file:
                     file.write(content)
                 print(f"Created file: {full_path}")
@@ -673,10 +673,16 @@ class DirectoryGenerator:
         content = chat_completion.choices[0].message.content
         return content
 
+
+class DownloadProject_test(BaseModel):
+    project_id: str
+    directory_structure: str
+
+
+
+
 # Example usage
 if __name__ == "__main__":
-    generator = DirectoryGenerator()
-    
     # Test structure
     input_structure = """
     ni3singh-stock_price_forcasting/
@@ -692,6 +698,11 @@ if __name__ == "__main__":
         ├── model.py
         └── requirements.txt"""
 
+    base_ = DownloadProject_test(project_id="678797c65a09e185574412ec", directory_structure=input_structure)
+    generator = DirectoryGenerator(base_)
+    
+    
+
 
     print("Creating directory structure...")
-    generator.create_structure("./test_complex4", input_structure)
+    generator.create_structure(f"{base_.project_id}", input_structure)
