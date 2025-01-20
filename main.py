@@ -790,32 +790,55 @@ FRS/
 @app.post('/kickoff/')
 async def download_project(body: DownloadProject_test):
     try:
-        # Create a temporary directory to store the files
-        with tempfile.TemporaryDirectory() as temp_dir:
-            # Initialize generator and create structure in temp directory
-            generator = DirectoryGenerator(body)
-            generator.create_structure(f"{temp_dir}/{body.project_id}", body.user_input)
+        # Initialize generator and create structure in temp directory
+        generator = DirectoryGenerator(body)
+        base_name = f"./projects/{body.project_id}"
+        generator.create_structure(base_name, body.user_input)
+
+        zip_path = f"./projects/{body.project_id}.zip"
+
+        shutil.make_archive(
+            base_name=base_name,
+            format='zip',
+            root_dir='.',
+            base_dir=body.project_id
+        )
+        
+        return FileResponse(
+            path=zip_path,
+            media_type='application/zip',
+            filename=f"{body.project_id}.zip",
+            headers={
+                "Content-Disposition": f"attachment; filename={body.project_id}.zip"
+            }
+        )
+
+        # # Create a temporary directory to store the files
+        # with tempfile.TemporaryDirectory() as temp_dir:
+        #     # Initialize generator and create structure in temp directory
+        #     generator = DirectoryGenerator(body)
+        #     generator.create_structure(f"{temp_dir}/{body.project_id}", body.user_input)
             
-            # Create zip file in a temporary location
-            zip_path = f"{temp_dir}/{body.project_id}.zip"
+        #     # Create zip file in a temporary location
+        #     zip_path = f"{temp_dir}/{body.project_id}.zip"
             
-            # Create zip file from the generated structure
-            shutil.make_archive(
-                base_name=f"{temp_dir}/{body.project_id}",
-                format='zip',
-                root_dir=temp_dir,
-                base_dir=body.project_id
-            )
+        #     # Create zip file from the generated structure
+        #     shutil.make_archive(
+        #         base_name=f"{temp_dir}/{body.project_id}",
+        #         format='zip',
+        #         root_dir=temp_dir,
+        #         base_dir=body.project_id
+        #     )
             
-            # Return the zip file as a response
-            return FileResponse(
-                path=zip_path,
-                media_type='application/zip',
-                filename=f"{body.project_id}.zip",
-                headers={
-                    "Content-Disposition": f"attachment; filename={body.project_id}.zip"
-                }
-            )
+        #     # Return the zip file as a response
+        #     return FileResponse(
+        #         path=zip_path,
+        #         media_type='application/zip',
+        #         filename=f"{body.project_id}.zip",
+        #         headers={
+        #             "Content-Disposition": f"attachment; filename={body.project_id}.zip"
+        #         }
+        #     )
             
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
