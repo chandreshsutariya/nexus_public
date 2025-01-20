@@ -1,9 +1,0 @@
-```plaintext
-Flask
-Flask-Cors
-SQLAlchemy
-opencv-python
-numpy
-pillow
-bcrypt
-```
