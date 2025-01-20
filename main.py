@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 import os
 from openai import OpenAI
@@ -8,6 +8,11 @@ import json
 from dotenv import load_dotenv
 import re
 from typing import List, Dict, Tuple
+import shutil
+import tempfile
+from pathlib import Path
+
+
 
 # Import variables from .env file
 load_dotenv()
@@ -781,3 +786,36 @@ FRS/
 
     print("Creating directory structure...")
     generator.create_structure(f"{base_.project_id}", input_structure)
+
+@app.post('/download-project/')
+async def download_project(body: DownloadProject_test):
+    try:
+        # Create a temporary directory to store the files
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Initialize generator and create structure in temp directory
+            generator = DirectoryGenerator(body)
+            generator.create_structure(f"{temp_dir}/{body.project_id}", body.directory_structure)
+            
+            # Create zip file in a temporary location
+            zip_path = f"{temp_dir}/{body.project_id}.zip"
+            
+            # Create zip file from the generated structure
+            shutil.make_archive(
+                base_name=f"{temp_dir}/{body.project_id}",
+                format='zip',
+                root_dir=temp_dir,
+                base_dir=body.project_id
+            )
+            
+            # Return the zip file as a response
+            return FileResponse(
+                path=zip_path,
+                media_type='application/zip',
+                filename=f"{body.project_id}.zip",
+                headers={
+                    "Content-Disposition": f"attachment; filename={body.project_id}.zip"
+                }
+            )
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
