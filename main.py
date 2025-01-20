@@ -795,10 +795,10 @@ async def download_project(body: DownloadProject_test):
         base_name = f"./projects/{body.project_id}"
         generator.create_structure(base_name, body.user_input)
 
-        zip_path = f"./projects/{body.project_id}"
+        zip_path = f"./projects/{body.project_id}g"
 
         shutil.make_archive(
-            base_name=zip_pathgi,
+            base_name=zip_path,
             format='zip',
             root_dir='./projects',
             base_dir=body.project_id
