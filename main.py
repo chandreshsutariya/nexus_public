@@ -7,7 +7,7 @@ from openai import OpenAI
 import json
 from dotenv import load_dotenv
 import re
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple,Any
 import shutil
 import tempfile
 from pathlib import Path
@@ -206,7 +206,7 @@ class Kickoff(BaseModel):
 
 class DownloadProject(BaseModel):
     project_id: str
-    user_input: str
+    user_input: Any
 
 # 1 :: TECHNOLOGY STACK
 # @app.post('/technology_suggestion/')
