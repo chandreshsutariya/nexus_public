@@ -1,12 +1,18 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 import os
 from openai import OpenAI
 import json
 from dotenv import load_dotenv
 import re
+from typing import List, Dict, Tuple
+import shutil
+import tempfile
+from pathlib import Path
+
+
 
 # Import variables from .env file
 load_dotenv()
@@ -197,6 +203,10 @@ class Kickoff(BaseModel):
     project_id: str
     user_input: str = None
 
+
+class DownloadProject(BaseModel):
+    project_id: str
+    user_input: str
 
 # 1 :: TECHNOLOGY STACK
 # @app.post('/technology_suggestion/')
@@ -539,31 +549,266 @@ async def setup(body: Setup):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post('/kickoff/')
-async def setup(body: Kickoff):
-    try:
-        # Use OpenAI API with `ChatCompletion` to generate small code snippets
+# @app.post('/kickoff/')
+# async def setup(body: Kickoff):
+#     try:
+#         # Use OpenAI API with `ChatCompletion` to generate small code snippets
+#         chat_completion = client.chat.completions.create(
+#             messages=[
+#                 {"role": "system", "content": "Please provide concise and specific information about the project"},
+#                 {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = False)}, and the \
+#                                              list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
+#                                                 {find_file_structure(body.project_id)}, and user input:{body.user_input} \
+#                                                     help me kickoff the coding by giving code."} #help me setup the project for coding"}
+#             ],
+#             model="gpt-4o-mini"
+#         )
+#         kickoff = chat_completion.choices[0].message.content
+#         print(kickoff)
+#         ################################################################ we are storing the response in the database #########################################################################
+#         result = collection.update_one(
+#             {'_id': ObjectId(body.project_id)},  # Filter by _id
+#             {'$set': {f'kickoff': kickoff}}  # /Update the technology field
+#         )
+#         if result.modified_count > 0:
+#             print("kickoff field added successfully.")
+#         else:
+#             print("No document found or no changes made.")
+#         return JSONResponse(content={"kickoff": kickoff})
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+
+
+# @app.post('/kickoff/')
+# async def setup(body: Kickoff):
+#     try:
+#         generator = DirectoryGenerator(body)
+
+#         project_user_input = body.user_input
+
+#         generator.create_structure(f"./{body.project_id}", project_user_input)
+
+#         return JSONResponse(content={"kickoff": project_user_input})
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+
+# to download any directory structure.
+
+class DirectoryGenerator:
+    def __init__(self,body):
+        self.paths = []
+        self.body = body
+        
+    def _get_level(self, line: str) -> int:
+        """Get the nesting level of a line"""
+        # Count the actual indentation level based on │ and spaces
+        indent = len(line) - len(line.lstrip('│ '))
+        return indent // 2
+        
+    def _parse_path(self, line: str) -> str:
+        """Extract the file/directory name from a tree line, removing comments and special symbols"""
+        # Remove tree symbols and whitespace
+        name = re.sub(r'^[├└│─\s]+', '', line)
+        
+        # Remove any comments (everything after and including #)
+        name = name.split('#')[0].strip()
+        
+        # Remove special symbols and their contents
+        name = re.sub(r'\([^)]*\)', '', name)  # Remove anything in parentheses ()
+        name = re.sub(r'\{[^}]*\}', '', name)  # Remove anything in curly braces {}
+        name = re.sub(r'\[[^\]]*\]', '', name)  # Remove anything in square brackets []
+        name = re.sub(r"'''.*?'''", '', name)   # Remove triple quotes and their contents
+        name = re.sub(r'""".*?"""', '', name)   # Remove triple double quotes and their contents
+        name = re.sub(r':\s*$', '', name)       # Remove colons at the end
+        name = re.sub(r'^/+', '', name)  # Remove leading slashes
+
+
+        return name.strip()
+        
+    def parse_structure(self, text: str) -> None:
+        """Parse the directory structure text into paths"""
+        self.paths = []  # Reset paths
+        lines = text.split('\n')
+        path_stack: List[Tuple[int, str]] = []
+        last_valid_level = 0
+        
+        for line in lines:
+            # Skip completely empty lines
+            if not line.strip():
+                continue
+                
+            # Check if line only contains vertical separators and spaces
+            if re.match(r'^[\s│|]*$', line):
+                continue
+                
+            level = self._get_level(line)
+            name = self._parse_path(line)
+            
+            # Skip if after removing comments and tree symbols there's nothing left
+            if not name:
+                continue
+                
+            # Handle root directory specially
+            if level == 0:
+                name = name.lstrip('/')
+                path_stack = [(0, name)]
+                self.paths.append(name)
+                last_valid_level = 0
+                continue
+            
+            # Maintain the path stack based on the last valid level
+            while path_stack and path_stack[-1][0] >= level:
+                path_stack.pop()
+            
+            # If there's a gap in levels, use the last valid parent
+            if not path_stack:
+                # If somehow we lost the stack but have a valid path, 
+                # treat it as a child of root
+                if self.paths:
+                    path_stack = [(0, self.paths[0])]
+            
+            path_stack.append((level, name))
+            last_valid_level = level
+            
+            # Construct full path
+            full_path = os.path.join(*[p[1] for p in path_stack])
+            if full_path not in self.paths:
+                self.paths.append(full_path)
+
+    # The rest of the class remains the same...
+    def create_structure(self, base_path: str, text: str) -> None:
+        """Create the directory structure"""
+        self.parse_structure(text)
+        
+        # Sort paths to ensure directories are created before files
+        sorted_paths = sorted(self.paths, key=lambda x: (len(x.split(os.sep)), not x.endswith('/')))
+        
+        for path in sorted_paths:
+            if not path.strip():  # Skip empty paths
+                continue
+                
+            full_path = os.path.join(base_path, path)
+            
+            # Normalize path separators
+            full_path = os.path.normpath(full_path)
+            
+            if path.endswith('/'):
+                # Handle directory creation
+                try:
+                    os.makedirs(full_path, exist_ok=True)
+                    print(f"Created directory: {full_path}")
+                except PermissionError:
+                    print(f"Permission denied: Cannot create directory {full_path}")
+            else:
+                try:
+                    # Ensure parent directory exists
+                    parent_dir = os.path.dirname(full_path)
+                    os.makedirs(parent_dir, exist_ok=True)
+                    content = self.get_content(full_path, self.body)
+
+                    # Create file only if it doesn't exist
+                    if not os.path.exists(full_path):
+                        with open(full_path, 'w') as f:
+                            f.write(content)
+                        print(f"Created file: {full_path}")
+
+                except PermissionError:
+                    print(f"Permission denied: Cannot create file {full_path}")
+    
+    def get_content(self, path, body):
         chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = False)}, and the \
                                              list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
-                                                {find_file_structure(body.project_id)}, and user input:{body.user_input} \
-                                                    help me kickoff the coding by giving code."} #help me setup the project for coding"}
+                                                {find_file_structure(body.project_id)}, give me 'only' code of this file:{path}."} #help me setup the project for coding"}
             ],
             model="gpt-4o-mini"
         )
-        kickoff = chat_completion.choices[0].message.content
-        print(kickoff)
-        ################################################################ we are storing the response in the database #########################################################################
-        result = collection.update_one(
-            {'_id': ObjectId(body.project_id)},  # Filter by _id
-            {'$set': {f'kickoff': kickoff}}  # /Update the technology field
-        )
-        if result.modified_count > 0:
-            print("kickoff field added successfully.")
-        else:
-            print("No document found or no changes made.")
-        return JSONResponse(content={"kickoff": kickoff})
+        content = chat_completion.choices[0].message.content
+        return content
+
+
+class DownloadProject_test(BaseModel):
+    project_id: str
+    user_input: str
+
+
+
+
+# Example usage
+if __name__ == "__main__":
+    # Test structure
+    input_structure = """
+FRS/
+│
+├── frontend/                 # Frontend files
+│   ├── public/               # Public assets (index.html, images, etc.)
+│   ├── src/                  # Source files (React/Vue components)
+│   │   ├── components/       # Reusable UI components
+│   │   ├── App.js            # Main application file
+│   │   └── index.js          # Entry point for the application
+│   └── package.json          # Frontend dependencies and scripts
+│
+├── backend/                  # Backend files
+│   ├── app/                  # Main application module
+│   │   ├── __init__.py       # Initialize the Flask/Django app
+│   │   ├── routes.py         # API routes for handling requests
+│   │   └── models.py         # Database models using SQLAlchemy
+│   ├── tests/                # Test cases for backend
+│   ├── requirements.txt      # Backend dependencies (Flask/Django, etc.)
+│   ├── config.py             # Configuration settings
+│   └── run.py                # Main entry point to run the backend server
+│
+├── data/                     # Folder for storing uploaded event photos
+│   └── temp/                 # Temporary storage for uploads
+│
+├── database/                 # Database files/configuration
+│   └── init_db.py            # Script to initialize the SQLite database
+│
+├── security/                 # Security configurations
+│   └── auth.py               # Authentication and password handling
+│
+├── requirements.txt          # Combined requirements for both frontend and backend
+├── README.md                 # Project documentation
+└── .gitignore                # Files/directories to ignore in version control
+"""
+
+    base_ = DownloadProject_test(project_id="678797c65a09e185574412ec", user_input=input_structure)
+    generator = DirectoryGenerator(base_)
+
+    print("Creating directory structure...")
+    generator.create_structure(f"{base_.project_id}", input_structure)
+
+@app.post('/kickoff/')
+async def download_project(body: DownloadProject_test):
+    try:
+        # Create a temporary directory to store the files
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Initialize generator and create structure in temp directory
+            generator = DirectoryGenerator(body)
+            generator.create_structure(f"{temp_dir}/{body.project_id}", body.user_input)
+            
+            # Create zip file in a temporary location
+            zip_path = f"{temp_dir}/{body.project_id}.zip"
+            
+            # Create zip file from the generated structure
+            shutil.make_archive(
+                base_name=f"{temp_dir}/{body.project_id}",
+                format='zip',
+                root_dir=temp_dir,
+                base_dir=body.project_id
+            )
+            
+            # Return the zip file as a response
+            return FileResponse(
+                path=zip_path,
+                media_type='application/zip',
+                filename=f"{body.project_id}.zip",
+                headers={
+                    "Content-Disposition": f"attachment; filename={body.project_id}.zip"
+                }
+            )
+            
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
