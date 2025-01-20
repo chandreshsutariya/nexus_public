@@ -206,7 +206,7 @@ class Kickoff(BaseModel):
 
 class DownloadProject(BaseModel):
     project_id: str
-    directory_structure: str
+    user_input: str
 
 # 1 :: TECHNOLOGY STACK
 # @app.post('/technology_suggestion/')
@@ -586,18 +586,18 @@ async def setup(body: Setup):
 #         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post('/kickoff/')
-async def setup(body: Kickoff):
-    try:
-        generator = DirectoryGenerator(body)
+# @app.post('/kickoff/')
+# async def setup(body: Kickoff):
+#     try:
+#         generator = DirectoryGenerator(body)
 
-        project_directory_structure = body.user_input
+#         project_user_input = body.user_input
 
-        generator.create_structure(f"./{body.project_id}", project_directory_structure)
+#         generator.create_structure(f"./{body.project_id}", project_user_input)
 
-        return JSONResponse(content={"kickoff": project_directory_structure})
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+#         return JSONResponse(content={"kickoff": project_user_input})
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
 # to download any directory structure.
 
@@ -682,7 +682,7 @@ class DirectoryGenerator:
             if full_path not in self.paths:
                 self.paths.append(full_path)
 
-# The rest of the class remains the same...
+    # The rest of the class remains the same...
     def create_structure(self, base_path: str, text: str) -> None:
         """Create the directory structure"""
         self.parse_structure(text)
@@ -738,7 +738,7 @@ class DirectoryGenerator:
 
 class DownloadProject_test(BaseModel):
     project_id: str
-    directory_structure: str
+    user_input: str
 
 
 
@@ -781,20 +781,20 @@ FRS/
 └── .gitignore                # Files/directories to ignore in version control
 """
 
-    base_ = DownloadProject_test(project_id="678797c65a09e185574412ec", directory_structure=input_structure)
+    base_ = DownloadProject_test(project_id="678797c65a09e185574412ec", user_input=input_structure)
     generator = DirectoryGenerator(base_)
 
     print("Creating directory structure...")
     generator.create_structure(f"{base_.project_id}", input_structure)
 
-@app.post('/download-project/')
+@app.post('/kickoff/')
 async def download_project(body: DownloadProject_test):
     try:
         # Create a temporary directory to store the files
         with tempfile.TemporaryDirectory() as temp_dir:
             # Initialize generator and create structure in temp directory
             generator = DirectoryGenerator(body)
-            generator.create_structure(f"{temp_dir}/{body.project_id}", body.directory_structure)
+            generator.create_structure(f"{temp_dir}/{body.project_id}", body.user_input)
             
             # Create zip file in a temporary location
             zip_path = f"{temp_dir}/{body.project_id}.zip"
