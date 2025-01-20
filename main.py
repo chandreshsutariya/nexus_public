@@ -11,6 +11,7 @@ from typing import List, Dict, Tuple,Any
 import shutil
 import tempfile
 from pathlib import Path
+import uuid
 
 
 
@@ -142,6 +143,7 @@ def find_file_structure(project_id):
     if not project_id:
         return "project_id is required."
     else:
+
         project = collection.find_one({'_id': ObjectId(project_id)})
 
         try:
@@ -207,6 +209,10 @@ class Kickoff(BaseModel):
 class DownloadProject(BaseModel):
     project_id: str
     user_input: Any
+
+class DownloadProject_test(BaseModel):
+    project_id: str
+    user_input: str
 
 # 1 :: TECHNOLOGY STACK
 # @app.post('/technology_suggestion/')
@@ -601,6 +607,133 @@ async def setup(body: Setup):
 
 # to download any directory structure.
 
+
+
+
+
+
+# Example usage
+# if __name__ == "__main__":
+#     # Test structure
+#     input_structure = """
+# FRS/
+# │
+# ├── frontend/                 # Frontend files
+# │   ├── public/               # Public assets (index.html, images, etc.)
+# │   ├── src/                  # Source files (React/Vue components)
+# │   │   ├── components/       # Reusable UI components
+# │   │   ├── App.js            # Main application file
+# │   │   └── index.js          # Entry point for the application
+# │   └── package.json          # Frontend dependencies and scripts
+# │
+# ├── backend/                  # Backend files
+# │   ├── app/                  # Main application module
+# │   │   ├── __init__.py       # Initialize the Flask/Django app
+# │   │   ├── routes.py         # API routes for handling requests
+# │   │   └── models.py         # Database models using SQLAlchemy
+# │   ├── tests/                # Test cases for backend
+# │   ├── requirements.txt      # Backend dependencies (Flask/Django, etc.)
+# │   ├── config.py             # Configuration settings
+# │   └── run.py                # Main entry point to run the backend server
+# │
+# ├── data/                     # Folder for storing uploaded event photos
+# │   └── temp/                 # Temporary storage for uploads
+# │
+# ├── database/                 # Database files/configuration
+# │   └── init_db.py            # Script to initialize the SQLite database
+# │
+# ├── security/                 # Security configurations
+# │   └── auth.py               # Authentication and password handling
+# │
+# ├── requirements.txt          # Combined requirements for both frontend and backend
+# ├── README.md                 # Project documentation
+# └── .gitignore                # Files/directories to ignore in version control
+# """
+
+#     base_ = DownloadProject_test(project_id="678797c65a09e185574412ec", user_input=input_structure)
+#     generator = DirectoryGenerator(base_)
+
+#     print("Creating directory structure...")
+#     generator.create_structure(f"{base_.project_id}", input_structure)
+
+
+def extract_directory_structure(text):
+    uuid_str = str(uuid.uuid4())
+    try:
+        with open(f"{uuid_str}", "w") as f:
+            f.write(text)
+    except Exception as e:
+        print(f"799: Error writing to file: {e}")
+        pass
+    
+    try:
+        with open(f"{uuid_str}", "r") as f:
+            # file_content = f.read()
+            structure = ""
+            one = f.readline()
+            backtick=0
+            while(one):
+                # print(one)
+                if "```" in one:
+                    backtick+=1
+                    # print(one)
+                if backtick == 1:
+                    structure += one
+                    # print(one)
+                one = f.readline()
+        # print("structure: \n:", structure)
+    except Exception as e:
+        return None
+    
+    # delete the file
+    try:
+        os.remove(f"{uuid_str}")
+    except Exception as e:
+        print(f"799: Error deleting file: {e}")
+    
+    structure = structure.split("\n", 1)[1]
+    return structure
+
+# Example usage
+# text = """..."""  # Replace this with your project structure text
+# # print(find_file_structure("678797c65a09e185574412ec"))
+# directory_structure = extract_directory_structure(find_file_structure("677e60721eb70fc947b0e22b"))
+# print(directory_structure)
+
+
+@app.post('/kickoff/')
+async def download_project(body: DownloadProject):
+
+    dir_structure = extract_directory_structure(extract_directory_structure(find_file_structure(body.project_id)))
+    try:
+        # Initialize generator and create structure in temp directory
+        generator = DirectoryGenerator(body)
+        base_name = f"./projects/{body.project_id}"
+        generator.create_structure(base_name, body.user_input)
+
+
+        shutil.make_archive(
+            base_name=base_name,
+            format='zip',
+            root_dir='./projects',
+            base_dir=body.project_id
+        )
+        zip_path = f"./projects/{body.project_id}.zip"
+        
+        return FileResponse(
+            path=zip_path,
+            media_type='application/zip',
+            filename=f"./projects/{body.project_id}.zip",
+            headers={
+                "Content-Disposition": f"attachment; filename={body.project_id}.zip"
+            }
+        )
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
 class DirectoryGenerator:
     def __init__(self,body):
         self.paths = []
@@ -734,111 +867,3 @@ class DirectoryGenerator:
         )
         content = chat_completion.choices[0].message.content
         return content
-
-
-class DownloadProject_test(BaseModel):
-    project_id: str
-    user_input: str
-
-
-
-
-# Example usage
-if __name__ == "__main__":
-    # Test structure
-    input_structure = """
-FRS/
-│
-├── frontend/                 # Frontend files
-│   ├── public/               # Public assets (index.html, images, etc.)
-│   ├── src/                  # Source files (React/Vue components)
-│   │   ├── components/       # Reusable UI components
-│   │   ├── App.js            # Main application file
-│   │   └── index.js          # Entry point for the application
-│   └── package.json          # Frontend dependencies and scripts
-│
-├── backend/                  # Backend files
-│   ├── app/                  # Main application module
-│   │   ├── __init__.py       # Initialize the Flask/Django app
-│   │   ├── routes.py         # API routes for handling requests
-│   │   └── models.py         # Database models using SQLAlchemy
-│   ├── tests/                # Test cases for backend
-│   ├── requirements.txt      # Backend dependencies (Flask/Django, etc.)
-│   ├── config.py             # Configuration settings
-│   └── run.py                # Main entry point to run the backend server
-│
-├── data/                     # Folder for storing uploaded event photos
-│   └── temp/                 # Temporary storage for uploads
-│
-├── database/                 # Database files/configuration
-│   └── init_db.py            # Script to initialize the SQLite database
-│
-├── security/                 # Security configurations
-│   └── auth.py               # Authentication and password handling
-│
-├── requirements.txt          # Combined requirements for both frontend and backend
-├── README.md                 # Project documentation
-└── .gitignore                # Files/directories to ignore in version control
-"""
-
-    base_ = DownloadProject_test(project_id="678797c65a09e185574412ec", user_input=input_structure)
-    generator = DirectoryGenerator(base_)
-
-    print("Creating directory structure...")
-    generator.create_structure(f"{base_.project_id}", input_structure)
-
-@app.post('/kickoff/')
-async def download_project(body: DownloadProject_test):
-    try:
-        # Initialize generator and create structure in temp directory
-        generator = DirectoryGenerator(body)
-        base_name = f"./projects/{body.project_id}"
-        generator.create_structure(base_name, body.user_input)
-
-
-        shutil.make_archive(
-            base_name=base_name,
-            format='zip',
-            root_dir='./projects',
-            base_dir=body.project_id
-        )
-        zip_path = f"./projects/{body.project_id}.zip"
-        
-        return FileResponse(
-            path=zip_path,
-            media_type='application/zip',
-            filename=f"./projects/{body.project_id}.zip",
-            headers={
-                "Content-Disposition": f"attachment; filename={body.project_id}.zip"
-            }
-        )
-
-        # # Create a temporary directory to store the files
-        # with tempfile.TemporaryDirectory() as temp_dir:
-        #     # Initialize generator and create structure in temp directory
-        #     generator = DirectoryGenerator(body)
-        #     generator.create_structure(f"{temp_dir}/{body.project_id}", body.user_input)
-            
-        #     # Create zip file in a temporary location
-        #     zip_path = f"{temp_dir}/{body.project_id}.zip"
-            
-        #     # Create zip file from the generated structure
-        #     shutil.make_archive(
-        #         base_name=f"{temp_dir}/{body.project_id}",
-        #         format='zip',
-        #         root_dir=temp_dir,
-        #         base_dir=body.project_id
-        #     )
-            
-        #     # Return the zip file as a response
-        #     return FileResponse(
-        #         path=zip_path,
-        #         media_type='application/zip',
-        #         filename=f"{body.project_id}.zip",
-        #         headers={
-        #             "Content-Disposition": f"attachment; filename={body.project_id}.zip"
-        #         }
-        #     )
-            
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
