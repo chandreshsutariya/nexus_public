@@ -798,9 +798,9 @@ async def download_project(body: DownloadProject_test):
         zip_path = f"./projects/{body.project_id}.zip"
 
         shutil.make_archive(
-            base_name=base_name,
+            base_name=body.project_id,
             format='zip',
-            root_dir='.',
+            root_dir='./projects',
             base_dir=body.project_id
         )
         
