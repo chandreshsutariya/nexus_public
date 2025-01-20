@@ -542,7 +542,7 @@ async def setup(body: Setup):
             messages=[
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
-                                             user input {body.user_input} help me setup project for the first time."} #help me setup the project for coding"}
+                                             user input {dir_structure} help me setup project for the first time."} #help me setup the project for coding"}
             ],
             model="gpt-4o-mini"
         )
@@ -691,25 +691,25 @@ def extract_directory_structure(text):
     except Exception as e:
         print(f"799: Error deleting file: {e}")
     
+    print("structure:",structure)
     structure = structure.split("\n", 1)[1]
     return structure
 
 # Example usage
 # text = """..."""  # Replace this with your project structure text
-# # print(find_file_structure("678797c65a09e185574412ec"))
-# directory_structure = extract_directory_structure(find_file_structure("677e60721eb70fc947b0e22b"))
-# print(directory_structure)
+directory_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
+print(directory_structure)
 
 
 @app.post('/kickoff/')
 async def download_project(body: DownloadProject):
 
-    dir_structure = extract_directory_structure(extract_directory_structure(find_file_structure(body.project_id)))
+    dir_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
     try:
         # Initialize generator and create structure in temp directory
         generator = DirectoryGenerator(body)
         base_name = f"./projects/{body.project_id}"
-        generator.create_structure(base_name, body.user_input)
+        generator.create_structure(base_name, dir_structure)
 
 
         shutil.make_archive(
