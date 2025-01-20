@@ -1,0 +1,36 @@
+```yaml
+name: swiggy_clone
+description: A Flutter project for a Swiggy clone, an online food ordering and delivery app.
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^0.13.3             # For HTTP requests
+  provider: ^6.0.3          # For state management
+  google_maps_flutter: ^2.0.6 # For map integration
+  firebase_core: ^2.6.0     # Firebase core services
+  firebase_auth: ^5.0.0     # Firebase authentication
+  cloud_firestore: ^3.2.0    # Firestore database
+  shared_preferences: ^3.0.0  # For local storage
+  flutter_local_notifications: ^13.0.0 # For local notifications
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/          # Folder for images
+    - assets/icons/           # Folder for icons
+    - assets/fonts/           # Folder for fonts
+
+```

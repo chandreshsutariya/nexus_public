@@ -697,8 +697,8 @@ def extract_directory_structure(text):
 
 # Example usage
 # text = """..."""  # Replace this with your project structure text
-directory_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
-print(directory_structure)
+# directory_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
+# print(directory_structure)
 
 
 @app.post('/kickoff/')
