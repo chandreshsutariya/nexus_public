@@ -807,7 +807,7 @@ async def download_project(body: DownloadProject_test):
         return FileResponse(
             path=zip_path,
             media_type='application/zip',
-            filename=f"{body.project_id}.zip",
+            filename=f"./projects/{body.project_id}.zip",
             headers={
                 "Content-Disposition": f"attachment; filename={body.project_id}.zip"
             }
