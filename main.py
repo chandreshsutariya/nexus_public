@@ -175,17 +175,31 @@ def get_kickoff(project_id):
 
         return kickoff
 
+def count_astrick(string):
+    count =0
+    for i in string:
+        if i == "*":
+            count+=1
+    return count
 
 def extract_tasks_without_asterisks(content):
     tasks = []
     # Match bullet points starting with "-" or numbers like "1."
-    pattern = r"(?:\d+\.\s|\s*-\s)(.+)"
-    matches = re.findall(pattern, content)
-    for match in matches:
-        task = match.strip()
-        # Exclude lines containing '*'
-        if '#' not in task:
-            tasks.append(task)
+    content_ = content.split("\n")
+    # print("content: ", content)
+    for each in content_:
+        print(each)
+        if(count_astrick(each) == 1):
+            trip = each.split("]", 1)[1]
+            tasks.append(trip)
+    # print("len of content_:", len(content_))
+    # pattern = r"(?:\d+\.\s|\s*-\s)(.+)"
+    # matches = re.findall(pattern, content)
+    # for match in matches:
+    #     task = match.strip()
+    #     # Exclude lines containing '*'
+    #     if '#' not in task:
+    #         tasks.append(task)
     return tasks
 
 # Configure your OpenAI API key from environment variable
