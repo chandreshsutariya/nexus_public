@@ -19,7 +19,7 @@ import uuid
 load_dotenv()
 
 mongodb_path = os.getenv('mongo_connnection_string')
-print(mongodb_path)
+# print(mongodb_path)
 app = FastAPI()
 
 # Set up CORS middleware to allow access from any origin
@@ -47,19 +47,21 @@ def find_project(project_id, is_tech=None):
         try:
             project_name = project['name']
         except Exception as e:
-            print("43: error extract ing project[name]")
-            print(f"{e}")
+            # # print("43: error extract ing project[name]")
+            # print(f"{e}")
+            pass
         
         try:
             project_description = project['description']
         except Exception as e:
-            print("49: error extract ing project[description]")
-            print(f"{e}")
+            # print("49: error extract ing project[description]")
+            # print(f"{e}")
+            pass
 
         try:
             if(not(is_tech) and project['tools']):
                 # tools = project['tools']
-                print("55: extracted project name, id and tools")
+                # print("55: extracted project name, id and tools")
                 return project_name, project_description
         except:
             pass
@@ -68,12 +70,12 @@ def find_project(project_id, is_tech=None):
         try:
             if(is_tech and project['tools']):
                 tools = project['tools']
-                print("64: extracted project name, id and tools")
+                # print("64: extracted project name, id and tools")
                 return project_name, project_id, tools
         except:
             pass
 
-        print("line 69: extracted project name, description")
+        # print("line 69: extracted project name, description")
         return project_name, project_description
 
 def find_module(project_id, is_tech=None):
@@ -84,20 +86,22 @@ def find_module(project_id, is_tech=None):
         try:
             project_name = project['name']
         except Exception as e:
-            print("error extract ing project[name]")
-            print(f"{e}")
+            # print("error extract ing project[name]")
+            # print(f"{e}")
+            pass
         
         try:
             project_id = project['description']
         except Exception as e:
-            print("error extract ing project[description]")
-            print(f"{e}")
+            # print("error extract ing project[description]")
+            # print(f"{e}")
+            pass
         
         try:
             project_module = project['modules']
         except Exception as e:
-            print("error extracting project[modules]")
-            print(f"{e}")
+            # print("error extracting project[modules]")
+            # print(f"{e}")
             return(f"PROJECT MODULES ARE NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD MODULES, SO ACCORDING TO THAT I CAN ANSWER:G {e}")
         
         try:
@@ -118,8 +122,8 @@ def find_features(project_id, is_tech=None):
         try:
             project_features = project['features']
         except Exception as e:
-            print("error extracting project[features]")
-            print(f"{e}")
+            # print("error extracting project[features]")
+            # print(f"{e}")
             return(f"PROJECT features ARE NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD features, SO ACCORDING TO THAT I CAN ANSWER:G {e}")
 
         return project_features
@@ -133,8 +137,8 @@ def find_list_of_tasks(project_id):
         try:
             project_list = project['tasks']
         except Exception as e:
-            print("error extracting project[features]")
-            print(f"{e}")
+            # print("error extracting project[features]")
+            # print(f"{e}")
             return(f"TASK-LIST IS NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD features, SO ACCORDING TO THAT I CAN ANSWER:G {e}")
 
         return project_list
@@ -149,11 +153,28 @@ def find_file_structure(project_id):
         try:
             project_file_structure = project['setup']
         except Exception as e:
-            print("error extracting project[features]")
-            print(f"{e}")
+            # print("error extracting project[features]")
+            # print(f"{e}")
             return(f"PROJECT STURCTURE IS NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD features, SO ACCORDING TO THAT I CAN ANSWER:G {e}")
 
         return project_file_structure
+
+def get_kickoff(project_id):
+    if not project_id:
+        return "project_id is required."
+    else:
+
+        project = collection.find_one({'_id': ObjectId(project_id)})
+
+        try:
+            kickoff = project['kickoff']
+        except Exception as e:
+            # print("error extracting project[features]")
+            # print(f"{e}")
+            return(f"KickOff IS NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD features, SO ACCORDING TO THAT I CAN ANSWER:G {e}")
+
+        return kickoff
+
 
 def extract_tasks_without_asterisks(content):
     tasks = []
@@ -255,18 +276,20 @@ async def platform_suggestion(body: ProjectDescription):
             model="gpt-4o"
         )
         platforms = chat_completion.choices[0].message.content
-        print(platforms)
+        # print(platforms)
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
             {'$set': {'platform': platforms}}  # Add/Update the technology field
         )
         if result.modified_count > 0:
-            print("Platform field added successfully.")
+            # print("Platform field added successfully.")
+            pass
         else:
-            print("No document found or no changes made.")
+            # print("No document found or no changes made.")
+            pass
         return JSONResponse(content={"platform_suggestions": platforms})
     except Exception as e:
-        print(f"Error when suggesting platforms: {e}")  # Logging the error
+        # print(f"Error when suggesting platforms: {e}")  # Logging the error
         raise HTTPException(status_code=500, detail="An error occurred while generating the platform suggestion.")
     
 # 2.1 :: PANELS
@@ -282,18 +305,20 @@ async def panels(body: Panels):
             model="gpt-4o"
         )
         panels = chat_completion.choices[0].message.content
-        print(panels)
+        # print(panels)
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
             {'$set': {'panels': panels}}  # Add/Update the technology field
         )
         if result.modified_count > 0:
-            print("Panel field added successfully.")
+            # print("Panel field added successfully.")
+            pass
         else:
-            print("No document found or no changes made.")
+            # print("No document found or no changes made.")
+            pass
         return JSONResponse(content={"panels": panels})
     except Exception as e:
-        print(f"Error when suggesting platforms: {e}")  # Logging the error
+        # print(f"Error when suggesting platforms: {e}")  # Logging the error
         raise HTTPException(status_code=500, detail="An error occurred while generating the platform suggestion.")
 
     
@@ -310,18 +335,20 @@ async def tools_and_lib_suggestions(body: ToolsAndLibSuggestions):
             model="gpt-4o"
         )
         tools_lib = chat_completion.choices[0].message.content
-        print(tools_lib)
+        # print(tools_lib)
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
             {'$set': {'tools': tools_lib}}  # Add/Update the technology field
         )
         if result.modified_count > 0:
-            print("Tools & Lib field added successfully.")
+            # print("Tools & Lib field added successfully.")
+            pass
         else:
-            print("No document found or no changes made.")
+            # print("No document found or no changes made.")
+            pass
         return JSONResponse(content={"tools_lib": tools_lib})
     except Exception as e:
-        print(f"Error when suggesting platforms: {e}")  # Logging the error
+        # print(f"Error when suggesting platforms: {e}")  # Logging the error
         raise HTTPException(status_code=500, detail="An error occurred while generating the platform suggestion.")
 
 # 4 :: MODULES
@@ -338,16 +365,18 @@ async def module_assistant(body: ModuleRequest):
             model="gpt-4o"
         )
         modules = chat_completion.choices[0].message.content
-        print(modules)
+        # print(modules)
         # Add/update the technology field in the project document
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
             {'$set': {'module': modules}}  # Add/Update the technology field
         )
         if result.modified_count > 0:
-            print("Modules field added successfully.")
+            # print("Modules field added successfully.")
+            pass
         else:
-            print("No document found or no changes made.")
+            # print("No document found or no changes made.")
+            pass
         return JSONResponse(content={"modules": modules})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -366,15 +395,17 @@ async def feature_assistant(body: FeatureAssistant):
             model="gpt-4o"
         )
         features = chat_completion.choices[0].message.content
-        print(features)
+        # print(features)
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
             {'$set': {f'features': features}}  # Add/Update the technology field
         )
         if result.modified_count > 0:
-            print("features field added successfully.")
+            # print("features field added successfully.")
+            pass
         else:
-            print("No document found or no changes made.")
+            # print("No document found or no changes made.")
+            pass
         return JSONResponse(content={"features": features})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -393,15 +424,15 @@ async def feature_assistant(body: FeatureAssistant):
 #             model="gpt-4o"
 #         )
 #         features = chat_completion.choices[0].message.content
-#         print(features)
+#         # print(features)
 #         result = collection.update_one(
 #             {'_id': ObjectId(body.project_id)},  # Filter by _id
 #             {'$set': {f'features_{body.module}': features}}  # Add/Update the technology field
 #         )
 #         if result.modified_count > 0:
-#             print("features field added successfully.")
+#             # print("features field added successfully.")
 #         else:
-#             print("No document found or no changes made.")
+#             # print("No document found or no changes made.")
 #         return JSONResponse(content={"features": features})
 #     except Exception as e:
 #         raise HTTPException(status_code=500, detail=str(e))
@@ -487,18 +518,20 @@ async def task_assistant(body: TaskList):
             model="gpt-4o" #gpt-4o-mini
         )
         task_list = chat_completion.choices[0].message.content
-        # print(task_list)
-        # print("################################################################")
+        # # print(task_list)
+        # # print("################################################################")
         extracted_tasks = extract_tasks_without_asterisks(task_list)
-        print(extracted_tasks)
+        # print(extracted_tasks)
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
             {'$set': {f'tasks': extracted_tasks}}  # Add/Update the technology field
         )
         if result.modified_count > 0:
-            print("tasks field added successfully.")
+            # print("tasks field added successfully.")
+            pass
         else:
-            print("No document found or no changes made.")
+            # print("No document found or no changes made.")
+            pass
         return JSONResponse(content={"tasks": extracted_tasks})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -519,16 +552,16 @@ async def task_assistant(body: TaskDescription):
             model="gpt-4o-mini"
         )
         task_assistant = chat_completion.choices[0].message.content
-        print(task_assistant)
+        # print(task_assistant)
         ################################################################ we are not storing the response in the database #########################################################################
         # result = collection.update_one(
         #     {'_id': ObjectId(body.project_id)},  # Filter by _id
         #     {'$set': {f'task_{body.task_description}': task_assistant}}  # Add/Update the technology field
         # )
         # if result.modified_count > 0:
-        #     print("task_assistant field added successfully.")
+        #     # print("task_assistant field added successfully.")
         # else:
-        #     print("No document found or no changes made.")
+        #     # print("No document found or no changes made.")
         return JSONResponse(content={"task_assistant": task_assistant})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -547,49 +580,53 @@ async def setup(body: Setup):
             model="gpt-4o-mini"
         )
         setup = chat_completion.choices[0].message.content
-        print(setup)
+        # print(setup)
         ################################################################ we are storing the response in the database #########################################################################
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
             {'$set': {f'setup': setup}}  # Add/Update the technology field
         )
         if result.modified_count > 0:
-            print("task_assistant field added successfully.")
+            # print("task_assistant field added successfully.")
+            pass
         else:
-            print("No document found or no changes made.")
+            # print("No document found or no changes made.")
+            pass
         return JSONResponse(content={"setup": setup})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# @app.post('/kickoff/')
-# async def setup(body: Kickoff):
-#     try:
-#         # Use OpenAI API with `ChatCompletion` to generate small code snippets
-#         chat_completion = client.chat.completions.create(
-#             messages=[
-#                 {"role": "system", "content": "Please provide concise and specific information about the project"},
-#                 {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = False)}, and the \
-#                                              list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
-#                                                 {find_file_structure(body.project_id)}, and user input:{body.user_input} \
-#                                                     help me kickoff the coding by giving code."} #help me setup the project for coding"}
-#             ],
-#             model="gpt-4o-mini"
-#         )
-#         kickoff = chat_completion.choices[0].message.content
-#         print(kickoff)
-#         ################################################################ we are storing the response in the database #########################################################################
-#         result = collection.update_one(
-#             {'_id': ObjectId(body.project_id)},  # Filter by _id
-#             {'$set': {f'kickoff': kickoff}}  # /Update the technology field
-#         )
-#         if result.modified_count > 0:
-#             print("kickoff field added successfully.")
-#         else:
-#             print("No document found or no changes made.")
-#         return JSONResponse(content={"kickoff": kickoff})
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
+@app.post('/kickoff/')
+async def setup(body: Kickoff):
+    try:
+        # Use OpenAI API with `ChatCompletion` to generate small code snippets
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "Please provide concise and specific information about the project"},
+                {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = False)}, and the \
+                                             list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
+                                                {find_file_structure(body.project_id)}, and user input:{body.user_input} \
+                                                    help me kickoff the coding by giving code."} #help me setup the project for coding"}
+            ],
+            model="gpt-4o-mini"
+        )
+        kickoff = chat_completion.choices[0].message.content
+        # print(kickoff)
+        ################################################################ we are storing the response in the database #########################################################################
+        result = collection.update_one(
+            {'_id': ObjectId(body.project_id)},  # Filter by _id
+            {'$set': {f'kickoff': kickoff}}  # /Update the technology field
+        )
+        if result.modified_count > 0:
+            # print("kickoff field added successfully.")
+            pass
+        else:
+            # print("No document found or no changes made.")
+            pass
+        return JSONResponse(content={"kickoff": kickoff})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # @app.post('/kickoff/')
@@ -653,7 +690,7 @@ async def setup(body: Setup):
 #     base_ = DownloadProject_test(project_id="678797c65a09e185574412ec", user_input=input_structure)
 #     generator = DirectoryGenerator(base_)
 
-#     print("Creating directory structure...")
+#     # print("Creating directory structure...")
 #     generator.create_structure(f"{base_.project_id}", input_structure)
 
 
@@ -663,7 +700,7 @@ def extract_directory_structure(text):
         with open(f"{uuid_str}", "w") as f:
             f.write(text)
     except Exception as e:
-        print(f"799: Error writing to file: {e}")
+        # print(f"799: Error writing to file: {e}")
         pass
     
     try:
@@ -673,15 +710,15 @@ def extract_directory_structure(text):
             one = f.readline()
             backtick=0
             while(one):
-                # print(one)
+                # # print(one)
                 if "```" in one:
                     backtick+=1
-                    # print(one)
+                    # # print(one)
                 if backtick == 1:
                     structure += one
-                    # print(one)
+                    # # print(one)
                 one = f.readline()
-        # print("structure: \n:", structure)
+        # # print("structure: \n:", structure)
     except Exception as e:
         return None
     
@@ -689,22 +726,22 @@ def extract_directory_structure(text):
     try:
         os.remove(f"{uuid_str}")
     except Exception as e:
-        print(f"799: Error deleting file: {e}")
+        # print(f"799: Error deleting file: {e}")
+        pass
     
-    print("structure:",structure)
     structure = structure.split("\n", 1)[1]
     return structure
 
 # Example usage
 # text = """..."""  # Replace this with your project structure text
 # directory_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
-# print(directory_structure)
+# # print(directory_structure)
 
 
-@app.post('/kickoff/')
+@app.post('/downloadproject/')
 async def download_project(body: DownloadProject):
 
-    dir_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
+    dir_structure = extract_directory_structure(find_file_structure(body.project_id))
     try:
         # Initialize generator and create structure in temp directory
         generator = DirectoryGenerator(body)
@@ -817,6 +854,11 @@ class DirectoryGenerator:
 
     # The rest of the class remains the same...
     def create_structure(self, base_path: str, text: str) -> None:
+        # remove directory if it exists
+        try:
+            shutil.rmtree(base_path)
+        except:
+            pass
         """Create the directory structure"""
         self.parse_structure(text)
         
@@ -836,9 +878,11 @@ class DirectoryGenerator:
                 # Handle directory creation
                 try:
                     os.makedirs(full_path, exist_ok=True)
-                    print(f"Created directory: {full_path}")
+                    # print(f"Created directory: {full_path}")
+
                 except PermissionError:
-                    print(f"Permission denied: Cannot create directory {full_path}")
+                    # print(f"Permission denied: Cannot create directory {full_path}")
+                    pass
             else:
                 try:
                     # Ensure parent directory exists
@@ -850,18 +894,20 @@ class DirectoryGenerator:
                     if not os.path.exists(full_path):
                         with open(full_path, 'w') as f:
                             f.write(content)
-                        print(f"Created file: {full_path}")
+                        # print(f"Created file: {full_path}")
 
                 except PermissionError:
-                    print(f"Permission denied: Cannot create file {full_path}")
+                    # print(f"Permission denied: Cannot create file {full_path}")
+                    pass
     
     def get_content(self, path, body):
+        dir_structure = extract_directory_structure(find_file_structure(body.project_id))
         chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = False)}, and the \
                                              list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
-                                                {find_file_structure(body.project_id)}, give me 'only' code of this file:{path}."} #help me setup the project for coding"}
+                                                {dir_structure}, and kick-off code: {get_kickoff(body.project_id)} give me 'only' code of this file:{path}."} #help me setup the project for coding"}
             ],
             model="gpt-4o-mini"
         )
