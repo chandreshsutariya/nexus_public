@@ -589,7 +589,7 @@ async def setup(body: Setup):
             messages=[
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
-                                             user input {dir_structure} help me setup project for the first time."} #help me setup the project for coding"}
+                                             user input {body.user_input} help me setup project for the first time."} #help me setup the project for coding"}
             ],
             model="gpt-4o-mini"
         )
