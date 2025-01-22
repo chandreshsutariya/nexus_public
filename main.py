@@ -829,19 +829,18 @@ async def download_project(body: DownloadProject):
 
         projects_dir = os.path.join(cwd, "projects")
         os.makedirs(projects_dir, exist_ok=True)
-
-        # Define the project directory
-        project_path = os.path.join(projects_dir, project_name)
-
-        # Clean up old project directory
-        if os.path.exists(project_path):
-            shutil.rmtree(project_path)
-        os.makedirs(project_path)
-
-        os.chdir(project_path)
-        print("cwd:842: ",os.getcwd())
         
         if(body.project_type == "node"):
+            project_path = os.path.join(projects_dir, body.project_id)
+
+            # Clean up old project directory
+            if os.path.exists(project_path):
+                shutil.rmtree(project_path)
+            os.makedirs(project_path)
+
+            os.chdir(project_path)
+            print("cwd:842: ",os.getcwd())
+
             result = subprocess.run("npm init -y", shell=True, check=False, text=True)
             if result.returncode !=0:
                 print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}. Continuing...")
@@ -852,20 +851,28 @@ async def download_project(body: DownloadProject):
                 print(f"Warning: Command 'npm install express' failed with return code {result.returncode}. Continuing...")
         
         elif(body.project_type == "flutter"):
-            result = subprocess.run(f"flutter create {project_name}", shell=True, check=False, text=True)
+            project_path = os.path.join(projects_dir, body.project_id)
+
+            # Clean up old project directory
+            if os.path.exists(project_path):
+                shutil.rmtree(project_path)
+            
+            os.chdir(projects_dir)
+
+            result = subprocess.run(f"flutter create {body.project_id}", shell=True, check=False, text=True)
             if result.returncode !=0:
-                print(f"Warning: Command 'flutter create {project_name}' failed with return code {result.returncode}. Continuing...")
+                print(f"Warning: Command 'flutter create {body.project_id}' failed with return code {result.returncode}. Continuing...")
         
         elif(body.project_type == "react"):
-            result = subprocess.run(f"npx create-react-app {project_name}", shell=True, check=False, text=True)
+            result = subprocess.run(f"npx create-react-app {body.project_id}", shell=True, check=False, text=True)
             if result.returncode !=0:
-                print(f"Warning: Command 'npx create-react-app {project_name}' failed with return code {result.returncode}. Continuing...")
+                print(f"Warning: Command 'npx create-react-app {body.project_id}' failed with return code {result.returncode}. Continuing...")
         
 
         os.chdir(cwd)
         # Initialize generator and create structure in temp directory
         generator = DirectoryGenerator(body)
-        base_name = f"./projects/{project_name}"
+        base_name = f"./projects/{body.project_id}"
         generator.create_structure(base_name, dir_structure)
 
 
