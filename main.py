@@ -744,6 +744,7 @@ def extract_directory_structure(text):
                 # # print(one)
                 if "```" in one:
                     backtick+=1
+                    one = f.readline()
                     # # print(one)
                 if backtick == 1:
                     structure += one
@@ -760,7 +761,7 @@ def extract_directory_structure(text):
         # print(f"799: Error deleting file: {e}")
         pass
     
-    structure = structure.split("\n", 1)[1]
+    # structure = structure.split("\n", 1)[1]
     return structure
 
 def extract_bash_commands(text):
@@ -826,21 +827,45 @@ async def download_project(body: DownloadProject):
     try:
         cwd = os.getcwd()
 
-        os.chdir('./projects')
-        subprocess.run(f"mkdir {project_name}", shell=True, check=True, text=True)
-        subprocess.run(f"cd {project_name}", shell=True, check=True, text=True)
-        subprocess.run("npm init -y", shell=True, check=True, text=True)
+        projects_dir = os.path.join(cwd, "projects")
+        os.makedirs(projects_dir, exist_ok=True)
+
+        # Define the project directory
+        project_path = os.path.join(projects_dir, project_name)
+
+        # Clean up old project directory
+        if os.path.exists(project_path):
+            shutil.rmtree(project_path)
+        os.makedirs(project_path)
+
+        os.chdir(project_path)
+        print("cwd:842: ",os.getcwd())
         
-        if(body.project_type == "flutter"):
-            subprocess.run(f"flutter create {project_name}", shell=True, check=True, text=True)
+        if(body.project_type == "node"):
+            result = subprocess.run("npm init -y", shell=True, check=False, text=True)
+            if result.returncode !=0:
+                print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}. Continuing...")
+            print('ran npm init -y')
+        
+            result = subprocess.run("npm install express", shell=True, check=False, text=True)
+            if result.returncode !=0:
+                print(f"Warning: Command 'npm install express' failed with return code {result.returncode}. Continuing...")
+        
+        elif(body.project_type == "flutter"):
+            result = subprocess.run(f"flutter create {project_name}", shell=True, check=False, text=True)
+            if result.returncode !=0:
+                print(f"Warning: Command 'flutter create {project_name}' failed with return code {result.returncode}. Continuing...")
+        
         elif(body.project_type == "react"):
-            subprocess.run(f"npx create-react-app {project_name}", shell=True, check=True, text=True)
-        subprocess.run(f"npx create-react-app {project_name}", shell=True, check=True, text=True)
+            result = subprocess.run(f"npx create-react-app {project_name}", shell=True, check=False, text=True)
+            if result.returncode !=0:
+                print(f"Warning: Command 'npx create-react-app {project_name}' failed with return code {result.returncode}. Continuing...")
+        
 
         os.chdir(cwd)
         # Initialize generator and create structure in temp directory
         generator = DirectoryGenerator(body)
-        base_name = f"./projects/{body.project_id}"
+        base_name = f"./projects/{project_name}"
         generator.create_structure(base_name, dir_structure)
 
 
@@ -951,7 +976,8 @@ class DirectoryGenerator:
     def create_structure(self, base_path: str, text: str) -> None:
         # remove directory if it exists
         try:
-            shutil.rmtree(base_path)
+            # shutil.rmtree(base_path)
+            pass
         except:
             pass
         """Create the directory structure"""
