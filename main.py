@@ -12,6 +12,7 @@ import shutil
 import tempfile
 from pathlib import Path
 import uuid
+import subprocess
 
 
 
@@ -39,6 +40,20 @@ client_mongo = pymongo.MongoClient(mongodb_path)
 
 collection = client_mongo['ELaunch-Nexus']['projects']
 
+def find_project_name(project_id):
+    if not project_id:
+        return "project_id is required."
+    else:
+        project = collection.find_one({'_id': ObjectId(project_id)})
+        try:
+            project_name = project['name']
+            return project_name
+        except Exception as e:
+            # # print("43: error extract ing project[name]")
+            # print(f"{e}")
+            pass
+    return "default_project_name"
+        
 def find_project(project_id, is_tech=None):
     if not project_id:
         return "project_id is required."
@@ -244,6 +259,7 @@ class Kickoff(BaseModel):
 class DownloadProject(BaseModel):
     project_id: str
     user_input: Any
+    project_type: str           # shall be from "flutter", "react"
 
 class DownloadProject_test(BaseModel):
     project_id: str
@@ -595,6 +611,7 @@ async def setup(body: Setup):
         )
         setup = chat_completion.choices[0].message.content
         # print(setup)
+        extract_bash_commands(setup)
         ################################################################ we are storing the response in the database #########################################################################
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
@@ -746,17 +763,81 @@ def extract_directory_structure(text):
     structure = structure.split("\n", 1)[1]
     return structure
 
+def extract_bash_commands(text):
+    uuid_str = str(uuid.uuid4())
+    try:
+        with open(f"{uuid_str}", "w") as f:
+            f.write(text)
+    except Exception as e:
+        # print(f"799: Error writing to file: {e}")
+        pass
+    
+    try:
+        with open(f"{uuid_str}", "r") as f:
+            # file_content = f.read()
+            structure = ""
+            one = f.readline()
+            backtick=0
+            while(one):
+                # print('776:',one)
+                if "```bash" in one:
+                    backtick=1
+                    one=f.readline()
+                    structure+=one
+                    # print('771: ',one)
+                    one=f.readline()
+                    continue
+                
+                if backtick == 1 and "```" in one:
+                    backtick=0
+                    # print('777:', one)
+                elif backtick==1:
+                    structure+=one
+                    # print('774:', one)
+                one = f.readline()
+        # # print("structure: \n:", structure)
+    except Exception as e:
+        return None
+    
+    # delete the file
+    try:
+        os.remove(f"{uuid_str}")
+        pass
+    except Exception as e:
+        # print(f"799: Error deleting file: {e}")
+        pass
+    
+    print("structure: \n:", structure)
+    return structure
+
 # Example usage
 # text = """..."""  # Replace this with your project structure text
 # directory_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
 # # print(directory_structure)
 
+import os
+import subprocess
 
 @app.post('/downloadproject/')
 async def download_project(body: DownloadProject):
 
+    project_name = find_project_name(body.project_id).replace(" ", "_")
     dir_structure = extract_directory_structure(find_file_structure(body.project_id))
     try:
+        cwd = os.getcwd()
+
+        os.chdir('./projects')
+        subprocess.run(f"mkdir {project_name}", shell=True, check=True, text=True)
+        subprocess.run(f"cd {project_name}", shell=True, check=True, text=True)
+        subprocess.run("npm init -y", shell=True, check=True, text=True)
+        
+        if(body.project_type == "flutter"):
+            subprocess.run(f"flutter create {project_name}", shell=True, check=True, text=True)
+        elif(body.project_type == "react"):
+            subprocess.run(f"npx create-react-app {project_name}", shell=True, check=True, text=True)
+        subprocess.run(f"npx create-react-app {project_name}", shell=True, check=True, text=True)
+
+        os.chdir(cwd)
         # Initialize generator and create structure in temp directory
         generator = DirectoryGenerator(body)
         base_name = f"./projects/{body.project_id}"
@@ -926,4 +1007,6 @@ class DirectoryGenerator:
             model="gpt-4o-mini"
         )
         content = chat_completion.choices[0].message.content
-        return content
+        trimmed = extract_directory_structure(content)
+        print("trimmed:",trimmed)
+        return trimmed

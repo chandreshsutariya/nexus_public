@@ -1,0 +1,32 @@
+Below is the code for the `.gitignore` file:
+
+```
+# Node modules
+node_modules/
+
+# Build output
+build/
+dist/
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+
+# IDE and editor files
+*.swp
+*.sublime-project
+*.sublime-workspace
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Cached files
+.cache/
+*/cache/
+```

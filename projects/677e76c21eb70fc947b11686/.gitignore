@@ -1,36 +1,33 @@
-Here's the content for the `.gitignore` file for your "Swiggy Clone" project:
-
-```gitignore
-# Flutter/Dart
-.dart_tool/
+# Flutter/Dart packages
 .flutter-plugins
 .flutter-plugins-dependencies
-pubspec.lock
-build/
-ios/Flutter/.last_build_id
-ios/Flutter/App.framework
+.packages
+
+# Flutter build outputs
+/build/
 ios/Flutter/Flutter.framework
 ios/Flutter/Flutter.podspec
-android/.gradle/
-android/app/build/
-android/app/intermediates/
-android/app/outputs/
-android/app/generated/
-*.iml
-*.hprof
-*.lock
+ios/ServiceDefinitions.json
 
-# VS Code settings
-.vscode/
+# Android Studio files
+/.idea/
+/*.iml
 
-# IDE specific
-.idea/
-*.sublime-workspace
-*.sublime-project
-*.xcodeproj/
-*.xcworkspace/
-Pods/
-podfile.lock
-```
+# MacOS files
+*.DS_Store
 
-Make sure to include this file in your project's root directory to effectively manage which files should be ignored by Git.
+# Flutter generated files
+pubspec.lock
+
+# Code coverage
+coverage/
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+
+# Miscellaneous
+*.orig
+*.swp
+*.swo

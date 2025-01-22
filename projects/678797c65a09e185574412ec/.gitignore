@@ -1,0 +1,25 @@
+# Node modules
+frontend/node_modules/
+
+# Python virtual environment
+backend/venv/
+
+# Temporary files
+data/temp/
+*.png
+*.db
+
+# Logs
+*.log
+
+# IDE specific files
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
