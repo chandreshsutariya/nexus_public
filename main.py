@@ -853,14 +853,15 @@ async def download_project(body: DownloadProject):
                 print(f"Warning: Command 'npm install express' failed with return code {result.returncode}. Continuing...")
         
         elif(body.project_type == "flutter"):
-            project_path = os.path.join(projects_dir, body.project_id)
+            project_path = os.path.join(projects_dir)
+            # os.makedirs(projects_dir, exist_ok=True)
             print("downloading structure for flutter")
 
             # Clean up old project directory
-            if os.path.exists(project_path):
-                shutil.rmtree(project_path)
+            # if os.path.exists(project_path):
+            #     shutil.rmtree(project_path)
             
-            os.chdir(projects_dir)
+            os.chdir(project_path)
 
             result = subprocess.run(f"flutter create {body.project_id}", shell=True, check=False, text=True)
             if result.returncode !=0:
