@@ -869,7 +869,11 @@ async def download_project(body: DownloadProject):
                 print("processing completed for flutter")
 
         elif(body.project_type == "react"):
+            project_path = os.path.join(projects_dir)
+
             print("downlaoding started for react")
+
+            os.chdir(project_path)
 
             result = subprocess.run(f"npx create-react-app {body.project_id}", shell=True, check=False, text=True)
             if result.returncode !=0:
