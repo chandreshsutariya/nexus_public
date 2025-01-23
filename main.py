@@ -294,43 +294,43 @@ class DownloadProject_test(BaseModel):
 
 # 2 :: SUGGESTION FOR PLATFORMS
 
-@app.post('/project_explaination')
-async def project_explanation(body: ProjectDescription):
-    try:
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": "You are a highly intelligent assistant with expertise in understanding and elaborating on project descriptions. \
-                                        You analyze provided descriptions carefully and generate detailed explanations, \
-                                        tailoring each response uniquely to match the project's objectives and scope."},
-                {"role": "user", "content": f"Based on the project description: {find_project(body.project_id, is_tech=True)}, provide a comprehensive explanation of the project. Your response should include: \
-                                        1. **Project Overview**: A concise summary of the project's objectives, purpose, and key features.  \
-                                        2. **Detailed Working Flow**: Break down the workflow into clear steps, explaining how the system components interact and the sequence of operations. Highlight any unique technologies, algorithms, or methods used in the project. \
-                                        3. **Database and Data Handling**: If applicable, describe the data structures or databases involved, including how data is stored, processed, and retrieved.  \
-                                        4. **Security Features**: Explain any security measures implemented in the project, such as password protection, encryption, or access control.  \
-                                        5. **User Interaction**: Highlight how users interact with the system, including interfaces, input methods, and output formats.  \
-                                        6. **Deployment Suggestions**: Recommend deployment platforms (e.g., web, mobile, cloud) suitable for the project, considering its requirements. \
-                                        7. **Advantages and Benefits**: Summarize the key benefits of the project, focusing on usability, performance, security, and scalability.  \
-                                        Ensure your explanation is unique to the project description provided and does not follow a generic structure unless required by the nature of the project."}
-            ],
-            model="gpt-4o"
-        )
+# @app.post('/project_explaination')
+# async def project_explanation(body: ProjectDescription):
+#     try:
+#         chat_completion = client.chat.completions.create(
+#             messages=[
+#                 {"role": "system", "content": "You are a highly intelligent assistant with expertise in understanding and elaborating on project descriptions. \
+#                                         You analyze provided descriptions carefully and generate detailed explanations, \
+#                                         tailoring each response uniquely to match the project's objectives and scope."},
+#                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id, is_tech=True)}, provide a comprehensive explanation of the project. Your response should include: \
+#                                         1. **Project Overview**: A concise summary of the project's objectives, purpose, and key features.  \
+#                                         2. **Detailed Working Flow**: Break down the workflow into clear steps, explaining how the system components interact and the sequence of operations. Highlight any unique technologies, algorithms, or methods used in the project. \
+#                                         3. **Database and Data Handling**: If applicable, describe the data structures or databases involved, including how data is stored, processed, and retrieved.  \
+#                                         4. **Security Features**: Explain any security measures implemented in the project, such as password protection, encryption, or access control.  \
+#                                         5. **User Interaction**: Highlight how users interact with the system, including interfaces, input methods, and output formats.  \
+#                                         6. **Deployment Suggestions**: Recommend deployment platforms (e.g., web, mobile, cloud) suitable for the project, considering its requirements. \
+#                                         7. **Advantages and Benefits**: Summarize the key benefits of the project, focusing on usability, performance, security, and scalability.  \
+#                                         Ensure your explanation is unique to the project description provided and does not follow a generic structure unless required by the nature of the project."}
+#             ],
+#             model="gpt-4o"
+#         )
 
-        project_explanation = chat_completion.choices[0].message.content
-        # print(platforms)
-        result = collection.update_one(
-            {'_id': ObjectId(body.project_id)},  # Filter by _id
-            {'$set': {'project_explanation': project_explanation}}  # Add/Update the technology field
-        )
-        if result.modified_count > 0:
-            # print("Platform field added successfully.")
-            pass
-        else:
-            # print("No document found or no changes made.")
-            pass
-        return JSONResponse(content={"project_explanation":project_explanation})
-    except Exception as e:
-        # print(f"Error when suggesting platforms: {e}")  # Logging the error
-        raise HTTPException(status_code=500, detail="An error occurred while generating the platform suggestion.")
+#         project_explanation = chat_completion.choices[0].message.content
+#         # print(platforms)
+#         result = collection.update_one(
+#             {'_id': ObjectId(body.project_id)},  # Filter by _id
+#             {'$set': {'project_explanation': project_explanation}}  # Add/Update the technology field
+#         )
+#         if result.modified_count > 0:
+#             # print("Platform field added successfully.")
+#             pass
+#         else:
+#             # print("No document found or no changes made.")
+#             pass
+#         return JSONResponse(content={"project_explanation":project_explanation})
+#     except Exception as e:
+#         # print(f"Error when suggesting platforms: {e}")  # Logging the error
+#         raise HTTPException(status_code=500, detail="An error occurred while generating the platform suggestion.")
     
 @app.post('/platform_suggestion/')
 async def platform_suggestion(body: ProjectDescription):
@@ -1045,8 +1045,15 @@ class DirectoryGenerator:
             pass
         except:
             pass
+
+        default_structure = """\
+        folder
+        ├── File1.txt
+        └── File2.txt
+        """
+        combined_structure = default_structure + "\n" + text
         """Create the directory structure"""
-        self.parse_structure(text)
+        self.parse_structure(combined_structure)
         
         # Sort paths to ensure directories are created before files
         sorted_paths = sorted(self.paths, key=lambda x: (len(x.split(os.sep)), not x.endswith('/')))
