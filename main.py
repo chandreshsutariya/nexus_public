@@ -726,6 +726,7 @@ async def setup(body: Kickoff):
 
 
 def extract_directory_structure(text):
+    print("Started Direcory extraction")
     uuid_str = str(uuid.uuid4())
     try:
         with open(f"{uuid_str}", "w") as f:
@@ -762,6 +763,7 @@ def extract_directory_structure(text):
         pass
     
     # structure = structure.split("\n", 1)[1]
+    print("structure created")
     return structure
 
 def extract_bash_commands(text):
@@ -826,13 +828,13 @@ async def download_project(body: DownloadProject):
     dir_structure = extract_directory_structure(find_file_structure(body.project_id))
     try:
         cwd = os.getcwd()
-
+        print("download project is started")
         projects_dir = os.path.join(cwd, "projects")
         os.makedirs(projects_dir, exist_ok=True)
         
         if(body.project_type == "node"):
             project_path = os.path.join(projects_dir, body.project_id)
-
+            print("downloading structure for node")
             # Clean up old project directory
             if os.path.exists(project_path):
                 shutil.rmtree(project_path)
@@ -852,6 +854,7 @@ async def download_project(body: DownloadProject):
         
         elif(body.project_type == "flutter"):
             project_path = os.path.join(projects_dir, body.project_id)
+            print("downloading structure for flutter")
 
             # Clean up old project directory
             if os.path.exists(project_path):
@@ -862,12 +865,16 @@ async def download_project(body: DownloadProject):
             result = subprocess.run(f"flutter create {body.project_id}", shell=True, check=False, text=True)
             if result.returncode !=0:
                 print(f"Warning: Command 'flutter create {body.project_id}' failed with return code {result.returncode}. Continuing...")
-        
+                print("processing completed for flutter")
+
         elif(body.project_type == "react"):
+            print("downlaoding started for react")
+
             result = subprocess.run(f"npx create-react-app {body.project_id}", shell=True, check=False, text=True)
             if result.returncode !=0:
                 print(f"Warning: Command 'npx create-react-app {body.project_id}' failed with return code {result.returncode}. Continuing...")
-        
+                print("processing completed for react")
+
 
         os.chdir(cwd)
         # Initialize generator and create structure in temp directory
