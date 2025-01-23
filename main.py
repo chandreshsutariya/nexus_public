@@ -854,12 +854,13 @@ async def download_project(body: DownloadProject):
         
         elif(body.project_type == "flutter"):
             project_path = os.path.join(projects_dir)
-            # os.makedirs(projects_dir, exist_ok=True)
             print("downloading structure for flutter")
 
-            # Clean up old project directory
-            # if os.path.exists(project_path):
-            #     shutil.rmtree(project_path)
+            full_project_path = os.path.join(project_path, body.project_id)
+
+            if os.path.exists(full_project_path):
+                print(f"Deleting existing directory: {full_project_path}")
+                shutil.rmtree(full_project_path)
             
             os.chdir(project_path)
 
