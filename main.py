@@ -873,6 +873,9 @@ async def download_project(body: DownloadProject):
 
             print("downlaoding started for react")
 
+            if os.path.exists(body.project_id):
+                shutil.rmtree(body.project_id)
+                
             os.chdir(project_path)
 
             result = subprocess.run(f"npx create-react-app {body.project_id}", shell=True, check=False, text=True)
