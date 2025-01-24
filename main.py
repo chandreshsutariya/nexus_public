@@ -861,8 +861,6 @@ def extract_bash_commands(text):
 # directory_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
 # # print(directory_structure)
 
-import os
-import subprocess
 
 import os
 import subprocess
@@ -878,16 +876,19 @@ async def download_project(body: DownloadProject):
         projects_dir = os.path.join(cwd, "projects")
         os.makedirs(projects_dir, exist_ok=True)
 
+        backend_dir = os.path.join(cwd, "backend")
+        os.makedirs(backend_dir, exist_ok=True)
+
         if(body.project_type == "node"):
-            project_path = os.path.join(projects_dir, body.project_id)
+            backend_path = os.path.join(backend_dir, body.project_id)
             print("downloading structure for node")
             # Clean up old project directory
-            if os.path.exists(project_path):
-                shutil.rmtree(project_path)
-            os.makedirs(project_path)
+            if os.path.exists(backend_path):
+                shutil.rmtree(backend_path)
+            os.makedirs(backend_path)
 
-            os.chdir(project_path)
-            print("cwd:842: ",os.getcwd())
+            os.chdir(backend_path)
+            print("cwd:893: ",os.getcwd())
 
             result = subprocess.run("npm init -y", shell=True, check=False, text=True)
             if result.returncode !=0:
@@ -897,6 +898,37 @@ async def download_project(body: DownloadProject):
             result = subprocess.run("npm install express", shell=True, check=False, text=True)
             if result.returncode !=0:
                 print(f"Warning: Command 'npm install express' failed with return code {result.returncode}. Continuing...")
+
+            cwd = os.getcwd()
+            middleware_dir = os.path.join(cwd, "middleware")
+            os.makedirs(middleware_dir, exist_ok=True)
+
+            os.chdir(middleware_dir)
+            print("cwd:909: ",os.getcwd())
+
+            source_dir = r"C:\Users\itsni\Desktop\NEXUS-APP\nexus_public\middleware"
+
+            middleware_files = {
+                "auth.middleware.ts": "// Default content for auth middleware",
+                "decryption.middleware.ts": "// Default content for decryption middleware",
+                "encryption.middleware.ts": "// Default content for encryption middleware",
+            }
+
+            # Create each file with its content
+            for filename in middleware_files:
+                source_path = os.path.join(source_dir, filename)  # Full path to the source file
+                target_path = os.path.join(middleware_dir, filename)  # Full path to the target file
+                try:
+                    with open(source_path, "r") as source_file:
+                        content = source_file.read()  # Read the content of the source file
+                    with open(target_path, "w") as target_file:
+                        target_file.write(content)  # Write the content to the target file
+                    print(f"Copied file: {filename} to {target_path}")
+                except FileNotFoundError:
+                    print(f"Source file not found: {source_path}")
+                except Exception as e:
+                    print(f"Error processing file {filename}: {e}")
+
 
         elif(body.project_type == "flutter"):
             project_path = os.path.join(projects_dir)
