@@ -879,6 +879,7 @@ async def download_project(body: DownloadProject):
         backend_dir = os.path.join(cwd, "backend")
         os.makedirs(backend_dir, exist_ok=True)
 
+        os.chdir(projects_dir)
         if(body.project_type == "node"):
             backend_path = os.path.join(backend_dir, body.project_id)
             print("downloading structure for node")
