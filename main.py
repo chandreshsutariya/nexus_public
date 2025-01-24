@@ -879,6 +879,9 @@ async def download_project(body: DownloadProject):
                 shutil.rmtree(project_path)
             os.makedirs(project_path)
 
+            os.chdir(project_path)
+            print("cwd:842: ",os.getcwd())
+
             result = subprocess.run("npm init -y", shell=True, check=False, text=True)
             if result.returncode !=0:
                 print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}. Continuing...")
@@ -1072,19 +1075,6 @@ class DirectoryGenerator:
         """Create the directory structure"""
         self.parse_structure(combined_structure)
         
-        backend_path = "backend/"
-        if backend_path not in self.paths:
-            self.paths.append(backend_path)  # Add backend folder if missing
-
-        # Ensure middleware folder and its files exist under backend
-        middleware_files = [
-            "backend/middleware/auth.middleware.ts",
-            "backend/middleware/decryption.middleware.ts",
-            "backend/middleware/encryption.middleware.ts"
-        ]
-        for file in middleware_files:
-            if file not in self.paths:
-                self.paths.append(file)
         # Sort paths to ensure directories are created before files
         sorted_paths = sorted(self.paths, key=lambda x: (len(x.split(os.sep)), not x.endswith('/')))
         
@@ -1112,10 +1102,14 @@ class DirectoryGenerator:
                     parent_dir = os.path.dirname(full_path)
                     os.makedirs(parent_dir, exist_ok=True)
 
-                    if path in middleware_files:
-                        content = self.get_middleware_file_content(path)
+                    if "middleware/auth.middleware.ts" in full_path:
+                        content = self.get_middleware_file_content("auth.middleware.ts")
+                    elif "middleware/decryption.middleware.ts" in full_path:
+                        content = self.get_middleware_file_content("decryption.middleware.ts")
+                    elif "middleware/encryption.middleware.ts" in full_path:
+                        content = self.get_middleware_file_content("encryption.middleware.ts")
                     else:
-                        # Fetch content for other files
+                        # Handle other files normally
                         content = self.get_content(full_path, self.body)
 
                     # Create file only if it doesn't exist
