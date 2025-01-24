@@ -794,7 +794,7 @@ def extract_directory_structure(text):
                 one = f.readline()
         # # print("structure: \n:", structure)
     except Exception as e:
-        return ""
+        return None
     
     # delete the file
     try:
@@ -843,7 +843,7 @@ def extract_bash_commands(text):
                 one = f.readline()
         # # print("structure: \n:", structure)
     except Exception as e:
-        return ""
+        return None
     
     # delete the file
     try:
@@ -860,6 +860,9 @@ def extract_bash_commands(text):
 # text = """..."""  # Replace this with your project structure text
 # directory_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
 # # print(directory_structure)
+
+import os
+import subprocess
 
 import os
 import subprocess
