@@ -769,6 +769,8 @@ def extract_directory_structure(text):
     uuid_str = str(uuid.uuid4())
     try:
         with open(f"{uuid_str}", "w") as f:
+            print("1121: ", text)
+
             f.write(text)
     except Exception as e:
         # print(f"799: Error writing to file: {e}")
@@ -792,7 +794,7 @@ def extract_directory_structure(text):
                 one = f.readline()
         # # print("structure: \n:", structure)
     except Exception as e:
-        return None
+        return ""
     
     # delete the file
     try:
@@ -809,6 +811,8 @@ def extract_bash_commands(text):
     uuid_str = str(uuid.uuid4())
     try:
         with open(f"{uuid_str}", "w") as f:
+            print("1121: ", text)
+           
             f.write(text)
     except Exception as e:
         # print(f"799: Error writing to file: {e}")
@@ -839,7 +843,7 @@ def extract_bash_commands(text):
                 one = f.readline()
         # # print("structure: \n:", structure)
     except Exception as e:
-        return None
+        return ""
     
     # delete the file
     try:
@@ -856,9 +860,6 @@ def extract_bash_commands(text):
 # text = """..."""  # Replace this with your project structure text
 # directory_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
 # # print(directory_structure)
-
-import os
-import subprocess
 
 import os
 import subprocess
@@ -1118,6 +1119,7 @@ class DirectoryGenerator:
                     # Create file only if it doesn't exist
                     if not os.path.exists(full_path):
                         with open(full_path, 'w') as f:
+                            print("1121: ", content)
                             f.write(content)
                         # print(f"Created file: {full_path}")
 
