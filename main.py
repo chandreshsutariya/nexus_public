@@ -876,7 +876,7 @@ async def download_project(body: DownloadProject):
         projects_dir = os.path.join(cwd, "projects")
         os.makedirs(projects_dir, exist_ok=True)
 
-        backend_dir = os.path.join(cwd, "backend")
+        backend_dir = os.path.join(projects_dir, "backend")
         os.makedirs(backend_dir, exist_ok=True)
 
         os.chdir(projects_dir)
@@ -900,12 +900,8 @@ async def download_project(body: DownloadProject):
             if result.returncode !=0:
                 print(f"Warning: Command 'npm install express' failed with return code {result.returncode}. Continuing...")
 
-            cwd = os.getcwd()
-            middleware_dir = os.path.join(cwd, "middleware")
+            middleware_dir = os.path.join(backend_path, "middleware")
             os.makedirs(middleware_dir, exist_ok=True)
-
-            os.chdir(middleware_dir)
-            print("cwd:909: ",os.getcwd())
 
             source_dir = r"C:\Users\itsni\Desktop\NEXUS-APP\nexus_public\middleware"
 
