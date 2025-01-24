@@ -1081,7 +1081,7 @@ class DirectoryGenerator:
         # combined_structure = default_structure + "\n" + text
         # """Create the directory structure"""
         # self.parse_structure(combined_structure)
-        self.pass_structure(text)
+        self.parse_structure(text)
 
         # Sort paths to ensure directories are created before files
         sorted_paths = sorted(self.paths, key=lambda x: (len(x.split(os.sep)), not x.endswith('/')))
