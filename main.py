@@ -861,6 +861,25 @@ def extract_bash_commands(text):
 # directory_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
 # # print(directory_structure)
 
+def get_middleware_file_content(self, path: str) -> str:
+        """Fetch content for middleware files or return an empty string for others."""
+        try:
+            # Check if the path corresponds to a middleware file
+            filename = os.path.basename(path)
+            middleware_files = ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]
+
+            if filename in middleware_files:
+                # Read content from the corresponding file in the local `middleware_files` folder
+                local_file_path = os.path.join(r"C:\Users\itsni\Desktop\NEXUS-APP\nexus_public\middleware", filename)
+                with open(local_file_path, "r") as f:
+                    return f.read()
+
+            # For other files, return empty content
+            return ""
+        except Exception as e:
+            print(f"Error reading content for {path}: {e}")
+            return ""
+
 
 @app.post('/downloadproject/')
 async def download_project(body: DownloadProject):
@@ -992,21 +1011,18 @@ async def download_project(body: DownloadProject):
         print(f"Current working directory: {os.getcwd()}")
 
         # Step 8: Fetch or generate middleware files with content
-        source_dir = os.getenv('middleware_files')
-        middleware_files = ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]
-
-        for filename in middleware_files:
-            source_path = os.path.join(source_dir, filename)
+        for filename in ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]:
             target_path = os.path.join(middleware_dir, filename)
             try:
-                # Read from source file and write to target
-                with open(source_path, "r") as source_file:
-                    content = source_file.read()
+                # Fetch the content using the provided function
+                content = self.get_middleware_file_content(target_path)
+
+                # Write the content to the target path
                 with open(target_path, "w") as target_file:
                     target_file.write(content)
                 print(f"Copied file: {filename} to {target_path}")
             except FileNotFoundError:
-                print(f"Source file not found: {source_path}")
+                print(f"Source file not found for: {filename}")
             except Exception as e:
                 print(f"Error processing file {filename}: {e}")
 
@@ -1120,25 +1136,7 @@ class DirectoryGenerator:
             if full_path not in self.paths:
                 self.paths.append(full_path)
 
-    # def get_middleware_file_content(self, path: str) -> str:
-    #     """Fetch content for middleware files or return an empty string for others."""
-    #     try:
-    #         # Check if the path corresponds to a middleware file
-    #         filename = os.path.basename(path)
-    #         middleware_files = ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]
-
-    #         if filename in middleware_files:
-    #             # Read content from the corresponding file in the local `middleware_files` folder
-    #             local_file_path = os.path.join(r"C:\Users\itsni\Desktop\NEXUS-APP\nexus_public\middleware", filename)
-    #             with open(local_file_path, "r") as f:
-    #                 return f.read()
-
-    #         # For other files, return empty content
-    #         return ""
-    #     except Exception as e:
-    #         print(f"Error reading content for {path}: {e}")
-    #         return ""
-
+    
     # The rest of the class remains the same...
     def create_structure(self, base_path: str, text: str) -> None:
         # remove directory if it exists
