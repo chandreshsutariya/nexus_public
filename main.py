@@ -863,6 +863,7 @@ def extract_bash_commands(text):
 
 def get_middleware_file_content(path: str) -> str:
         """Fetch content for middleware files or return an empty string for others."""
+        print('866',path)
         try:
             # Check if the path corresponds to a middleware file
             base_middleware_dir = os.getenv('Middleware_Files')  # Default for Linux
