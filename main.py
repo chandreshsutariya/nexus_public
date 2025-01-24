@@ -1124,6 +1124,8 @@ class DirectoryGenerator:
                         with open(full_path, 'w') as f:
                             print("1121: ", content)
                             print('1126', full_path)
+                            if content == None:
+                                content =""
                             f.write(content)
                         # print(f"Created file: {full_path}")
 
