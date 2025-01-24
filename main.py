@@ -896,12 +896,14 @@ async def download_project(body: DownloadProject):
         else:
             print(f"'backend' directory found in structure at: {backend_dir}")
 
-        # Step 4: Navigate into the 'backend' folder
-        os.chdir(backend_dir)
-        print(f"Current working directory: {os.getcwd()}")
+        # # Step 4: Navigate into the 'backend' folder
+        # os.chdir(backend_dir)
+        # print(f"Current working directory: {os.getcwd()}")
 
         # Step 5: Run Node commands (if project type is 'node')
         if body.project_type == "node":
+            os.chdir(backend_dir)
+            print(f"Current working directory: {os.getcwd()}")
             print("Running Node.js commands...")
             result = subprocess.run("npm init -y", shell=True, check=False, text=True)
             if result.returncode != 0:
