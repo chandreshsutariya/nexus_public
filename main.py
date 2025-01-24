@@ -865,12 +865,14 @@ def get_middleware_file_content(path: str) -> str:
         """Fetch content for middleware files or return an empty string for others."""
         try:
             # Check if the path corresponds to a middleware file
+            base_middleware_dir = os.getenv('Middleware_Files')  # Default for Linux
+
             filename = os.path.basename(path)
             middleware_files = ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]
 
             if filename in middleware_files:
                 # Read content from the corresponding file in the local `middleware_files` folder
-                local_file_path = os.path.join(r"C:\Users\itsni\Desktop\NEXUS-APP\nexus_public\middleware", filename)
+                local_file_path = os.path.join(base_middleware_dir, filename)
                 with open(local_file_path, "r") as f:
                     return f.read()
 
