@@ -901,19 +901,39 @@ async def download_project(body: DownloadProject):
         # print(f"Current working directory: {os.getcwd()}")
 
         # Step 5: Run Node commands (if project type is 'node')
-        if body.project_type == "node":
-            os.chdir(backend_dir)
-            print(f"Current working directory: {os.getcwd()}")
-            print("Running Node.js commands...")
-            result = subprocess.run("npm init -y", shell=True, check=False, text=True)
-            if result.returncode != 0:
-                print(f"Warning: Command 'npm init -y' failed. Continuing...")
-            print("Completed 'npm init -y'")
+        # if body.project_type == "node":
+        #     os.chdir(backend_dir)
+        #     print(f"Current working directory: {os.getcwd()}")
+        #     print("Running Node.js commands...")
+        #     result = subprocess.run("npm init -y", shell=True, check=False, text=True)
+        #     if result.returncode != 0:
+        #         print(f"Warning: Command 'npm init -y' failed. Continuing...")
+        #     print("Completed 'npm init -y'")
 
-            result = subprocess.run("npm install express", shell=True, check=False, text=True)
-            if result.returncode != 0:
-                print(f"Warning: Command 'npm install express' failed. Continuing...")
-            print("Completed 'npm install express'")
+        #     result = subprocess.run("npm install express", shell=True, check=False, text=True)
+        #     if result.returncode != 0:
+        #         print(f"Warning: Command 'npm install express' failed. Continuing...")
+        #     print("Completed 'npm install express'")
+        # Step 5: Run Node commands (if project type is 'node')
+        if body.project_type == "node":
+            # Change working directory to 'backend'
+            os.chdir(backend_dir)
+            print(f"Changed working directory to: {os.getcwd()}")
+
+            # Run Node.js commands
+            print("Running Node.js commands...")
+            result = subprocess.run("npm init -y", shell=True, check=True, text=True)
+            if result.returncode == 0:
+                print("Completed 'npm init -y'")
+            else:
+                print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}")
+
+            result = subprocess.run("npm install express", shell=True, check=True, text=True)
+            if result.returncode == 0:
+                print("Completed 'npm install express'")
+            else:
+                print(f"Warning: Command 'npm install express' failed with return code {result.returncode}")
+
 
         elif(body.project_type == "flutter"):
             project_path = os.path.join(projects_dir)
