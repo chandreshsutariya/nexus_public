@@ -1147,3 +1147,4 @@ class DirectoryGenerator:
         content = chat_completion.choices[0].message.content
         trimmed = extract_directory_structure(content)
         print("trimmed:",trimmed)
+        return trimmed
