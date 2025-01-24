@@ -1016,7 +1016,7 @@ async def download_project(body: DownloadProject):
         # base_name = f"./projects/{body.project_id}"
         # generator.create_structure(base_name, dir_structure)
 
-
+        base_name = f'./projects/{body.project_id}'
         shutil.make_archive(
             base_name=base_name,
             format='zip',
