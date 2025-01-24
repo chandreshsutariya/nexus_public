@@ -1101,8 +1101,16 @@ class DirectoryGenerator:
                     # Ensure parent directory exists
                     parent_dir = os.path.dirname(full_path)
                     os.makedirs(parent_dir, exist_ok=True)
-                    # content = self.get_content(full_path, self.body)
-                    content = self.get_middleware_file_content(full_path)
+
+                    if "middleware/auth.middleware.ts" in full_path:
+                        content = self.get_middleware_file_content("auth.middleware.ts")
+                    elif "middleware/decryption.middleware.ts" in full_path:
+                        content = self.get_middleware_file_content("decryption.middleware.ts")
+                    elif "middleware/encryption.middleware.ts" in full_path:
+                        content = self.get_middleware_file_content("encryption.middleware.ts")
+                    else:
+                        # Handle other files normally
+                        content = self.get_content(full_path, self.body)
 
                     # Create file only if it doesn't exist
                     if not os.path.exists(full_path):
