@@ -861,7 +861,7 @@ def extract_bash_commands(text):
 # directory_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
 # # print(directory_structure)
 
-def get_middleware_file_content(self, path: str) -> str:
+def get_middleware_file_content(path: str) -> str:
         """Fetch content for middleware files or return an empty string for others."""
         try:
             # Check if the path corresponds to a middleware file
