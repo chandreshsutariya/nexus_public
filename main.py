@@ -862,77 +862,59 @@ def extract_bash_commands(text):
 # # print(directory_structure)
 
 
-import os
-import subprocess
-
 @app.post('/downloadproject/')
 async def download_project(body: DownloadProject):
-
-    project_name = find_project_name(body.project_id).replace(" ", "_")
-    dir_structure = extract_directory_structure(find_file_structure(body.project_id))
-
-    generator = DirectoryGenerator(body)
-    base_name = f"./projects/{body.project_id}"
-    generator.create_structure(base_name, dir_structure)
-
     try:
         cwd = os.getcwd()
-        print("download project is started")
+
+        # Step 1: Create 'projects' folder and navigate into it
+        print("Creating projects folder...")
         projects_dir = os.path.join(cwd, "projects")
         os.makedirs(projects_dir, exist_ok=True)
-
-        backend_dir = os.path.join(projects_dir, "backend")
-        os.makedirs(backend_dir, exist_ok=True)
-
         os.chdir(projects_dir)
-        if(body.project_type == "node"):
-            backend_path = os.path.join(backend_dir, body.project_id)
-            print("downloading structure for node")
-            # Clean up old project directory
-            if os.path.exists(backend_path):
-                shutil.rmtree(backend_path)
-            os.makedirs(backend_path)
+        print(f"Current working directory: {os.getcwd()}")
 
-            os.chdir(backend_path)
-            print("cwd:893: ",os.getcwd())
+        # Step 2: Fetch the directory structure and generate it
+        print("Fetching generated directory structure...")
+        dir_structure = extract_directory_structure(find_file_structure(body.project_id))
+        generator = DirectoryGenerator(body)
+        base_name = f"./{body.project_id}"
+        generator.create_structure(base_name, dir_structure)
 
+        # Step 3: Search for 'backend' folder
+        backend_dir = None
+        for line in dir_structure.splitlines():
+            if "backend" in line:
+                backend_dir = os.path.join(projects_dir, "backend")
+                break
+
+        # Create 'backend' folder if not found
+        if not backend_dir:
+            backend_dir = os.path.join(projects_dir, "backend")
+            os.makedirs(backend_dir, exist_ok=True)
+            print(f"'backend' directory created at: {backend_dir}")
+        else:
+            print(f"'backend' directory found in structure at: {backend_dir}")
+
+        # Step 4: Navigate into the 'backend' folder
+        os.chdir(backend_dir)
+        print(f"Current working directory: {os.getcwd()}")
+
+        # Step 5: Run Node commands (if project type is 'node')
+        if body.project_type == "node":
+            print("Running Node.js commands...")
             result = subprocess.run("npm init -y", shell=True, check=False, text=True)
-            if result.returncode !=0:
-                print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}. Continuing...")
-            print('ran npm init -y')
+            if result.returncode != 0:
+                print(f"Warning: Command 'npm init -y' failed. Continuing...")
+            print("Completed 'npm init -y'")
 
             result = subprocess.run("npm install express", shell=True, check=False, text=True)
-            if result.returncode !=0:
-                print(f"Warning: Command 'npm install express' failed with return code {result.returncode}. Continuing...")
-            
-            os.chdir(cwd)
-            middleware_dir = os.path.join(backend_path, "middleware")
-            os.makedirs(middleware_dir, exist_ok=True)
-
-            source_dir = r"C:\Users\itsni\Desktop\NEXUS-APP\nexus_public\middleware"
-
-            middleware_files = {
-                "auth.middleware.ts": "// Default content for auth middleware",
-                "decryption.middleware.ts": "// Default content for decryption middleware",
-                "encryption.middleware.ts": "// Default content for encryption middleware",
-            }
-
-            # Create each file with its content
-            for filename in middleware_files:
-                source_path = os.path.join(source_dir, filename)  # Full path to the source file
-                target_path = os.path.join(middleware_dir, filename)  # Full path to the target file
-                try:
-                    with open(source_path, "r") as source_file:
-                        content = source_file.read()  # Read the content of the source file
-                    with open(target_path, "w") as target_file:
-                        target_file.write(content)  # Write the content to the target file
-                    print(f"Copied file: {filename} to {target_path}")
-                except FileNotFoundError:
-                    print(f"Source file not found: {source_path}")
-                except Exception as e:
-                    print(f"Error processing file {filename}: {e}")
+            if result.returncode != 0:
+                print(f"Warning: Command 'npm install express' failed. Continuing...")
+            print("Completed 'npm install express'")
 
 
+        # Step 7: Navigate into the 'middleware' folder
         elif(body.project_type == "flutter"):
             project_path = os.path.join(projects_dir)
             print("downloading structure for flutter")
@@ -968,7 +950,43 @@ async def download_project(body: DownloadProject):
                 print(f"Warning: Command 'npx create-react-app {body.project_id}' failed with return code {result.returncode}. Continuing...")
                 print("processing completed for react")
 
+        middleware_dir = None
+        for line in dir_structure.splitlines():
+            if "middleware" in line and "backend" in line:
+                middleware_dir = os.path.join(backend_dir, "middleware")
+                break
 
+        # Create 'middleware' folder if not found
+        if not middleware_dir:
+            middleware_dir = os.path.join(backend_dir, "middleware")
+            os.makedirs(middleware_dir, exist_ok=True)
+            print(f"'middleware' directory created at: {middleware_dir}")
+        else:
+            print(f"'middleware' directory found in structure at: {middleware_dir}")
+
+        # Step 7: Navigate into the 'middleware' folder
+        os.chdir(middleware_dir)
+        print(f"Current working directory: {os.getcwd()}")
+
+        # Step 8: Fetch or generate middleware files with content
+        source_dir = r"C:\Users\itsni\Desktop\NEXUS-APP\nexus_public\middleware"
+        middleware_files = ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]
+
+        for filename in middleware_files:
+            source_path = os.path.join(source_dir, filename)
+            target_path = os.path.join(middleware_dir, filename)
+            try:
+                # Read from source file and write to target
+                with open(source_path, "r") as source_file:
+                    content = source_file.read()
+                with open(target_path, "w") as target_file:
+                    target_file.write(content)
+                print(f"Copied file: {filename} to {target_path}")
+            except FileNotFoundError:
+                print(f"Source file not found: {source_path}")
+            except Exception as e:
+                print(f"Error processing file {filename}: {e}")
+                
         # os.chdir(cwd)
         # Initialize generator and create structure in temp directory
         # generator = DirectoryGenerator(body)
