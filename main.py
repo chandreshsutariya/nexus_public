@@ -1015,7 +1015,7 @@ async def download_project(body: DownloadProject):
             target_path = os.path.join(middleware_dir, filename)
             try:
                 # Fetch the content using the provided function
-                content = self.get_middleware_file_content(target_path)
+                content = get_middleware_file_content(target_path)
 
                 # Write the content to the target path
                 with open(target_path, "w") as target_file:
