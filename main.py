@@ -769,7 +769,7 @@ def extract_directory_structure(text):
     uuid_str = str(uuid.uuid4())
     try:
         with open(f"{uuid_str}", "w") as f:
-            print("1121: ", text)
+            # print("1121: ", text)
 
             f.write(text)
     except Exception as e:
@@ -811,7 +811,7 @@ def extract_bash_commands(text):
     uuid_str = str(uuid.uuid4())
     try:
         with open(f"{uuid_str}", "w") as f:
-            print("1121: ", text)
+            # print("1121: ", text)
            
             f.write(text)
     except Exception as e:
@@ -917,6 +917,7 @@ async def download_project(body: DownloadProject):
         # Step 5: Run Node commands (if project type is 'node')
         if body.project_type == "node":
             # Change working directory to 'backend'
+            print('backend_dir: ', backend_dir)
             os.chdir(backend_dir)
             print(f"Changed working directory to: {os.getcwd()}")
 
@@ -1196,8 +1197,8 @@ class DirectoryGenerator:
                     # Create file only if it doesn't exist
                     if not os.path.exists(full_path):
                         with open(full_path, 'w') as f:
-                            print("1121: ", content)
-                            print('1126', full_path)
+                            # print("1121: ", content)
+                            # print('1126', full_path)
                             if content == None:
                                 content =""
                             f.write(content)
