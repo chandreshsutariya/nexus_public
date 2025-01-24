@@ -1044,24 +1044,24 @@ class DirectoryGenerator:
             if full_path not in self.paths:
                 self.paths.append(full_path)
 
-    def get_middleware_file_content(self, path: str) -> str:
-        """Fetch content for middleware files or return an empty string for others."""
-        try:
-            # Check if the path corresponds to a middleware file
-            filename = os.path.basename(path)
-            middleware_files = ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]
+    # def get_middleware_file_content(self, path: str) -> str:
+    #     """Fetch content for middleware files or return an empty string for others."""
+    #     try:
+    #         # Check if the path corresponds to a middleware file
+    #         filename = os.path.basename(path)
+    #         middleware_files = ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]
 
-            if filename in middleware_files:
-                # Read content from the corresponding file in the local `middleware_files` folder
-                local_file_path = os.path.join(r"C:\Users\itsni\Desktop\NEXUS-APP\nexus_public\middleware", filename)
-                with open(local_file_path, "r") as f:
-                    return f.read()
+    #         if filename in middleware_files:
+    #             # Read content from the corresponding file in the local `middleware_files` folder
+    #             local_file_path = os.path.join(r"C:\Users\itsni\Desktop\NEXUS-APP\nexus_public\middleware", filename)
+    #             with open(local_file_path, "r") as f:
+    #                 return f.read()
 
-            # For other files, return empty content
-            return ""
-        except Exception as e:
-            print(f"Error reading content for {path}: {e}")
-            return ""
+    #         # For other files, return empty content
+    #         return ""
+    #     except Exception as e:
+    #         print(f"Error reading content for {path}: {e}")
+    #         return ""
 
     # The rest of the class remains the same...
     def create_structure(self, base_path: str, text: str) -> None:
@@ -1072,15 +1072,16 @@ class DirectoryGenerator:
         except:
             pass
 
-        default_structure = """\
-        middleware/
-        ├── auth.middleware.ts
-        ├── decryption.middleware.ts
-        └── encryption.middleware.ts
-        """
-        combined_structure = default_structure + "\n" + text
-        """Create the directory structure"""
-        self.parse_structure(combined_structure)
+        # default_structure = """\
+        # middleware/
+        # ├── auth.middleware.ts
+        # ├── decryption.middleware.ts
+        # └── encryption.middleware.ts
+        # """
+        # combined_structure = default_structure + "\n" + text
+        # """Create the directory structure"""
+        # self.parse_structure(combined_structure)
+        self.pass_structure(text)
 
         # Sort paths to ensure directories are created before files
         sorted_paths = sorted(self.paths, key=lambda x: (len(x.split(os.sep)), not x.endswith('/')))
@@ -1109,15 +1110,15 @@ class DirectoryGenerator:
                     parent_dir = os.path.dirname(full_path)
                     os.makedirs(parent_dir, exist_ok=True)
                     # content = self.get_content(full_path, self.body)
-                    if "middleware/auth.middleware.ts" in full_path:
-                        content = self.get_middleware_file_content("auth.middleware.ts")
-                    elif "middleware/decryption.middleware.ts" in full_path:
-                        content = self.get_middleware_file_content("decryption.middleware.ts")
-                    elif "middleware/encryption.middleware.ts" in full_path:
-                        content = self.get_middleware_file_content("encryption.middleware.ts")
-                    else:
+                    # if "middleware/auth.middleware.ts" in full_path:
+                    #     content = self.get_middleware_file_content("auth.middleware.ts")
+                    # elif "middleware/decryption.middleware.ts" in full_path:
+                    #     content = self.get_middleware_file_content("decryption.middleware.ts")
+                    # elif "middleware/encryption.middleware.ts" in full_path:
+                    #     content = self.get_middleware_file_content("encryption.middleware.ts")
+                    # else:
                         # Handle other files normally
-                        content = self.get_content(full_path, self.body)
+                    content = self.get_content(full_path, self.body)
 
                     # Create file only if it doesn't exist
                     if not os.path.exists(full_path):
