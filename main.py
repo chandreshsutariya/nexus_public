@@ -881,6 +881,8 @@ async def download_project(body: DownloadProject):
         base_name = f"./{body.project_id}"
         generator.create_structure(base_name, dir_structure)
 
+
+        projects_dir = os.path.join(projects_dir, body.project_id)
         # Step 3: Search for 'backend' folder
         backend_dir = None
         for line in dir_structure.splitlines():
