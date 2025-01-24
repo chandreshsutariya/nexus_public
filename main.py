@@ -870,6 +870,11 @@ async def download_project(body: DownloadProject):
 
     project_name = find_project_name(body.project_id).replace(" ", "_")
     dir_structure = extract_directory_structure(find_file_structure(body.project_id))
+
+    generator = DirectoryGenerator(body)
+    base_name = f"./projects/{body.project_id}"
+    generator.create_structure(base_name, dir_structure)
+
     try:
         cwd = os.getcwd()
         print("download project is started")
@@ -899,7 +904,8 @@ async def download_project(body: DownloadProject):
             result = subprocess.run("npm install express", shell=True, check=False, text=True)
             if result.returncode !=0:
                 print(f"Warning: Command 'npm install express' failed with return code {result.returncode}. Continuing...")
-
+            
+            os.chdir(cwd)
             middleware_dir = os.path.join(backend_path, "middleware")
             os.makedirs(middleware_dir, exist_ok=True)
 
@@ -963,11 +969,11 @@ async def download_project(body: DownloadProject):
                 print("processing completed for react")
 
 
-        os.chdir(cwd)
+        # os.chdir(cwd)
         # Initialize generator and create structure in temp directory
-        generator = DirectoryGenerator(body)
-        base_name = f"./projects/{body.project_id}"
-        generator.create_structure(base_name, dir_structure)
+        # generator = DirectoryGenerator(body)
+        # base_name = f"./projects/{body.project_id}"
+        # generator.create_structure(base_name, dir_structure)
 
 
         shutil.make_archive(
