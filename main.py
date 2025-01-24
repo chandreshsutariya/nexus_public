@@ -866,7 +866,8 @@ def get_middleware_file_content(path: str) -> str:
         print('866',path)
         try:
             # Check if the path corresponds to a middleware file
-            base_middleware_dir = os.getenv('Middleware_Files')  # Default for Linux
+            base_middleware_dir = os.getenv('middleware_files')  # Default for Linux
+            print('870',base_middleware_dir)
 
             filename = os.path.basename(path)
             middleware_files = ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]
