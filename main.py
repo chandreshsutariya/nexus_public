@@ -764,11 +764,12 @@ async def setup(body: Kickoff):
 #     generator.create_structure(f"{base_.project_id}", input_structure)
 
 
-def extract_directory_structure(text):
+def extract_directory_structure(text:str):
     print("Started Direcory extraction")
     uuid_str = str(uuid.uuid4())
     try:
         with open(f"{uuid_str}", "w") as f:
+            print("772: ", text)
             f.write(text)
     except Exception as e:
         # print(f"799: Error writing to file: {e}")
@@ -805,10 +806,11 @@ def extract_directory_structure(text):
     print("structure created")
     return structure
 
-def extract_bash_commands(text):
+def extract_bash_commands(text:str):
     uuid_str = str(uuid.uuid4())
     try:
         with open(f"{uuid_str}", "w") as f:
+            print("812: ",text)
             f.write(text)
     except Exception as e:
         # print(f"799: Error writing to file: {e}")
@@ -856,10 +858,6 @@ def extract_bash_commands(text):
 # text = """..."""  # Replace this with your project structure text
 # directory_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
 # # print(directory_structure)
-
-import os
-import subprocess
-
 import os
 import subprocess
 
@@ -1118,6 +1116,7 @@ class DirectoryGenerator:
                     # Create file only if it doesn't exist
                     if not os.path.exists(full_path):
                         with open(full_path, 'w') as f:
+                            print("1121: ", content)
                             f.write(content)
                         # print(f"Created file: {full_path}")
 
