@@ -913,8 +913,6 @@ async def download_project(body: DownloadProject):
                 print(f"Warning: Command 'npm install express' failed. Continuing...")
             print("Completed 'npm install express'")
 
-
-        # Step 7: Navigate into the 'middleware' folder
         elif(body.project_type == "flutter"):
             project_path = os.path.join(projects_dir)
             print("downloading structure for flutter")
@@ -986,8 +984,8 @@ async def download_project(body: DownloadProject):
                 print(f"Source file not found: {source_path}")
             except Exception as e:
                 print(f"Error processing file {filename}: {e}")
-                
-        # os.chdir(cwd)
+
+        os.chdir(cwd)
         # Initialize generator and create structure in temp directory
         # generator = DirectoryGenerator(body)
         # base_name = f"./projects/{body.project_id}"
