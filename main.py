@@ -860,6 +860,9 @@ def extract_bash_commands(text):
 import os
 import subprocess
 
+import os
+import subprocess
+
 @app.post('/downloadproject/')
 async def download_project(body: DownloadProject):
 
@@ -870,7 +873,7 @@ async def download_project(body: DownloadProject):
         print("download project is started")
         projects_dir = os.path.join(cwd, "projects")
         os.makedirs(projects_dir, exist_ok=True)
-        
+
         if(body.project_type == "node"):
             project_path = os.path.join(projects_dir, body.project_id)
             print("downloading structure for node")
@@ -886,11 +889,11 @@ async def download_project(body: DownloadProject):
             if result.returncode !=0:
                 print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}. Continuing...")
             print('ran npm init -y')
-        
+
             result = subprocess.run("npm install express", shell=True, check=False, text=True)
             if result.returncode !=0:
                 print(f"Warning: Command 'npm install express' failed with return code {result.returncode}. Continuing...")
-        
+
         elif(body.project_type == "flutter"):
             project_path = os.path.join(projects_dir)
             print("downloading structure for flutter")
@@ -900,7 +903,7 @@ async def download_project(body: DownloadProject):
             if os.path.exists(full_project_path):
                 print(f"Deleting existing directory: {full_project_path}")
                 shutil.rmtree(full_project_path)
-            
+
             os.chdir(project_path)
 
             result = subprocess.run(f"flutter create {body.project_id}", shell=True, check=False, text=True)
@@ -941,7 +944,7 @@ async def download_project(body: DownloadProject):
             base_dir=body.project_id
         )
         zip_path = f"./projects/{body.project_id}.zip"
-        
+
         return FileResponse(
             path=zip_path,
             media_type='application/zip',
@@ -950,7 +953,7 @@ async def download_project(body: DownloadProject):
                 "Content-Disposition": f"attachment; filename={body.project_id}.zip"
             }
         )
-            
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -960,21 +963,21 @@ class DirectoryGenerator:
     def __init__(self,body):
         self.paths = []
         self.body = body
-        
+
     def _get_level(self, line: str) -> int:
         """Get the nesting level of a line"""
         # Count the actual indentation level based on │ and spaces
         indent = len(line) - len(line.lstrip('│ '))
         return indent // 2
-        
+
     def _parse_path(self, line: str) -> str:
         """Extract the file/directory name from a tree line, removing comments and special symbols"""
         # Remove tree symbols and whitespace
         name = re.sub(r'^[├└│─\s]+', '', line)
-        
+
         # Remove any comments (everything after and including #)
         name = name.split('#')[0].strip()
-        
+
         # Remove special symbols and their contents
         name = re.sub(r'\([^)]*\)', '', name)  # Remove anything in parentheses ()
         name = re.sub(r'\{[^}]*\}', '', name)  # Remove anything in curly braces {}
@@ -986,30 +989,30 @@ class DirectoryGenerator:
 
 
         return name.strip()
-        
+
     def parse_structure(self, text: str) -> None:
         """Parse the directory structure text into paths"""
         self.paths = []  # Reset paths
         lines = text.split('\n')
         path_stack: List[Tuple[int, str]] = []
         last_valid_level = 0
-        
+
         for line in lines:
             # Skip completely empty lines
             if not line.strip():
                 continue
-                
+
             # Check if line only contains vertical separators and spaces
             if re.match(r'^[\s│|]*$', line):
                 continue
-                
+
             level = self._get_level(line)
             name = self._parse_path(line)
-            
+
             # Skip if after removing comments and tree symbols there's nothing left
             if not name:
                 continue
-                
+
             # Handle root directory specially
             if level == 0:
                 name = name.lstrip('/')
@@ -1017,45 +1020,26 @@ class DirectoryGenerator:
                 self.paths.append(name)
                 last_valid_level = 0
                 continue
-            
+
             # Maintain the path stack based on the last valid level
             while path_stack and path_stack[-1][0] >= level:
                 path_stack.pop()
-            
+
             # If there's a gap in levels, use the last valid parent
             if not path_stack:
                 # If somehow we lost the stack but have a valid path, 
                 # treat it as a child of root
                 if self.paths:
                     path_stack = [(0, self.paths[0])]
-            
+
             path_stack.append((level, name))
             last_valid_level = level
-            
+
             # Construct full path
             full_path = os.path.join(*[p[1] for p in path_stack])
             if full_path not in self.paths:
                 self.paths.append(full_path)
 
-    def get_middleware_file_content(self, path: str) -> str:
-        """Fetch content for middleware files or return an empty string for others."""
-        try:
-            # Check if the path corresponds to a middleware file
-            filename = os.path.basename(path)
-            middleware_files = ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]
-
-            if filename in middleware_files:
-                # Read content from the corresponding file in the local `middleware_files` folder
-                local_file_path = os.path.join(r"C:\Users\itsni\Desktop\NEXUS-APP\nexus_public\middleware", filename)
-                with open(local_file_path, "r") as f:
-                    return f.read()
-
-            # For other files, return empty content
-            return ""
-        except Exception as e:
-            print(f"Error reading content for {path}: {e}")
-            return ""
-    
     # The rest of the class remains the same...
     def create_structure(self, base_path: str, text: str) -> None:
         # remove directory if it exists
@@ -1066,27 +1050,27 @@ class DirectoryGenerator:
             pass
 
         default_structure = """\
-        middleware/
-        ├── auth.middleware.ts
-        ├── decryption.middleware.ts
-        └── encryption.middleware.ts
+        folder
+        folder/
+        ├── File1.txt
+        └── File2.txt
         """
         combined_structure = default_structure + "\n" + text
         """Create the directory structure"""
         self.parse_structure(combined_structure)
-        
+
         # Sort paths to ensure directories are created before files
         sorted_paths = sorted(self.paths, key=lambda x: (len(x.split(os.sep)), not x.endswith('/')))
-        
+
         for path in sorted_paths:
             if not path.strip():  # Skip empty paths
                 continue
-                
+
             full_path = os.path.join(base_path, path)
-            
+
             # Normalize path separators
             full_path = os.path.normpath(full_path)
-            
+
             if path.endswith('/'):
                 # Handle directory creation
                 try:
@@ -1101,16 +1085,7 @@ class DirectoryGenerator:
                     # Ensure parent directory exists
                     parent_dir = os.path.dirname(full_path)
                     os.makedirs(parent_dir, exist_ok=True)
-
-                    if "middleware/auth.middleware.ts" in full_path:
-                        content = self.get_middleware_file_content("auth.middleware.ts")
-                    elif "middleware/decryption.middleware.ts" in full_path:
-                        content = self.get_middleware_file_content("decryption.middleware.ts")
-                    elif "middleware/encryption.middleware.ts" in full_path:
-                        content = self.get_middleware_file_content("encryption.middleware.ts")
-                    else:
-                        # Handle other files normally
-                        content = self.get_content(full_path, self.body)
+                    content = self.get_content(full_path, self.body)
 
                     # Create file only if it doesn't exist
                     if not os.path.exists(full_path):
@@ -1121,7 +1096,7 @@ class DirectoryGenerator:
                 except PermissionError:
                     # print(f"Permission denied: Cannot create file {full_path}")
                     pass
-    
+
     def get_content(self, path, body):
         dir_structure = extract_directory_structure(find_file_structure(body.project_id))
         chat_completion = client.chat.completions.create(
@@ -1136,4 +1111,3 @@ class DirectoryGenerator:
         content = chat_completion.choices[0].message.content
         trimmed = extract_directory_structure(content)
         print("trimmed:",trimmed)
-        return trimmed
