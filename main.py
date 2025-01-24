@@ -1050,7 +1050,6 @@ class DirectoryGenerator:
             pass
 
         default_structure = """\
-        folder
         folder/
         ├── File1.txt
         └── File2.txt
