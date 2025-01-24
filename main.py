@@ -1106,11 +1106,11 @@ class DirectoryGenerator:
                     os.makedirs(parent_dir, exist_ok=True)
                     # content = self.get_content(full_path, self.body)
                     if "middleware/auth.middleware.ts" in full_path:
-                        content = self.get_middleware_file_content("auth.middleware.ts")
+                        content = self.get_middleware_file_content("auth.middleware.ts") or ""
                     elif "middleware/decryption.middleware.ts" in full_path:
-                        content = self.get_middleware_file_content("decryption.middleware.ts")
+                        content = self.get_middleware_file_content("decryption.middleware.ts") or ""
                     elif "middleware/encryption.middleware.ts" in full_path:
-                        content = self.get_middleware_file_content("encryption.middleware.ts")
+                        content = self.get_middleware_file_content("encryption.middleware.ts") or ""
                     else:
                         # Handle other files normally
                         content = self.get_content(full_path, self.body)
