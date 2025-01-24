@@ -992,7 +992,7 @@ async def download_project(body: DownloadProject):
         print(f"Current working directory: {os.getcwd()}")
 
         # Step 8: Fetch or generate middleware files with content
-        source_dir = r"C:\Users\itsni\Desktop\NEXUS-APP\nexus_public\middleware"
+        source_dir = os.getenv('middleware_files')
         middleware_files = ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]
 
         for filename in middleware_files:
