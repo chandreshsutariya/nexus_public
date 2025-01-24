@@ -879,8 +879,12 @@ async def download_project(body: DownloadProject):
                 shutil.rmtree(project_path)
             os.makedirs(project_path)
 
-            os.chdir(project_path)
-            print("cwd:842: ",os.getcwd())
+            backend_path = os.path.join(project_path, "backend")
+            os.makedirs(backend_path, exist_ok=True)
+
+            # Run Node.js commands in the backend folder
+            os.chdir(backend_path)
+            print("cwd:842: ", os.getcwd())
 
             result = subprocess.run("npm init -y", shell=True, check=False, text=True)
             if result.returncode !=0:
