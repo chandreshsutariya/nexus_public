@@ -999,7 +999,7 @@ async def download_project(body: DownloadProject):
         middleware_dir = None
         for line in dir_structure.splitlines():
             if "middleware" in line and "backend" and "src" in line:
-                middleware_dir = os.path.join(backend_dir, "middleware")
+                middleware_dir = os.path.join(backend_dir or src_dir, "middleware")
                 break
 
         # Create 'middleware' folder if not found
@@ -1022,9 +1022,6 @@ async def download_project(body: DownloadProject):
         os.makedirs(middleware_dir, exist_ok=True)
         print(f"'middleware' directory created at: {middleware_dir}")
 
-        # Step 7: Navigate into the 'middleware' folder
-        os.chdir(middleware_dir)
-        print(f"Current working directory: {os.getcwd()}")
         # Step 7: Navigate into the 'middleware' folder
         os.chdir(middleware_dir)
         print(f"Current working directory: {os.getcwd()}")
