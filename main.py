@@ -1011,19 +1011,11 @@ async def download_project(body: DownloadProject):
         #     print(f"'middleware' directory found in structure at: {middleware_dir}")
 
         src_dir = os.path.join(backend_dir, "src")
-        existing_src_middleware = os.path.join(src_dir, "middleware")
-        existing_backend_middleware = os.path.join(backend_dir, "middleware")
-        
-        # Remove existing middleware directories if they exist
-        if os.path.exists(existing_src_middleware):
-            shutil.rmtree(existing_src_middleware)
-        if os.path.exists(existing_backend_middleware):
-            shutil.rmtree(existing_backend_middleware)
-        
-        # Create middleware in the appropriate location
         if os.path.exists(src_dir) and os.path.isdir(src_dir):
+            # If 'src' directory exists, create 'middleware' inside 'src'
             middleware_dir = os.path.join(src_dir, "middleware")
         else:
+            # Otherwise, create 'middleware' directly inside 'backend'
             middleware_dir = os.path.join(backend_dir, "middleware")
 
         # Create 'middleware' folder if not found
