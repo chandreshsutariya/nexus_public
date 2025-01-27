@@ -997,10 +997,10 @@ async def download_project(body: DownloadProject):
                 print("processing completed for react")
         
         middleware_dir = None
-        for line in dir_structure.splitlines():
-            if "middleware" in line and "backend" in line:
-                middleware_dir = os.path.join(backend_dir, "middleware")
-                break
+        # for line in dir_structure.splitlines():
+        #     if "middleware" in line and "backend" in line:
+        #         middleware_dir = os.path.join(backend_dir, "middleware")
+        #         break
 
         # Create 'middleware' folder if not found
         # if not middleware_dir:
