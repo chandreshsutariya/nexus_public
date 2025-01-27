@@ -1221,7 +1221,7 @@ class DirectoryGenerator:
                                              list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
                                                 {dir_structure}, and kick-off code: {get_kickoff(body.project_id)} give me 'only' code of this file:{path}."} #help me setup the project for coding"}
             ],
-            model="gpt-4o-mini"
+            model="gpt-4o"
         )
         content = chat_completion.choices[0].message.content
         trimmed = extract_directory_structure(content)
