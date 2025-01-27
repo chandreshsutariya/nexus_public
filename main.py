@@ -995,7 +995,7 @@ async def download_project(body: DownloadProject):
             if result.returncode !=0:
                 print(f"Warning: Command 'npx create-react-app {body.project_id}' failed with return code {result.returncode}. Continuing...")
                 print("processing completed for react")
-
+        
         middleware_dir = None
         for line in dir_structure.splitlines():
             if "middleware" in line and "backend" in line:
@@ -1003,13 +1003,28 @@ async def download_project(body: DownloadProject):
                 break
 
         # Create 'middleware' folder if not found
-        if not middleware_dir:
-            middleware_dir = os.path.join(backend_dir, "middleware")
-            os.makedirs(middleware_dir, exist_ok=True)
-            print(f"'middleware' directory created at: {middleware_dir}")
-        else:
-            print(f"'middleware' directory found in structure at: {middleware_dir}")
+        # if not middleware_dir:
+        #     middleware_dir = os.path.join(backend_dir, "middleware")
+        #     os.makedirs(middleware_dir, exist_ok=True)
+        #     print(f"'middleware' directory created at: {middleware_dir}")
+        # else:
+        #     print(f"'middleware' directory found in structure at: {middleware_dir}")
 
+        src_dir = os.path.join(backend_dir, "src")
+        if os.path.exists(src_dir) and os.path.isdir(src_dir):
+            # If 'src' directory exists, create 'middleware' inside 'src'
+            middleware_dir = os.path.join(src_dir, "middleware")
+        else:
+            # Otherwise, create 'middleware' directly inside 'backend'
+            middleware_dir = os.path.join(backend_dir, "middleware")
+
+        # Create 'middleware' folder if not found
+        os.makedirs(middleware_dir, exist_ok=True)
+        print(f"'middleware' directory created at: {middleware_dir}")
+
+        # Step 7: Navigate into the 'middleware' folder
+        os.chdir(middleware_dir)
+        print(f"Current working directory: {os.getcwd()}")
         # Step 7: Navigate into the 'middleware' folder
         os.chdir(middleware_dir)
         print(f"Current working directory: {os.getcwd()}")
