@@ -1042,6 +1042,18 @@ async def download_project(body: DownloadProject):
             except Exception as e:
                 print(f"Error processing file {filename}: {e}")
 
+        os.chdir(backend_dir)
+        print(f"Returned to backend directory: {os.getcwd()}")
+
+        # Check if 'middleware' folder exists
+        middleware_dir = os.path.join(backend_dir, "middleware")
+        if os.path.exists(middleware_dir) and os.path.isdir(middleware_dir):
+            # If the folder exists, delete it along with its contents
+            shutil.rmtree(middleware_dir)
+            print(f"'middleware' directory and its contents have been deleted from: {middleware_dir}")
+        else:
+            print(f"'middleware' directory not found in: {backend_dir}")
+            
         os.chdir(cwd)
         # Initialize generator and create structure in temp directory
         # generator = DirectoryGenerator(body)
