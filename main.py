@@ -948,11 +948,21 @@ async def download_project(body: DownloadProject):
 
             # Run Node.js commands
             print("Running Node.js commands...")
-            result = subprocess.run("npm init -y", shell=True, check=True, text=True)
-            if result.returncode == 0:
-                print("Completed 'npm init -y'")
+
+            def is_package_json_present(projects_dir):
+                for root, dirs, files in os.walk(projects_dir):
+                    if "package.json" in files:
+                        return True
+                return False
+            
+            if is_package_json_present(backend_dir):
+                print("package.json file already exists in the structure. Skipping 'npm init -y'.")
             else:
-                print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}")
+                result = subprocess.run("npm init -y", shell=True, check=True, text=True)
+                if result.returncode == 0:
+                    print("Completed 'npm init -y'")
+                else:
+                    print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}")
 
             result = subprocess.run("npm install express", shell=True, check=True, text=True)
             if result.returncode == 0:
@@ -1053,7 +1063,7 @@ async def download_project(body: DownloadProject):
             print(f"'middleware' directory and its contents have been deleted from: {middleware_dir}")
         else:
             print(f"'middleware' directory not found in: {backend_dir}")
-            
+
         os.chdir(cwd)
         # Initialize generator and create structure in temp directory
         # generator = DirectoryGenerator(body)
