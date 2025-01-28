@@ -13,7 +13,6 @@ import tempfile
 from pathlib import Path
 import uuid
 import subprocess
-import logging as logger
 
 
 
@@ -1247,119 +1246,18 @@ class DirectoryGenerator:
                     # print(f"Permission denied: Cannot create file {full_path}")
                     pass
 
-    # def get_content(self, path, body):
-    #     dir_structure = extract_directory_structure(find_file_structure(body.project_id))
-    #     chat_completion = client.chat.completions.create(
-    #         messages=[
-    #             {"role": "system", "content": "Please provide concise and specific information about the project"},
-    #             {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = False)}, and the \
-    #                                          list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
-    #                                             {dir_structure}, and kick-off code: {get_kickoff(body.project_id)} give me 'only' code of this file:{path}."} #help me setup the project for coding"}
-    #         ],
-    #         model="gpt-4o"
-    #     )
-    #     content = chat_completion.choices[0].message.content
-    #     trimmed = extract_directory_structure(content)
-    #     print("trimmed:",trimmed)
-    #     return trimmed
-
     def get_content(self, path, body):
-        """
-        Get the code content for a specific file based on project description and structure.
-        
-        Args:
-            path (str): File path to generate code for
-            body: Request body containing project_id
-        
-        Returns:
-            str: Generated code content for the specified file
-        """
-        try:
-            # Get project metadata
-            project_info = find_project(body.project_id, is_tech=False)
-            tasks = find_list_of_tasks(body.project_id)
-            dir_structure = extract_directory_structure(find_file_structure(body.project_id))
-            kickoff_code = get_kickoff(body.project_id)
-            
-            # Extract file type and context
-            file_extension = path.split('.')[-1] if '.' in path else ''
-            file_context = self._get_file_context(path, dir_structure)
-            
-            # Create enhanced prompt
-            messages = [
-                {"role": "system", "content": """You are an expert software developer. Generate production-ready code that:
-                    - Follows best practices and design patterns for the specific language/framework
-                    - Includes proper error handling and input validation
-                    - Is well-documented with comments explaining complex logic
-                    - Maintains consistency with the project's architecture
-                    Do not include any explanations - provide only the code content."""},
-                {"role": "user", "content": f"""
-                    Project Context:
-                    - Description: {project_info}
-                    - Tasks: {tasks}
-                    - File Structure: {dir_structure}
-                    - Kickoff Code: {kickoff_code}
-                    
-                    Generate code for: {path}
-                    File Type: {file_extension}
-                    File Context: {file_context}
-                    
-                    Additional Requirements:
-                    - Ensure code integrates with existing project structure
-                    - Follow consistent naming conventions
-                    - Include necessary imports
-                    - Handle edge cases appropriately
-                    
-                    Return only the code content without any markdown or explanations.
-                """}
-            ]
-            
-            # Make API call with enhanced parameters
-            chat_completion = client.chat.completions.create(
-                messages=messages,
-                model="gpt-4",  # Corrected model name
-                temperature=0.2,  # Lower temperature for more focused output
-                max_tokens=4000,  # Adjust based on your needs
-                presence_penalty=-0.1,  # Slightly discourage repetition
-                frequency_penalty=0.1   # Slightly encourage variety in language
-            )
-            
-            # Extract and process content
-            content = chat_completion.choices[0].message.content
-            trimmed = self._process_content(content, file_extension)
-            
-            return trimmed
-            
-        except Exception as e:
-            logger.error(f"Error generating content for {path}: {str(e)}")
-            raise
-
-    def _get_file_context(self, path, dir_structure):
-        """
-        Extract context about the file based on its location in the project.
-        """
-        # Get parent directory and nearby files
-        parent_dir = '/'.join(path.split('/')[:-1])
-        nearby_files = [f for f in dir_structure if f.startswith(parent_dir)]
-        
-        return {
-            'parent_directory': parent_dir,
-            'nearby_files': nearby_files,
-            'depth': len(path.split('/')) - 1
-        }
-
-    def _process_content(self, content, file_extension):
-        """
-        Process and validate the generated content based on file type.
-        """
-        # Remove any markdown code block indicators
-        content = content.replace('```' + file_extension, '').replace('```', '').strip()
-        
-        # Basic validation based on file type
-        if file_extension in ['py', 'js', 'java']:
-            # Ensure proper indentation
-            lines = content.split('\n')
-            if any(line.startswith('    ') for line in lines):
-                content = '\n'.join(lines)
-        
-        return content
+        dir_structure = extract_directory_structure(find_file_structure(body.project_id))
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "Please provide concise and specific information about the project"},
+                {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = False)}, and the \
+                                             list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
+                                                {dir_structure}, and kick-off code: {get_kickoff(body.project_id)} give me 'only' code of this file:{path}."} #help me setup the project for coding"}
+            ],
+            model="gpt-4o"
+        )
+        content = chat_completion.choices[0].message.content
+        trimmed = extract_directory_structure(content)
+        print("trimmed:",trimmed)
+        return trimmed
