@@ -946,6 +946,17 @@ async def download_project(body: DownloadProject):
             os.chdir(backend_dir)
             print(f"Changed working directory to: {os.getcwd()}")
 
+            # Step: Create API_README.md in backend directory
+            api_readme_path = os.path.join(backend_dir, "API_README.md")
+            try:
+                with open(api_readme_path, "w") as api_readme:
+                    # Write basic content to the file
+                    api_readme.write("# API Documentation\n\n")
+                    api_readme.write("This file contains all API keys used in the project along with example CURL requests and responses.\n\n")
+                    print(f"'API_README.md' created successfully at: {api_readme_path}")
+            except Exception as e:
+                print(f"Error creating 'API_README.md': {e}")
+
             # Run Node.js commands
             print("Running Node.js commands...")
 
@@ -1252,13 +1263,21 @@ class DirectoryGenerator:
         dir_structure = extract_directory_structure(find_file_structure(body.project_id))
         chat_completion = client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "Please provide concise and specific information about the project"},
-                {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = False)}, and the \
-                                             list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
-                                                {dir_structure}, and kick-off code: {get_kickoff(body.project_id)} give me 'only' code of this file:{path}. \
-                                                also Implement Security Measures like Password Hashing and Encryption and Decryption of API Calls etc. (in the respective files). \
-                                                after all this content provided create a README.md file where you have to put every api you have created in the respective project \
-                                                and it's sample Curl response and body response which makes developer to understand the input and ouput of every APIs"} #help me setup the project for coding"}
+                {"role": "system", "content": "You are a highly intelligent assistant capable of generating secure and production-ready project code with documentation."},
+                {"role": "user", "content": f"""
+                    Given the project description: {find_project(body.project_id, is_tech=False)}, the list of tasks: {find_list_of_tasks(body.project_id)}, the file structure: {dir_structure}, and the kick-off code: {get_kickoff(body.project_id)}, please:
+                    
+                    1. Write the appropriate code for each file in the generated directory structure with:
+                        - Security measures like Password Hashing and Encryption/Decryption of API calls.
+                        - Proper error handling and logging.
+                    
+                    2. In `API_README.md` file in the backend directory that documents all APIs used in the project. For each API:
+                        - Provide its **name**, **endpoint**, **HTTP method**.
+                        - Add an **example CURL request** showing how to use the API.
+                        - Include a sample **body** and **response** for each API.
+                    
+                    Generate concise, production-ready code and API documentation.
+                """}
             ],
             model="gpt-4o"
         )
