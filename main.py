@@ -861,28 +861,28 @@ def extract_bash_commands(text):
 # directory_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
 # # print(directory_structure)
 
-def get_middleware_file_content(path: str) -> str:
-        """Fetch content for middleware files or return an empty string for others."""
-        print('866',path)
-        try:
-            # Check if the path corresponds to a middleware file
-            base_middleware_dir = os.getenv('middleware_files')  # Default for Linux
-            print('870',base_middleware_dir)
+# def get_middleware_file_content(path: str) -> str:
+#         """Fetch content for middleware files or return an empty string for others."""
+#         print('866',path)
+#         try:
+#             # Check if the path corresponds to a middleware file
+#             base_middleware_dir = os.getenv('middleware_files')  # Default for Linux
+#             print('870',base_middleware_dir)
 
-            filename = os.path.basename(path)
-            middleware_files = ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]
+#             filename = os.path.basename(path)
+#             middleware_files = ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]
 
-            if filename in middleware_files:
-                # Read content from the corresponding file in the local `middleware_files` folder
-                local_file_path = os.path.join(base_middleware_dir, filename)
-                with open(local_file_path, "r") as f:
-                    return f.read()
+#             if filename in middleware_files:
+#                 # Read content from the corresponding file in the local `middleware_files` folder
+#                 local_file_path = os.path.join(base_middleware_dir, filename)
+#                 with open(local_file_path, "r") as f:
+#                     return f.read()
 
-            # For other files, return empty content
-            return ""
-        except Exception as e:
-            print(f"Error reading content for {path}: {e}")
-            return ""
+#             # For other files, return empty content
+#             return ""
+#         except Exception as e:
+#             print(f"Error reading content for {path}: {e}")
+#             return ""
 
 
 @app.post('/downloadproject/')
@@ -1005,64 +1005,66 @@ async def download_project(body: DownloadProject):
             if result.returncode !=0:
                 print(f"Warning: Command 'npx create-react-app {body.project_id}' failed with return code {result.returncode}. Continuing...")
                 print("processing completed for react")
-        
-        middleware_dir = None
-        # for line in dir_structure.splitlines():
-        #     if "middleware" in line and "backend" and "src" in line:
-        #         middleware_dir = os.path.join(backend_dir or src_dir, "middleware")
-        #         break
+################################# Middleware files ######################################################################################################      
+        # middleware_dir = None
+        # # for line in dir_structure.splitlines():
+        # #     if "middleware" in line and "backend" and "src" in line:
+        # #         middleware_dir = os.path.join(backend_dir or src_dir, "middleware")
+        # #         break
 
-        # Create 'middleware' folder if not found
-        # if not middleware_dir:
-        #     middleware_dir = os.path.join(backend_dir, "middleware")
-        #     os.makedirs(middleware_dir, exist_ok=True)
-        #     print(f"'middleware' directory created at: {middleware_dir}")
+        # # Create 'middleware' folder if not found
+        # # if not middleware_dir:
+        # #     middleware_dir = os.path.join(backend_dir, "middleware")
+        # #     os.makedirs(middleware_dir, exist_ok=True)
+        # #     print(f"'middleware' directory created at: {middleware_dir}")
+        # # else:
+        # #     print(f"'middleware' directory found in structure at: {middleware_dir}")
+
+        # src_dir = os.path.join(backend_dir, "src")
+        # if os.path.exists(src_dir) and os.path.isdir(src_dir):
+        #     # If 'src' directory exists, create 'middleware' inside 'src'
+        #     middleware_dir = os.path.join(src_dir, "middleware")
         # else:
-        #     print(f"'middleware' directory found in structure at: {middleware_dir}")
+        #     # Otherwise, create 'middleware' directly inside 'backend'
+        #     middleware_dir = os.path.join(backend_dir, "middleware")
 
-        src_dir = os.path.join(backend_dir, "src")
-        if os.path.exists(src_dir) and os.path.isdir(src_dir):
-            # If 'src' directory exists, create 'middleware' inside 'src'
-            middleware_dir = os.path.join(src_dir, "middleware")
-        else:
-            # Otherwise, create 'middleware' directly inside 'backend'
-            middleware_dir = os.path.join(backend_dir, "middleware")
+        # # Create 'middleware' folder if not found
+        # os.makedirs(middleware_dir, exist_ok=True)
+        # print(f"'middleware' directory created at: {middleware_dir}")
 
-        # Create 'middleware' folder if not found
-        os.makedirs(middleware_dir, exist_ok=True)
-        print(f"'middleware' directory created at: {middleware_dir}")
+        # # Step 7: Navigate into the 'middleware' folder
+        # os.chdir(middleware_dir)
+        # print(f"Current working directory: {os.getcwd()}")
 
-        # Step 7: Navigate into the 'middleware' folder
-        os.chdir(middleware_dir)
-        print(f"Current working directory: {os.getcwd()}")
+        # # Step 8: Fetch or generate middleware files with content
+        # for filename in ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]:
+        #     target_path = os.path.join(middleware_dir, filename)
+        #     try:
+        #         # Fetch the content using the provided function
+        #         content = get_middleware_file_content(target_path)
 
-        # Step 8: Fetch or generate middleware files with content
-        for filename in ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]:
-            target_path = os.path.join(middleware_dir, filename)
-            try:
-                # Fetch the content using the provided function
-                content = get_middleware_file_content(target_path)
+        #         # Write the content to the target path
+        #         with open(target_path, "w") as target_file:
+        #             target_file.write(content)
+        #         print(f"Copied file: {filename} to {target_path}")
+        #     except FileNotFoundError:
+        #         print(f"Source file not found for: {filename}")
+        #     except Exception as e:
+        #         print(f"Error processing file {filename}: {e}")
 
-                # Write the content to the target path
-                with open(target_path, "w") as target_file:
-                    target_file.write(content)
-                print(f"Copied file: {filename} to {target_path}")
-            except FileNotFoundError:
-                print(f"Source file not found for: {filename}")
-            except Exception as e:
-                print(f"Error processing file {filename}: {e}")
+        # os.chdir(backend_dir)
+        # print(f"Returned to backend directory: {os.getcwd()}")
 
-        os.chdir(backend_dir)
-        print(f"Returned to backend directory: {os.getcwd()}")
+        # # Check if 'middleware' folder exists
+        # middleware_dir = os.path.join(backend_dir, "middleware")
+        # if os.path.exists(middleware_dir) and os.path.isdir(middleware_dir):
+        #     # If the folder exists, delete it along with its contents
+        #     shutil.rmtree(middleware_dir)
+        #     print(f"'middleware' directory and its contents have been deleted from: {middleware_dir}")
+        # else:
+        #     print(f"'middleware' directory not found in: {backend_dir}")
+################################# Middleware files ######################################################################################################      
 
-        # Check if 'middleware' folder exists
-        middleware_dir = os.path.join(backend_dir, "middleware")
-        if os.path.exists(middleware_dir) and os.path.isdir(middleware_dir):
-            # If the folder exists, delete it along with its contents
-            shutil.rmtree(middleware_dir)
-            print(f"'middleware' directory and its contents have been deleted from: {middleware_dir}")
-        else:
-            print(f"'middleware' directory not found in: {backend_dir}")
 
         os.chdir(cwd)
         # Initialize generator and create structure in temp directory
