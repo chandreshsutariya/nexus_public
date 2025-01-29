@@ -959,13 +959,13 @@ async def download_project(body: DownloadProject):
                 print("package.json file already exists in the structure. Skipping 'npm init -y'.")
             else:
                 result = subprocess.run("npm init -y", shell=True, check=True, text=True)
-                if result.returncode == 1:
+                if result.returncode == 0:
                     print("Completed 'npm init -y'")
                 else:
                     print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}")
 
             result = subprocess.run("npm install express", shell=True, check=True, text=True)
-            if result.returncode == 1:
+            if result.returncode == 0:
                 print("Completed 'npm install express'")
             else:
                 print(f"Warning: Command 'npm install express' failed with return code {result.returncode}")
