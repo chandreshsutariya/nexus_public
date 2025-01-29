@@ -1265,7 +1265,7 @@ class DirectoryGenerator:
             messages=[
                 {
             "role": "system", 
-            "content": "You are a highly intelligent assistant capable of generating secure and production-ready project code with documentation."
+            "content": "You are a highly intelligent assistant capable of generating secure and production-ready project code with documentation according to the Project description and working. You are expert in providing executable code for any project."
         },
         {
             "role": "user", 
@@ -1286,25 +1286,16 @@ class DirectoryGenerator:
                 - Environment variable management
                 - Database security best practices
 
-            2. Create a comprehensive `API_README.md` file in the backend directory that documents ALL APIs used in the project. For each API, include:
+            2. In `API_README.md` file in the backend directory, document ALL APIs used in the project. For each API, include:
                 - Name: Clear, descriptive name of the API endpoint
                 - Endpoint: Full URL path
                 - HTTP Method: GET/POST/PUT/DELETE etc.
-                - Authentication: Required authentication method if any
-                - Request Headers: Required and optional headers
-                - Request Parameters: Both path and query parameters
-                - Request Body: Complete schema with all fields
-                - Response Codes: All possible HTTP response codes
-                - Response Body: Schema for successful and error responses
-                - Example CURL Request: Working example with all required parameters
-                - Sample Request Body: JSON example of request payload
-                - Sample Response: JSON example of successful response
-                - Error Responses: Examples of possible error responses
-                - Rate Limits: Any applicable rate limiting
-                - Notes: Any additional important information
+                - Sample Curl Response: according to respective API what can be the Curl Response when using api( Means what kind of curl response user will get on running this api successfully).
+                - Sample Body Response: Provide Sample of Body Response according to resepective API( Means what kind of body response user will get on running this api successfully).
+                - Must cover all APIs have used in the project.
 
             The output MUST include BOTH production-ready code AND complete API documentation.
-            Please confirm completion of both tasks in your response.
+            Please confirm completion of both tasks in your response perfoming both tasks is compulsory.
             """
         }],
             model="gpt-4o"
