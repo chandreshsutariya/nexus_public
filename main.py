@@ -1263,22 +1263,50 @@ class DirectoryGenerator:
         dir_structure = extract_directory_structure(find_file_structure(body.project_id))
         chat_completion = client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "You are a highly intelligent assistant capable of generating secure and production-ready project code with documentation."},
-                {"role": "user", "content": f"""
-                    Given the project description: {find_project(body.project_id, is_tech=False)}, the list of tasks: {find_list_of_tasks(body.project_id)}, the file structure: {dir_structure}, and the kick-off code: {get_kickoff(body.project_id)}, please:
-                    
-                    1. Write the appropriate code for each file in the generated directory structure with:
-                        - Security measures like Password Hashing and Encryption/Decryption of API calls.
-                        - Proper error handling and logging.
-                    
-                    2. In `API_README.md` file in the backend directory that documents all APIs used in the project. For each API:
-                        - Provide its **name**, **endpoint**, **HTTP method**.
-                        - Add an **example CURL request** showing how to use the API.
-                        - Include a sample **body** and **response** for each API.
-                    
-                    Generate concise, production-ready code and API documentation.
-                """}
-            ],
+                {
+            "role": "system", 
+            "content": "You are a highly intelligent assistant capable of generating secure and production-ready project code with documentation."
+        },
+        {
+            "role": "user", 
+            "content": f"""
+            Given the project description: {find_project(body.project_id, is_tech=False)}, 
+            the list of tasks: {find_list_of_tasks(body.project_id)}, 
+            the file structure: {dir_structure}, 
+            and the kick-off code: {get_kickoff(body.project_id)}, 
+            please complete BOTH of the following tasks:
+
+            1. Write the appropriate code for each file in the generated directory structure with:
+                - Security measures like Password Hashing and Encryption/Decryption of API calls
+                - Proper error handling and logging
+                - Input validation and sanitization
+                - Session management and authentication where applicable
+                - Rate limiting and request throttling
+                - Secure headers and CORS configuration
+                - Environment variable management
+                - Database security best practices
+
+            2. Create a comprehensive `API_README.md` file in the backend directory that documents ALL APIs used in the project. For each API, include:
+                - Name: Clear, descriptive name of the API endpoint
+                - Endpoint: Full URL path
+                - HTTP Method: GET/POST/PUT/DELETE etc.
+                - Authentication: Required authentication method if any
+                - Request Headers: Required and optional headers
+                - Request Parameters: Both path and query parameters
+                - Request Body: Complete schema with all fields
+                - Response Codes: All possible HTTP response codes
+                - Response Body: Schema for successful and error responses
+                - Example CURL Request: Working example with all required parameters
+                - Sample Request Body: JSON example of request payload
+                - Sample Response: JSON example of successful response
+                - Error Responses: Examples of possible error responses
+                - Rate Limits: Any applicable rate limiting
+                - Notes: Any additional important information
+
+            The output MUST include BOTH production-ready code AND complete API documentation.
+            Please confirm completion of both tasks in your response.
+            """
+        }],
             model="gpt-4o"
         )
         content = chat_completion.choices[0].message.content
