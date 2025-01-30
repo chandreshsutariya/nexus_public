@@ -941,17 +941,12 @@ async def download_project(body: DownloadProject):
         #     print("Completed 'npm install express'")
         # Step 5: Run Node commands (if project type is 'node')
 
-        print('backend_dir: ', backend_dir)
-        os.chdir(backend_dir)
-        print(f"Changed working directory to: {os.getcwd()}")
-
-
         
-        # if body.project_type == "node":
+        if body.project_type == "node":
             # Change working directory to 'backend'
-            # print('backend_dir: ', backend_dir)
-            # os.chdir(backend_dir)
-            # print(f"Changed working directory to: {os.getcwd()}")
+            print('backend_dir: ', backend_dir)
+            os.chdir(backend_dir)
+            print(f"Changed working directory to: {os.getcwd()}")
 
             # Step: Create API_README.md in backend directory
             # api_readme_path = os.path.join(backend_dir, "API_README.md")
@@ -964,23 +959,23 @@ async def download_project(body: DownloadProject):
             # except Exception as e:
             #     print(f"Error creating 'API_README.md': {e}")
 
-            # # Run Node.js commands
-            # print("Running Node.js commands...")
+            # Run Node.js commands
+            print("Running Node.js commands...")
 
-            # def is_package_json_present(projects_dir):
-            #     for root, dirs, files in os.walk(projects_dir):
-            #         if "package.json" in files:
-            #             return True
-            #     return False
+            def is_package_json_present(projects_dir):
+                for root, dirs, files in os.walk(projects_dir):
+                    if "package.json" in files:
+                        return True
+                return False
             
-            # if is_package_json_present(backend_dir):
-            #     print("package.json file already exists in the structure. Skipping 'npm init -y'.")
-            # else:
-            #     result = subprocess.run("npm init -y", shell=True, check=True, text=True)
-            #     if result.returncode == 0:
-            #         print("Completed 'npm init -y'")
-            #     else:
-            #         print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}")
+            if is_package_json_present(backend_dir):
+                print("package.json file already exists in the structure. Skipping 'npm init -y'.")
+            else:
+                result = subprocess.run("npm init -y", shell=True, check=True, text=True)
+                if result.returncode == 0:
+                    print("Completed 'npm init -y'")
+                else:
+                    print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}")
 
         #     result = subprocess.run("npm install express", shell=True, check=True, text=True)
         #     if result.returncode == 0:
