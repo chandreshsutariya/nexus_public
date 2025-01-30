@@ -340,7 +340,7 @@ async def platform_suggestion(body: ProjectDescription):
             messages=[
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id, is_tech=True)}, \
-                                        platforms for deployment. If you are giving suggestion for mobile platform, adivse Native or Hybrid."}
+                                        platforms suggestions "}
             ],
             model="gpt-4o"
         )
@@ -360,6 +360,10 @@ async def platform_suggestion(body: ProjectDescription):
     except Exception as e:
         # print(f"Error when suggesting platforms: {e}")  # Logging the error
         raise HTTPException(status_code=500, detail="An error occurred while generating the platform suggestion.")
+    
+
+    # If you are giving suggestion for mobile platform, adivse Native or Hybrid.
+
     
 # 2.1 :: PANELS
 @app.post('/panels/')
