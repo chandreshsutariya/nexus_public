@@ -218,12 +218,7 @@ def extract_tasks_without_asterisks(content):
     return tasks
 
 # Configure your OpenAI API key from environment variable
-# client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-client = OpenAI(
-    base_url="https://api.kluster.ai/v1",
-    api_key=os.getenv("OPENAI_API_KEY"),
-)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class ProjectDescription(BaseModel):
     project_id: str
@@ -347,7 +342,7 @@ async def platform_suggestion(body: ProjectDescription):
                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id, is_tech=True)}, \
                                         platforms for deployment. If you are giving suggestion for mobile platform, adivse Native or Hybrid."}
             ],
-            model="deepseek-ai/DeepSeek-R1"
+            model="gpt-4o"
         )
         platforms = chat_completion.choices[0].message.content
         # print(platforms)
@@ -376,7 +371,7 @@ async def panels(body: Panels):
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id)}, tell the panels required for the project like user panel, admin panel, merchant panel etc.."}
             ],
-            model="deepseek-ai/DeepSeek-R1"
+            model="gpt-4o"
         )
         panels = chat_completion.choices[0].message.content
         # print(panels)
@@ -406,7 +401,7 @@ async def tools_and_lib_suggestions(body: ToolsAndLibSuggestions):
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id)}, tell tools and library to use."}
             ],
-            model="deepseek-ai/DeepSeek-R1"
+            model="gpt-4o"
         )
         tools_lib = chat_completion.choices[0].message.content
         # print(tools_lib)
@@ -436,7 +431,7 @@ async def module_assistant(body: ModuleRequest):
                 {"role": "user", "content": f"Using the project example context: {find_project(body.project_id, )} list the modules\
                  that could be used. only necessary modules in accroding to project development.keep the "}
             ],
-            model="deepseek-ai/DeepSeek-R1"
+            model="gpt-4o"
         )
         modules = chat_completion.choices[0].message.content
         # print(modules)
@@ -466,7 +461,7 @@ async def feature_assistant(body: FeatureAssistant):
                 {"role": "user", "content": f"Using the project example context: {find_project(body.project_id)}, provide\
                  modeul wise feature/s of following modules: {find_module(body.project_id, is_tech=True)}"}
             ],
-            model="deepseek-ai/DeepSeek-R1"
+            model="gpt-4o"
         )
         features = chat_completion.choices[0].message.content
         # print(features)
@@ -495,7 +490,7 @@ async def feature_assistant(body: FeatureAssistant):
 #                 {"role": "user", "content": f"Using the project example context: {find_project(body.project_id)}, provide\
 #                  modeul wise feature/s of following modules: {find_module(body.project_id, is_tech=True)}"}
 #             ],
-#             model="deepseek-ai/DeepSeek-R1"
+#             model="gpt-4o"
 #         )
 #         features = chat_completion.choices[0].message.content
 #         # print(features)
@@ -589,7 +584,7 @@ async def task_assistant(body: TaskList):
                                             #         I want the tasks in series and at granular level such that I can\
                                             #             use agile method while developement."
             ],
-            model="deepseek-ai/DeepSeek-R1" #gpt-4o-mini
+            model="gpt-4o" #gpt-4o-mini
         )
         task_list = chat_completion.choices[0].message.content
         # # print(task_list)
@@ -623,7 +618,7 @@ async def task_assistant(body: TaskDescription):
                                             task description: {body.task_description} and comment: {body.comment}, provide path-way including a small code snippets\
                                                 to complete the task."}
             ],
-            model="deepseek-ai/DeepSeek-R1"
+            model="gpt-4o-mini"
         )
         task_assistant = chat_completion.choices[0].message.content
         # print(task_assistant)
@@ -651,7 +646,7 @@ async def setup(body: Setup):
                 {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
                                              user input {body.user_input} help me setup project for the first time."} #help me setup the project for coding"}
             ],
-            model="deepseek-ai/DeepSeek-R1"
+            model="gpt-4o-mini"
         )
         setup = chat_completion.choices[0].message.content
         # print(setup)
@@ -684,7 +679,7 @@ async def setup(body: Kickoff):
                                                 {find_file_structure(body.project_id)}, and user input:{body.user_input} \
                                                     help me kickoff the coding by giving code."} #help me setup the project for coding"}
             ],
-            model="deepseek-ai/DeepSeek-R1"
+            model="gpt-4o-mini"
         )
         kickoff = chat_completion.choices[0].message.content
         # print(kickoff)
@@ -945,82 +940,89 @@ async def download_project(body: DownloadProject):
         #         print(f"Warning: Command 'npm install express' failed. Continuing...")
         #     print("Completed 'npm install express'")
         # Step 5: Run Node commands (if project type is 'node')
-        if body.project_type == "node":
+
+        print('backend_dir: ', backend_dir)
+        os.chdir(backend_dir)
+        print(f"Changed working directory to: {os.getcwd()}")
+
+
+        
+        # if body.project_type == "node":
             # Change working directory to 'backend'
-            print('backend_dir: ', backend_dir)
-            os.chdir(backend_dir)
-            print(f"Changed working directory to: {os.getcwd()}")
+            # print('backend_dir: ', backend_dir)
+            # os.chdir(backend_dir)
+            # print(f"Changed working directory to: {os.getcwd()}")
 
             # Step: Create API_README.md in backend directory
-            api_readme_path = os.path.join(backend_dir, "API_README.md")
-            try:
-                with open(api_readme_path, "w") as api_readme:
-                    # Write basic content to the file
-                    api_readme.write("# API Documentation\n\n")
-                    api_readme.write("This file contains all API keys used in the project along with example CURL requests and responses.\n\n")
-                    print(f"'API_README.md' created successfully at: {api_readme_path}")
-            except Exception as e:
-                print(f"Error creating 'API_README.md': {e}")
+            # api_readme_path = os.path.join(backend_dir, "API_README.md")
+            # try:
+            #     with open(api_readme_path, "w") as api_readme:
+            #         # Write basic content to the file
+            #         api_readme.write("# API Documentation\n\n")
+            #         api_readme.write("This file contains all API keys used in the project along with example CURL requests and responses.\n\n")
+            #         print(f"'API_README.md' created successfully at: {api_readme_path}")
+            # except Exception as e:
+            #     print(f"Error creating 'API_README.md': {e}")
 
-            # Run Node.js commands
-            print("Running Node.js commands...")
+            # # Run Node.js commands
+            # print("Running Node.js commands...")
 
-            def is_package_json_present(projects_dir):
-                for root, dirs, files in os.walk(projects_dir):
-                    if "package.json" in files:
-                        return True
-                return False
+            # def is_package_json_present(projects_dir):
+            #     for root, dirs, files in os.walk(projects_dir):
+            #         if "package.json" in files:
+            #             return True
+            #     return False
             
-            if is_package_json_present(backend_dir):
-                print("package.json file already exists in the structure. Skipping 'npm init -y'.")
-            else:
-                result = subprocess.run("npm init -y", shell=True, check=True, text=True)
-                if result.returncode == 0:
-                    print("Completed 'npm init -y'")
-                else:
-                    print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}")
+            # if is_package_json_present(backend_dir):
+            #     print("package.json file already exists in the structure. Skipping 'npm init -y'.")
+            # else:
+            #     result = subprocess.run("npm init -y", shell=True, check=True, text=True)
+            #     if result.returncode == 0:
+            #         print("Completed 'npm init -y'")
+            #     else:
+            #         print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}")
 
-            result = subprocess.run("npm install express", shell=True, check=True, text=True)
-            if result.returncode == 0:
-                print("Completed 'npm install express'")
-            else:
-                print(f"Warning: Command 'npm install express' failed with return code {result.returncode}")
+        #     result = subprocess.run("npm install express", shell=True, check=True, text=True)
+        #     if result.returncode == 0:
+        #         print("Completed 'npm install express'")
+        #     else:
+        #         print(f"Warning: Command 'npm install express' failed with return code {result.returncode}")
 
 
-        elif(body.project_type == "flutter"):
-            project_path = os.path.join(projects_dir)
-            print("downloading structure for flutter")
+        # elif(body.project_type == "flutter"):
+        #     project_path = os.path.join(projects_dir)
+        #     print("downloading structure for flutter")
 
-            full_project_path = os.path.join(project_path, body.project_id)
+        #     full_project_path = os.path.join(project_path, body.project_id)
 
-            if os.path.exists(full_project_path):
-                print(f"Deleting existing directory: {full_project_path}")
-                shutil.rmtree(full_project_path)
+        #     if os.path.exists(full_project_path):
+        #         print(f"Deleting existing directory: {full_project_path}")
+        #         shutil.rmtree(full_project_path)
 
-            os.chdir(project_path)
+        #     os.chdir(project_path)
 
-            result = subprocess.run(f"flutter create {body.project_id}", shell=True, check=False, text=True)
-            if result.returncode !=0:
-                print(f"Warning: Command 'flutter create {body.project_id}' failed with return code {result.returncode}. Continuing...")
-                print("processing completed for flutter")
+        #     result = subprocess.run(f"flutter create {body.project_id}", shell=True, check=False, text=True)
+        #     if result.returncode !=0:
+        #         print(f"Warning: Command 'flutter create {body.project_id}' failed with return code {result.returncode}. Continuing...")
+        #         print("processing completed for flutter")
 
-        elif(body.project_type == "react"):
-            project_path = os.path.join(projects_dir)
+        # elif(body.project_type == "react"):
+        #     project_path = os.path.join(projects_dir)
 
-            print("downlaoding started for react")
+        #     print("downlaoding started for react")
 
-            full_project_path = os.path.join(project_path, body.project_id)
+        #     full_project_path = os.path.join(project_path, body.project_id)
 
-            if os.path.exists(full_project_path):
-                print(f"Deleting existing directory: {full_project_path}")
-                shutil.rmtree(full_project_path)
+        #     if os.path.exists(full_project_path):
+        #         print(f"Deleting existing directory: {full_project_path}")
+        #         shutil.rmtree(full_project_path)
 
-            os.chdir(project_path)
+        #     os.chdir(project_path)
 
-            result = subprocess.run(f"npx create-react-app {body.project_id}", shell=True, check=False, text=True)
-            if result.returncode !=0:
-                print(f"Warning: Command 'npx create-react-app {body.project_id}' failed with return code {result.returncode}. Continuing...")
-                print("processing completed for react")
+        #     result = subprocess.run(f"npx create-react-app {body.project_id}", shell=True, check=False, text=True)
+        #     if result.returncode !=0:
+        #         print(f"Warning: Command 'npx create-react-app {body.project_id}' failed with return code {result.returncode}. Continuing...")
+        #         print("processing completed for react")
 ################################# Middleware files ######################################################################################################      
         # middleware_dir = None
         # # for line in dir_structure.splitlines():
@@ -1273,7 +1275,7 @@ class DirectoryGenerator:
                                              list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
                                                 {dir_structure}, and kick-off code: {get_kickoff(body.project_id)} give me 'only' code of this file:{path}. also Implement Security Measures like Password Hashing and Encryption and Decryption of API Calls etc. in the respective files."} #help me setup the project for coding"}
             ],
-            model="deepseek-ai/DeepSeek-R1"
+            model="gpt-4o"
         )
         content = chat_completion.choices[0].message.content
         trimmed = extract_directory_structure(content)
