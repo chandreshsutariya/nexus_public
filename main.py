@@ -1273,7 +1273,7 @@ class DirectoryGenerator:
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = False)}, and the \
                                              list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
-                                                {dir_structure}, and kick-off code: {get_kickoff(body.project_id)} give me 'only' code of this file:{path}. also Implement Security Measures like Password Hashing and Encryption and Decryption of API Calls etc. in the respective files."} #help me setup the project for coding"}
+                                                {dir_structure}, and kick-off code: {get_kickoff(body.project_id)} give me 'only' code of this file:{path}."} #help me setup the project for coding"}
             ],
             model="gpt-4o"
         )
