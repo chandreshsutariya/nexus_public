@@ -218,7 +218,12 @@ def extract_tasks_without_asterisks(content):
     return tasks
 
 # Configure your OpenAI API key from environment variable
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+client = OpenAI(
+    base_url="https://api.kluster.ai/v1",
+    api_key=os.getenv("OPENAI_API_KEY"),
+)
 
 class ProjectDescription(BaseModel):
     project_id: str
@@ -342,7 +347,7 @@ async def platform_suggestion(body: ProjectDescription):
                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id, is_tech=True)}, \
                                         platforms for deployment. If you are giving suggestion for mobile platform, adivse Native or Hybrid."}
             ],
-            model="gpt-4o"
+            model="deepseek-ai/DeepSeek-R1"
         )
         platforms = chat_completion.choices[0].message.content
         # print(platforms)
@@ -371,7 +376,7 @@ async def panels(body: Panels):
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id)}, tell the panels required for the project like user panel, admin panel, merchant panel etc.."}
             ],
-            model="gpt-4o"
+            model="deepseek-ai/DeepSeek-R1"
         )
         panels = chat_completion.choices[0].message.content
         # print(panels)
@@ -401,7 +406,7 @@ async def tools_and_lib_suggestions(body: ToolsAndLibSuggestions):
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id)}, tell tools and library to use."}
             ],
-            model="gpt-4o"
+            model="deepseek-ai/DeepSeek-R1"
         )
         tools_lib = chat_completion.choices[0].message.content
         # print(tools_lib)
@@ -429,9 +434,9 @@ async def module_assistant(body: ModuleRequest):
             messages=[
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Using the project example context: {find_project(body.project_id, )} list the modules\
-                 that could be used."}
+                 that could be used. only necessary modules in accroding to project development.keep the "}
             ],
-            model="gpt-4o"
+            model="deepseek-ai/DeepSeek-R1"
         )
         modules = chat_completion.choices[0].message.content
         # print(modules)
@@ -461,7 +466,7 @@ async def feature_assistant(body: FeatureAssistant):
                 {"role": "user", "content": f"Using the project example context: {find_project(body.project_id)}, provide\
                  modeul wise feature/s of following modules: {find_module(body.project_id, is_tech=True)}"}
             ],
-            model="gpt-4o"
+            model="deepseek-ai/DeepSeek-R1"
         )
         features = chat_completion.choices[0].message.content
         # print(features)
@@ -490,7 +495,7 @@ async def feature_assistant(body: FeatureAssistant):
 #                 {"role": "user", "content": f"Using the project example context: {find_project(body.project_id)}, provide\
 #                  modeul wise feature/s of following modules: {find_module(body.project_id, is_tech=True)}"}
 #             ],
-#             model="gpt-4o"
+#             model="deepseek-ai/DeepSeek-R1"
 #         )
 #         features = chat_completion.choices[0].message.content
 #         # print(features)
@@ -584,7 +589,7 @@ async def task_assistant(body: TaskList):
                                             #         I want the tasks in series and at granular level such that I can\
                                             #             use agile method while developement."
             ],
-            model="gpt-4o" #gpt-4o-mini
+            model="deepseek-ai/DeepSeek-R1" #gpt-4o-mini
         )
         task_list = chat_completion.choices[0].message.content
         # # print(task_list)
@@ -618,7 +623,7 @@ async def task_assistant(body: TaskDescription):
                                             task description: {body.task_description} and comment: {body.comment}, provide path-way including a small code snippets\
                                                 to complete the task."}
             ],
-            model="gpt-4o-mini"
+            model="deepseek-ai/DeepSeek-R1"
         )
         task_assistant = chat_completion.choices[0].message.content
         # print(task_assistant)
@@ -646,7 +651,7 @@ async def setup(body: Setup):
                 {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
                                              user input {body.user_input} help me setup project for the first time."} #help me setup the project for coding"}
             ],
-            model="gpt-4o-mini"
+            model="deepseek-ai/DeepSeek-R1"
         )
         setup = chat_completion.choices[0].message.content
         # print(setup)
@@ -679,7 +684,7 @@ async def setup(body: Kickoff):
                                                 {find_file_structure(body.project_id)}, and user input:{body.user_input} \
                                                     help me kickoff the coding by giving code."} #help me setup the project for coding"}
             ],
-            model="gpt-4o-mini"
+            model="deepseek-ai/DeepSeek-R1"
         )
         kickoff = chat_completion.choices[0].message.content
         # print(kickoff)
@@ -1263,47 +1268,17 @@ class DirectoryGenerator:
         dir_structure = extract_directory_structure(find_file_structure(body.project_id))
         chat_completion = client.chat.completions.create(
             messages=[
-                {
-            "role": "system", 
-            "content": "You are a highly intelligent assistant capable of generating secure and production-ready project code with documentation according to the Project description and working. You are expert in providing executable code for any project."
-        },
-        {
-            "role": "user", 
-            "content": f"""
-            Given the project description: {find_project(body.project_id, is_tech=False)}, 
-            the list of tasks: {find_list_of_tasks(body.project_id)}, 
-            the file structure: {dir_structure}, 
-            and the kick-off code: {get_kickoff(body.project_id)}, 
-            please complete BOTH of the following tasks:
-
-            1. Write the appropriate code for each file in the generated directory structure with:
-                - Security measures like Password Hashing and Encryption/Decryption of API calls
-                - Proper error handling and logging
-                - Input validation and sanitization
-                - Session management and authentication where applicable
-                - Rate limiting and request throttling
-                - Secure headers and CORS configuration
-                - Environment variable management
-                - Database security best practices
-
-            2. In `API_README.md` file in the backend directory, document ALL APIs used in the project. For each API, include:
-                - Name: Clear, descriptive name of the API endpoint
-                - Endpoint: Full URL path
-                - HTTP Method: GET/POST/PUT/DELETE etc.
-                - Sample Curl Response: according to respective API what can be the Curl Response when using api( Means what kind of curl response user will get on running this api successfully).
-                - Sample Body Response: Provide Sample of Body Response according to resepective API( Means what kind of body response user will get on running this api successfully).
-                - Must cover all APIs have used in the project.
-
-            The output MUST include BOTH production-ready code AND complete API documentation.
-            Please confirm completion of both tasks in your response perfoming both tasks is compulsory.
-            """
-        }],
-            model="gpt-4o"
+                {"role": "system", "content": "Please provide concise and specific information about the project"},
+                {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = False)}, and the \
+                                             list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
+                                                {dir_structure}, and kick-off code: {get_kickoff(body.project_id)} give me 'only' code of this file:{path}. also Implement Security Measures like Password Hashing and Encryption and Decryption of API Calls etc. in the respective files."} #help me setup the project for coding"}
+            ],
+            model="deepseek-ai/DeepSeek-R1"
         )
         content = chat_completion.choices[0].message.content
         trimmed = extract_directory_structure(content)
         print("trimmed:",trimmed)
-        return trimmed
+
     
 
 # also Implement Security Measures like Password Hashing and Encryption and Decryption of API Calls etc. in the respective files.
