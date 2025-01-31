@@ -650,7 +650,7 @@ async def setup(body: Setup):
                 {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
                                              user input {body.user_input} help me setup project for the first time."} #help me setup the project for coding"}
             ],
-            model="gpt-4o-mini"
+            model="gpt-4o"
         )
         setup = chat_completion.choices[0].message.content
         # print(setup)
@@ -1268,49 +1268,121 @@ class DirectoryGenerator:
     def get_content(self, path, body):
         dir_structure = extract_directory_structure(find_file_structure(body.project_id))
         chat_completion = client.chat.completions.create(
-            messages=[
-            {"role": "system", "content": """
-                You are a highly experienced Node.js backend developer and API designer. 
-                Your task is to generate **complete, production-ready code** for each file in a Node.js project based on the project description and structure provided.
+        messages=[
+            {
+                "role": "system",
+                "content": """You are a senior Node.js developer with extensive experience building production applications. 
+                Generate clean, efficient, and properly structured code following current best practices.
 
-                Ensure the following:
-                1. Consistent and **standard HTTP status codes**:
-                    - Use `200` for success, `201` for resource creation, `400` for validation errors, `401` for unauthorized access, `403` for forbidden, and `500` for server errors.
-                2. Implement **robust authentication and authorization**:
-                    - Use **JWT** tokens for authentication.
-                    - Implement middleware to validate JWTs and enforce role-based access control.
-                    - Handle token expiration and invalid tokens gracefully.
-                3. Implement **encryption and decryption**:
-                    - Use **AES-256 encryption** for sensitive data.
-                    - Properly handle encryption keys and ensure they are stored securely.
-                    - Use appropriate error handling to handle encryption/decryption failures.
-                4. Provide **comprehensive error handling**:
-                    - Implement a centralized error-handling mechanism.
-                    - Return clear and meaningful error messages.
-                    - Ensure no sensitive information is leaked in error responses.
-                5. Follow **Node.js coding best practices**:
-                    - Use modular code structure (e.g., services, controllers, models, middlewares).
-                    - Avoid inline logic; use helper functions and reusable services.
-                    - Properly validate request payloads using libraries like `Joi` or `express-validator`.
-                    - Use `async/await` with `try/catch` blocks for asynchronous code.
-                6. Ensure **code quality and readability**:
-                    - Use consistent indentation and naming conventions (camelCase for variables, PascalCase for classes).
-                    - Add meaningful comments where necessary.
-                    - Include sample usage or notes in the files where applicable.
-                7. Provide **complete, functional code** for each file, adhering to the given file structure and project description.
-            """},
-            {"role": "user", "content": f"""
-                Based on the project description: {find_project(body.project_id, is_tech=False)}, the list of tasks: {find_list_of_tasks(body.project_id)}, 
-                the file structure: {dir_structure}, and the kick-off code: {get_kickoff(body.project_id)}:
-                
-                Write the **complete code** for this file: `{path}`. Ensure:
-                - Proper **security measures** (password hashing, JWT authentication, AES encryption/decryption).
-                - Consistent **status codes** and responses.
-                - Proper **validation** of inputs and error handling.
-                - A clean, **modular structure** for the project.
-                
-                Provide only the **complete, functional code** for the specified file and ensure it integrates well with other parts of the project.
-            """} #help me setup the project for coding"}
+                CORE DEVELOPMENT PRINCIPLES:
+                1. Project Structure:
+                   - Clear folder organization (controllers, routes, models, middleware)
+                   - Modular code structure
+                   - Clean separation of concerns
+                   - Well-organized imports
+                   - Consistent file naming
+
+                2. Code Quality:
+                   - Use modern ES6+ features
+                   - Implement proper async/await patterns
+                   - Follow consistent error handling
+                   - Use proper validation patterns
+                   - Write clean, readable code
+                   - Use meaningful variable/function names
+                   - Implement proper comments for complex logic
+
+                3. API Development:
+                   - RESTful API best practices
+                   - Proper route handling
+                   - Middleware implementation
+                   - Request validation
+                   - Response formatting
+                   - Status code usage
+                   - Query parameter handling
+                   - Pagination implementation
+                   - Search and filter patterns
+
+                4. Security Implementation:
+                   - JWT authentication with refresh tokens
+                   - Password hashing (bcrypt)
+                   - Request validation
+                   - Data sanitization
+                   - XSS protection
+                   - SQL injection prevention
+                   - Rate limiting
+                   - CORS configuration
+                   - Secure headers (helmet)
+
+                5. Database Operations:
+                   - Efficient queries
+                   - Transaction handling
+                   - Error handling
+                   - Connection management
+                   - Query optimization
+                   - Proper indexing
+                   - Data validation
+
+                6. Error Handling:
+                   - Global error handler
+                   - Custom error classes
+                   - Proper error messages
+                   - Error logging
+                   - Status code mapping
+                   - Client-safe error responses
+
+                7. Performance:
+                   - Efficient database queries
+                   - Proper caching
+                   - Request optimization
+                   - Response optimization
+                   - Memory management
+                   - Connection pooling
+
+                8. Code Organization:
+                   - Service layer pattern
+                   - Repository pattern for data access
+                   - Middleware organization
+                   - Route organization
+                   - Controller organization
+                   - Model organization
+                   - Utility functions
+                """
+            },
+            {
+                "role": "user",
+                "content": f"""Based on:
+                Given the project description: {find_project(body.project_id, is_tech=False)}, 
+                the list of tasks: {find_list_of_tasks(body.project_id)}, 
+                the file structure: {dir_structure}, 
+                and the kick-off code: {get_kickoff(body.project_id)},
+
+                Generate production-quality code for: {path}
+
+                REQUIREMENTS:
+                1. Follow Node.js best practices
+                2. Implement proper error handling
+                3. Include security measures
+                4. Use efficient database operations
+                5. Implement proper validation
+                6. Follow consistent patterns
+                7. Write clean, maintainable code
+                8. Use proper naming conventions
+                9. Include necessary comments
+                10. Implement proper error responses
+
+                The code should be:
+                - Production-ready
+                - Efficient
+                - Secure
+                - Well-structured
+                - Easy to maintain
+                - Following best practices
+                - Properly documented
+                - Error handled
+                - Properly validated
+                - Consistently formatted
+                """
+            } #help me setup the project for coding"}
             ],
             model="gpt-4o",
             temperature=0.2,
