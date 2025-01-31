@@ -646,10 +646,15 @@ async def setup(body: Setup):
         # Use OpenAI API with `ChatCompletion` to generate small code snippets
         chat_completion = client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "Please provide concise and specific information about the project"},
-                {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
-                                             user input {body.user_input} help me setup project for the first time."} #help me setup the project for coding"}
-            ],
+                        {"role": "system", "content": "Please provide a concise and specific directory structure for a production-ready project \
+                                based on the given tech stack, including all necessary files and configurations."},
+                        {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
+                                 user input {body.user_input}, help me set up the project for the first time by providing a complete directory \
+                                 structure with all required files, configurations, and best practices for a production-ready application. \
+                                 Ensure the directory includes essential modules, configurations, database setup, security measures, \
+                                 environment variables, logging, and deployment scripts."}
+]
+,
             model="gpt-4o"
         )
         setup = chat_completion.choices[0].message.content
