@@ -1269,12 +1269,51 @@ class DirectoryGenerator:
         dir_structure = extract_directory_structure(find_file_structure(body.project_id))
         chat_completion = client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "Please provide concise and specific information about the project"},
-                {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = False)}, and the \
-                                             list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
-                                                {dir_structure}, and kick-off code: {get_kickoff(body.project_id)} give me 'only' code of this file:{path} also Implement Security Measures like Password Hashing and Encryption and Decryption of API Calls etc. in the respective files."} #help me setup the project for coding"}
+            {"role": "system", "content": """
+                You are a highly experienced Node.js backend developer and API designer. 
+                Your task is to generate **complete, production-ready code** for each file in a Node.js project based on the project description and structure provided.
+
+                Ensure the following:
+                1. Consistent and **standard HTTP status codes**:
+                    - Use `200` for success, `201` for resource creation, `400` for validation errors, `401` for unauthorized access, `403` for forbidden, and `500` for server errors.
+                2. Implement **robust authentication and authorization**:
+                    - Use **JWT** tokens for authentication.
+                    - Implement middleware to validate JWTs and enforce role-based access control.
+                    - Handle token expiration and invalid tokens gracefully.
+                3. Implement **encryption and decryption**:
+                    - Use **AES-256 encryption** for sensitive data.
+                    - Properly handle encryption keys and ensure they are stored securely.
+                    - Use appropriate error handling to handle encryption/decryption failures.
+                4. Provide **comprehensive error handling**:
+                    - Implement a centralized error-handling mechanism.
+                    - Return clear and meaningful error messages.
+                    - Ensure no sensitive information is leaked in error responses.
+                5. Follow **Node.js coding best practices**:
+                    - Use modular code structure (e.g., services, controllers, models, middlewares).
+                    - Avoid inline logic; use helper functions and reusable services.
+                    - Properly validate request payloads using libraries like `Joi` or `express-validator`.
+                    - Use `async/await` with `try/catch` blocks for asynchronous code.
+                6. Ensure **code quality and readability**:
+                    - Use consistent indentation and naming conventions (camelCase for variables, PascalCase for classes).
+                    - Add meaningful comments where necessary.
+                    - Include sample usage or notes in the files where applicable.
+                7. Provide **complete, functional code** for each file, adhering to the given file structure and project description.
+            """},
+            {"role": "user", "content": f"""
+                Based on the project description: {find_project(body.project_id, is_tech=False)}, the list of tasks: {find_list_of_tasks(body.project_id)}, 
+                the file structure: {dir_structure}, and the kick-off code: {get_kickoff(body.project_id)}:
+                
+                Write the **complete code** for this file: `{path}`. Ensure:
+                - Proper **security measures** (password hashing, JWT authentication, AES encryption/decryption).
+                - Consistent **status codes** and responses.
+                - Proper **validation** of inputs and error handling.
+                - A clean, **modular structure** for the project.
+                
+                Provide only the **complete, functional code** for the specified file and ensure it integrates well with other parts of the project.
+            """} #help me setup the project for coding"}
             ],
-            model="gpt-4o"
+            model="gpt-4o",
+            temperature=0.2,
         )
         content = chat_completion.choices[0].message.content
         trimmed = extract_directory_structure(content)
