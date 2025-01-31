@@ -1359,6 +1359,7 @@ class DirectoryGenerator:
                 Given the project description: {find_project(body.project_id, is_tech=False)}, 
                 the list of tasks: {find_list_of_tasks(body.project_id)}, 
                 the file structure: {dir_structure}, 
+                the user input: {body.user_input},
                 and the kick-off code: {get_kickoff(body.project_id)},
 
                 Generate production-quality code for: {path}
