@@ -930,6 +930,17 @@ async def download_project(body: DownloadProject):
         else:
             print(f"'backend' directory found in structure at: {backend_dir}")
 
+        # Step 4: Create an empty API_README.md in the backend folder
+        api_readme_path = os.path.join(backend_dir, "API_README.md")
+        try:
+            # Create the file and leave it empty
+            with open(api_readme_path, "w") as api_readme:
+                pass  # No content is written, creating an empty file
+
+            print(f"'API_README.md' file created successfully at: {api_readme_path}")
+        except Exception as e:
+            print(f"Error creating 'API_README.md': {e}")
+
         # # Step 4: Navigate into the 'backend' folder
         # os.chdir(backend_dir)
         # print(f"Current working directory: {os.getcwd()}")
@@ -1272,6 +1283,8 @@ class DirectoryGenerator:
 
     def get_content(self, path, body):
         dir_structure = extract_directory_structure(find_file_structure(body.project_id))
+        # api_readme_path = os.path.join(self.backend_dir, "API_README.md")  # Define path for API_README.md
+
         chat_completion = client.chat.completions.create(
         messages=[
             {
