@@ -12,6 +12,7 @@ import shutil
 import tempfile
 from pathlib import Path
 import uuid
+import subprocess
 
 
 
@@ -39,6 +40,20 @@ client_mongo = pymongo.MongoClient(mongodb_path)
 
 collection = client_mongo['ELaunch-Nexus']['projects']
 
+def find_project_name(project_id):
+    if not project_id:
+        return "project_id is required."
+    else:
+        project = collection.find_one({'_id': ObjectId(project_id)})
+        try:
+            project_name = project['name']
+            return project_name
+        except Exception as e:
+            # # print("43: error extract ing project[name]")
+            # print(f"{e}")
+            pass
+    return "default_project_name"
+        
 def find_project(project_id, is_tech=None):
     if not project_id:
         return "project_id is required."
@@ -244,6 +259,7 @@ class Kickoff(BaseModel):
 class DownloadProject(BaseModel):
     project_id: str
     user_input: Any
+    project_type: str           # shall be from "flutter", "react"
 
 class DownloadProject_test(BaseModel):
     project_id: str
@@ -277,6 +293,45 @@ class DownloadProject_test(BaseModel):
 #         raise HTTPException(status_code=500, detail="An error occurred while generating the technology suggestion.")
 
 # 2 :: SUGGESTION FOR PLATFORMS
+
+# @app.post('/project_explaination')
+# async def project_explanation(body: ProjectDescription):
+#     try:
+#         chat_completion = client.chat.completions.create(
+#             messages=[
+#                 {"role": "system", "content": "You are a highly intelligent assistant with expertise in understanding and elaborating on project descriptions. \
+#                                         You analyze provided descriptions carefully and generate detailed explanations, \
+#                                         tailoring each response uniquely to match the project's objectives and scope."},
+#                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id, is_tech=True)}, provide a comprehensive explanation of the project. Your response should include: \
+#                                         1. **Project Overview**: A concise summary of the project's objectives, purpose, and key features.  \
+#                                         2. **Detailed Working Flow**: Break down the workflow into clear steps, explaining how the system components interact and the sequence of operations. Highlight any unique technologies, algorithms, or methods used in the project. \
+#                                         3. **Database and Data Handling**: If applicable, describe the data structures or databases involved, including how data is stored, processed, and retrieved.  \
+#                                         4. **Security Features**: Explain any security measures implemented in the project, such as password protection, encryption, or access control.  \
+#                                         5. **User Interaction**: Highlight how users interact with the system, including interfaces, input methods, and output formats.  \
+#                                         6. **Deployment Suggestions**: Recommend deployment platforms (e.g., web, mobile, cloud) suitable for the project, considering its requirements. \
+#                                         7. **Advantages and Benefits**: Summarize the key benefits of the project, focusing on usability, performance, security, and scalability.  \
+#                                         Ensure your explanation is unique to the project description provided and does not follow a generic structure unless required by the nature of the project."}
+#             ],
+#             model="gpt-4o"
+#         )
+
+#         project_explanation = chat_completion.choices[0].message.content
+#         # print(platforms)
+#         result = collection.update_one(
+#             {'_id': ObjectId(body.project_id)},  # Filter by _id
+#             {'$set': {'project_explanation': project_explanation}}  # Add/Update the technology field
+#         )
+#         if result.modified_count > 0:
+#             # print("Platform field added successfully.")
+#             pass
+#         else:
+#             # print("No document found or no changes made.")
+#             pass
+#         return JSONResponse(content={"project_explanation":project_explanation})
+#     except Exception as e:
+#         # print(f"Error when suggesting platforms: {e}")  # Logging the error
+#         raise HTTPException(status_code=500, detail="An error occurred while generating the platform suggestion.")
+    
 @app.post('/platform_suggestion/')
 async def platform_suggestion(body: ProjectDescription):
     try:
@@ -285,7 +340,7 @@ async def platform_suggestion(body: ProjectDescription):
             messages=[
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id, is_tech=True)}, \
-                                        platforms for deployment. If you are giving suggestion for mobile platform, adivse Native or Hybrid."}
+                                        platforms suggestions "}
             ],
             model="gpt-4o"
         )
@@ -305,6 +360,10 @@ async def platform_suggestion(body: ProjectDescription):
     except Exception as e:
         # print(f"Error when suggesting platforms: {e}")  # Logging the error
         raise HTTPException(status_code=500, detail="An error occurred while generating the platform suggestion.")
+    
+
+    # If you are giving suggestion for mobile platform, adivse Native or Hybrid.
+
     
 # 2.1 :: PANELS
 @app.post('/panels/')
@@ -374,7 +433,7 @@ async def module_assistant(body: ModuleRequest):
             messages=[
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Using the project example context: {find_project(body.project_id, )} list the modules\
-                 that could be used."}
+                 that could be used. only necessary modules in accroding to project development.keep the "}
             ],
             model="gpt-4o"
         )
@@ -587,14 +646,20 @@ async def setup(body: Setup):
         # Use OpenAI API with `ChatCompletion` to generate small code snippets
         chat_completion = client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "Please provide concise and specific information about the project"},
-                {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
-                                             user input {dir_structure} help me setup project for the first time."} #help me setup the project for coding"}
-            ],
-            model="gpt-4o-mini"
+                        {"role": "system", "content": "Please provide a concise and specific directory structure for a production-ready project \
+                                based on the given tech stack, including all necessary files and configurations."},
+                        {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
+                                 user input {body.user_input}, help me set up the project for the first time by providing a complete directory \
+                                 structure with all required files, configurations, and best practices for a production-ready application. \
+                                 Ensure the directory includes essential modules, configurations, database setup, security measures, \
+                                 environment variables, logging, and deployment scripts."}
+]
+,
+            model="gpt-4o"
         )
         setup = chat_completion.choices[0].message.content
         # print(setup)
+        extract_bash_commands(setup)
         ################################################################ we are storing the response in the database #########################################################################
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
@@ -709,9 +774,12 @@ async def setup(body: Kickoff):
 
 
 def extract_directory_structure(text):
+    print("Started Direcory extraction")
     uuid_str = str(uuid.uuid4())
     try:
         with open(f"{uuid_str}", "w") as f:
+            # print("1121: ", text)
+
             f.write(text)
     except Exception as e:
         # print(f"799: Error writing to file: {e}")
@@ -727,6 +795,7 @@ def extract_directory_structure(text):
                 # # print(one)
                 if "```" in one:
                     backtick+=1
+                    one = f.readline()
                     # # print(one)
                 if backtick == 1:
                     structure += one
@@ -743,7 +812,57 @@ def extract_directory_structure(text):
         # print(f"799: Error deleting file: {e}")
         pass
     
-    structure = structure.split("\n", 1)[1]
+    # structure = structure.split("\n", 1)[1]
+    print("structure created")
+    return structure
+
+def extract_bash_commands(text):
+    uuid_str = str(uuid.uuid4())
+    try:
+        with open(f"{uuid_str}", "w") as f:
+            # print("1121: ", text)
+           
+            f.write(text)
+    except Exception as e:
+        # print(f"799: Error writing to file: {e}")
+        pass
+    
+    try:
+        with open(f"{uuid_str}", "r") as f:
+            # file_content = f.read()
+            structure = ""
+            one = f.readline()
+            backtick=0
+            while(one):
+                # print('776:',one)
+                if "```bash" in one:
+                    backtick=1
+                    one=f.readline()
+                    structure+=one
+                    # print('771: ',one)
+                    one=f.readline()
+                    continue
+                
+                if backtick == 1 and "```" in one:
+                    backtick=0
+                    # print('777:', one)
+                elif backtick==1:
+                    structure+=one
+                    # print('774:', one)
+                one = f.readline()
+        # # print("structure: \n:", structure)
+    except Exception as e:
+        return None
+    
+    # delete the file
+    try:
+        os.remove(f"{uuid_str}")
+        pass
+    except Exception as e:
+        # print(f"799: Error deleting file: {e}")
+        pass
+    
+    print("structure: \n:", structure)
     return structure
 
 # Example usage
@@ -751,18 +870,231 @@ def extract_directory_structure(text):
 # directory_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
 # # print(directory_structure)
 
+# def get_middleware_file_content(path: str) -> str:
+#         """Fetch content for middleware files or return an empty string for others."""
+#         print('866',path)
+#         try:
+#             # Check if the path corresponds to a middleware file
+#             base_middleware_dir = os.getenv('middleware_files')  # Default for Linux
+#             print('870',base_middleware_dir)
+
+#             filename = os.path.basename(path)
+#             middleware_files = ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]
+
+#             if filename in middleware_files:
+#                 # Read content from the corresponding file in the local `middleware_files` folder
+#                 local_file_path = os.path.join(base_middleware_dir, filename)
+#                 with open(local_file_path, "r") as f:
+#                     return f.read()
+
+#             # For other files, return empty content
+#             return ""
+#         except Exception as e:
+#             print(f"Error reading content for {path}: {e}")
+#             return ""
+
 
 @app.post('/downloadproject/')
 async def download_project(body: DownloadProject):
-
-    dir_structure = extract_directory_structure(find_file_structure(body.project_id))
     try:
-        # Initialize generator and create structure in temp directory
+        cwd = os.getcwd()
+
+        # Step 1: Create 'projects' folder and navigate into it
+        print("Creating projects folder...")
+        projects_dir = os.path.join(cwd, "projects")
+        os.makedirs(projects_dir, exist_ok=True)
+        os.chdir(projects_dir)
+        print(f"Current working directory: {os.getcwd()}")
+
+        # Step 2: Fetch the directory structure and generate it
+        print("Fetching generated directory structure...")
+        dir_structure = extract_directory_structure(find_file_structure(body.project_id))
         generator = DirectoryGenerator(body)
-        base_name = f"./projects/{body.project_id}"
+        base_name = f"./{body.project_id}"
         generator.create_structure(base_name, dir_structure)
 
 
+        projects_dir = os.path.join(projects_dir, body.project_id)
+        # Step 3: Search for 'backend' folder
+        backend_dir = None
+        for line in dir_structure.splitlines():
+            if "backend" in line:
+                backend_dir = os.path.join(projects_dir, "backend")
+                break
+
+        # Create 'backend' folder if not found
+        if not backend_dir:
+            backend_dir = os.path.join(projects_dir, "backend")
+            os.makedirs(backend_dir, exist_ok=True)
+            print(f"'backend' directory created at: {backend_dir}")
+        else:
+            print(f"'backend' directory found in structure at: {backend_dir}")
+
+        # # Step 4: Navigate into the 'backend' folder
+        # os.chdir(backend_dir)
+        # print(f"Current working directory: {os.getcwd()}")
+
+        # Step 5: Run Node commands (if project type is 'node')
+        # if body.project_type == "node":
+        #     os.chdir(backend_dir)
+        #     print(f"Current working directory: {os.getcwd()}")
+        #     print("Running Node.js commands...")
+        #     result = subprocess.run("npm init -y", shell=True, check=False, text=True)
+        #     if result.returncode != 0:
+        #         print(f"Warning: Command 'npm init -y' failed. Continuing...")
+        #     print("Completed 'npm init -y'")
+
+        #     result = subprocess.run("npm install express", shell=True, check=False, text=True)
+        #     if result.returncode != 0:
+        #         print(f"Warning: Command 'npm install express' failed. Continuing...")
+        #     print("Completed 'npm install express'")
+        # Step 5: Run Node commands (if project type is 'node')
+
+        
+        if body.project_type == "node":
+            # Change working directory to 'backend'
+            print('backend_dir: ', backend_dir)
+            os.chdir(backend_dir)
+            print(f"Changed working directory to: {os.getcwd()}")
+
+            # Step: Create API_README.md in backend directory
+            # api_readme_path = os.path.join(backend_dir, "API_README.md")
+            # try:
+            #     with open(api_readme_path, "w") as api_readme:
+            #         # Write basic content to the file
+            #         api_readme.write("# API Documentation\n\n")
+            #         api_readme.write("This file contains all API keys used in the project along with example CURL requests and responses.\n\n")
+            #         print(f"'API_README.md' created successfully at: {api_readme_path}")
+            # except Exception as e:
+            #     print(f"Error creating 'API_README.md': {e}")
+
+            # Run Node.js commands
+            print("Running Node.js commands...")
+
+            def is_package_json_present(projects_dir):
+                for root, dirs, files in os.walk(projects_dir):
+                    if "package.json" in files:
+                        return True
+                return False
+            
+            if is_package_json_present(backend_dir):
+                print("package.json file already exists in the structure. Skipping 'npm init -y'.")
+            else:
+                result = subprocess.run("npm init -y", shell=True, check=True, text=True)
+                if result.returncode == 0:
+                    print("Completed 'npm init -y'")
+                else:
+                    print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}")
+
+        #     result = subprocess.run("npm install express", shell=True, check=True, text=True)
+        #     if result.returncode == 0:
+        #         print("Completed 'npm install express'")
+        #     else:
+        #         print(f"Warning: Command 'npm install express' failed with return code {result.returncode}")
+
+
+        # elif(body.project_type == "flutter"):
+        #     project_path = os.path.join(projects_dir)
+        #     print("downloading structure for flutter")
+
+        #     full_project_path = os.path.join(project_path, body.project_id)
+
+        #     if os.path.exists(full_project_path):
+        #         print(f"Deleting existing directory: {full_project_path}")
+        #         shutil.rmtree(full_project_path)
+
+        #     os.chdir(project_path)
+
+        #     result = subprocess.run(f"flutter create {body.project_id}", shell=True, check=False, text=True)
+        #     if result.returncode !=0:
+        #         print(f"Warning: Command 'flutter create {body.project_id}' failed with return code {result.returncode}. Continuing...")
+        #         print("processing completed for flutter")
+
+        # elif(body.project_type == "react"):
+        #     project_path = os.path.join(projects_dir)
+
+        #     print("downlaoding started for react")
+
+        #     full_project_path = os.path.join(project_path, body.project_id)
+
+        #     if os.path.exists(full_project_path):
+        #         print(f"Deleting existing directory: {full_project_path}")
+        #         shutil.rmtree(full_project_path)
+
+        #     os.chdir(project_path)
+
+        #     result = subprocess.run(f"npx create-react-app {body.project_id}", shell=True, check=False, text=True)
+        #     if result.returncode !=0:
+        #         print(f"Warning: Command 'npx create-react-app {body.project_id}' failed with return code {result.returncode}. Continuing...")
+        #         print("processing completed for react")
+################################# Middleware files ######################################################################################################      
+        # middleware_dir = None
+        # # for line in dir_structure.splitlines():
+        # #     if "middleware" in line and "backend" and "src" in line:
+        # #         middleware_dir = os.path.join(backend_dir or src_dir, "middleware")
+        # #         break
+
+        # # Create 'middleware' folder if not found
+        # # if not middleware_dir:
+        # #     middleware_dir = os.path.join(backend_dir, "middleware")
+        # #     os.makedirs(middleware_dir, exist_ok=True)
+        # #     print(f"'middleware' directory created at: {middleware_dir}")
+        # # else:
+        # #     print(f"'middleware' directory found in structure at: {middleware_dir}")
+
+        # src_dir = os.path.join(backend_dir, "src")
+        # if os.path.exists(src_dir) and os.path.isdir(src_dir):
+        #     # If 'src' directory exists, create 'middleware' inside 'src'
+        #     middleware_dir = os.path.join(src_dir, "middleware")
+        # else:
+        #     # Otherwise, create 'middleware' directly inside 'backend'
+        #     middleware_dir = os.path.join(backend_dir, "middleware")
+
+        # # Create 'middleware' folder if not found
+        # os.makedirs(middleware_dir, exist_ok=True)
+        # print(f"'middleware' directory created at: {middleware_dir}")
+
+        # # Step 7: Navigate into the 'middleware' folder
+        # os.chdir(middleware_dir)
+        # print(f"Current working directory: {os.getcwd()}")
+
+        # # Step 8: Fetch or generate middleware files with content
+        # for filename in ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]:
+        #     target_path = os.path.join(middleware_dir, filename)
+        #     try:
+        #         # Fetch the content using the provided function
+        #         content = get_middleware_file_content(target_path)
+
+        #         # Write the content to the target path
+        #         with open(target_path, "w") as target_file:
+        #             target_file.write(content)
+        #         print(f"Copied file: {filename} to {target_path}")
+        #     except FileNotFoundError:
+        #         print(f"Source file not found for: {filename}")
+        #     except Exception as e:
+        #         print(f"Error processing file {filename}: {e}")
+
+        # os.chdir(backend_dir)
+        # print(f"Returned to backend directory: {os.getcwd()}")
+
+        # # Check if 'middleware' folder exists
+        # middleware_dir = os.path.join(backend_dir, "middleware")
+        # if os.path.exists(middleware_dir) and os.path.isdir(middleware_dir):
+        #     # If the folder exists, delete it along with its contents
+        #     shutil.rmtree(middleware_dir)
+        #     print(f"'middleware' directory and its contents have been deleted from: {middleware_dir}")
+        # else:
+        #     print(f"'middleware' directory not found in: {backend_dir}")
+################################# Middleware files ######################################################################################################      
+
+
+        os.chdir(cwd)
+        # Initialize generator and create structure in temp directory
+        # generator = DirectoryGenerator(body)
+        # base_name = f"./projects/{body.project_id}"
+        # generator.create_structure(base_name, dir_structure)
+
+        base_name = f'./projects/{body.project_id}'
         shutil.make_archive(
             base_name=base_name,
             format='zip',
@@ -770,7 +1102,7 @@ async def download_project(body: DownloadProject):
             base_dir=body.project_id
         )
         zip_path = f"./projects/{body.project_id}.zip"
-        
+
         return FileResponse(
             path=zip_path,
             media_type='application/zip',
@@ -779,7 +1111,7 @@ async def download_project(body: DownloadProject):
                 "Content-Disposition": f"attachment; filename={body.project_id}.zip"
             }
         )
-            
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -789,21 +1121,21 @@ class DirectoryGenerator:
     def __init__(self,body):
         self.paths = []
         self.body = body
-        
+
     def _get_level(self, line: str) -> int:
         """Get the nesting level of a line"""
         # Count the actual indentation level based on │ and spaces
         indent = len(line) - len(line.lstrip('│ '))
         return indent // 2
-        
+
     def _parse_path(self, line: str) -> str:
         """Extract the file/directory name from a tree line, removing comments and special symbols"""
         # Remove tree symbols and whitespace
         name = re.sub(r'^[├└│─\s]+', '', line)
-        
+
         # Remove any comments (everything after and including #)
         name = name.split('#')[0].strip()
-        
+
         # Remove special symbols and their contents
         name = re.sub(r'\([^)]*\)', '', name)  # Remove anything in parentheses ()
         name = re.sub(r'\{[^}]*\}', '', name)  # Remove anything in curly braces {}
@@ -815,30 +1147,30 @@ class DirectoryGenerator:
 
 
         return name.strip()
-        
+
     def parse_structure(self, text: str) -> None:
         """Parse the directory structure text into paths"""
         self.paths = []  # Reset paths
         lines = text.split('\n')
         path_stack: List[Tuple[int, str]] = []
         last_valid_level = 0
-        
+
         for line in lines:
             # Skip completely empty lines
             if not line.strip():
                 continue
-                
+
             # Check if line only contains vertical separators and spaces
             if re.match(r'^[\s│|]*$', line):
                 continue
-                
+
             level = self._get_level(line)
             name = self._parse_path(line)
-            
+
             # Skip if after removing comments and tree symbols there's nothing left
             if not name:
                 continue
-                
+
             # Handle root directory specially
             if level == 0:
                 name = name.lstrip('/')
@@ -846,48 +1178,59 @@ class DirectoryGenerator:
                 self.paths.append(name)
                 last_valid_level = 0
                 continue
-            
+
             # Maintain the path stack based on the last valid level
             while path_stack and path_stack[-1][0] >= level:
                 path_stack.pop()
-            
+
             # If there's a gap in levels, use the last valid parent
             if not path_stack:
                 # If somehow we lost the stack but have a valid path, 
                 # treat it as a child of root
                 if self.paths:
                     path_stack = [(0, self.paths[0])]
-            
+
             path_stack.append((level, name))
             last_valid_level = level
-            
+
             # Construct full path
             full_path = os.path.join(*[p[1] for p in path_stack])
             if full_path not in self.paths:
                 self.paths.append(full_path)
 
+    
     # The rest of the class remains the same...
     def create_structure(self, base_path: str, text: str) -> None:
         # remove directory if it exists
         try:
-            shutil.rmtree(base_path)
+            # shutil.rmtree(base_path)
+            pass
         except:
             pass
-        """Create the directory structure"""
+
+        # default_structure = """\
+        # middleware/
+        # ├── auth.middleware.ts
+        # ├── decryption.middleware.ts
+        # └── encryption.middleware.ts
+        # """
+        # combined_structure = default_structure + "\n" + text
+        # """Create the directory structure"""
+        # self.parse_structure(combined_structure)
         self.parse_structure(text)
-        
+
         # Sort paths to ensure directories are created before files
         sorted_paths = sorted(self.paths, key=lambda x: (len(x.split(os.sep)), not x.endswith('/')))
-        
+
         for path in sorted_paths:
             if not path.strip():  # Skip empty paths
                 continue
-                
+
             full_path = os.path.join(base_path, path)
-            
+
             # Normalize path separators
             full_path = os.path.normpath(full_path)
-            
+
             if path.endswith('/'):
                 # Handle directory creation
                 try:
@@ -902,28 +1245,158 @@ class DirectoryGenerator:
                     # Ensure parent directory exists
                     parent_dir = os.path.dirname(full_path)
                     os.makedirs(parent_dir, exist_ok=True)
+                    # content = self.get_content(full_path, self.body)
+                    # if "middleware/auth.middleware.ts" in full_path:
+                    #     content = self.get_middleware_file_content("auth.middleware.ts")
+                    # elif "middleware/decryption.middleware.ts" in full_path:
+                    #     content = self.get_middleware_file_content("decryption.middleware.ts")
+                    # elif "middleware/encryption.middleware.ts" in full_path:
+                    #     content = self.get_middleware_file_content("encryption.middleware.ts")
+                    # else:
+                        # Handle other files normally
                     content = self.get_content(full_path, self.body)
 
                     # Create file only if it doesn't exist
                     if not os.path.exists(full_path):
                         with open(full_path, 'w') as f:
+                            # print("1121: ", content)
+                            # print('1126', full_path)
+                            if content == None:
+                                content =""
                             f.write(content)
                         # print(f"Created file: {full_path}")
 
                 except PermissionError:
                     # print(f"Permission denied: Cannot create file {full_path}")
                     pass
-    
+
     def get_content(self, path, body):
         dir_structure = extract_directory_structure(find_file_structure(body.project_id))
         chat_completion = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": "Please provide concise and specific information about the project"},
-                {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = False)}, and the \
-                                             list of tasks: {find_list_of_tasks(body.project_id)}, and the file structure \
-                                                {dir_structure}, and kick-off code: {get_kickoff(body.project_id)} give me 'only' code of this file:{path}."} #help me setup the project for coding"}
+        messages=[
+            {
+                "role": "system",
+                "content": """You are a senior Node.js developer with extensive experience building production applications. 
+                Generate clean, efficient, and properly structured code following current best practices.
+
+                CORE DEVELOPMENT PRINCIPLES:
+                1. Project Structure:
+                   - Clear folder organization (controllers, routes, models, middleware)
+                   - Modular code structure
+                   - Clean separation of concerns
+                   - Well-organized imports
+                   - Consistent file naming
+
+                2. Code Quality:
+                   - Use modern ES6+ features
+                   - Implement proper async/await patterns
+                   - Follow consistent error handling
+                   - Use proper validation patterns
+                   - Write clean, readable code
+                   - Use meaningful variable/function names
+                   - Implement proper comments for complex logic
+
+                3. API Development:
+                   - RESTful API best practices
+                   - Proper route handling
+                   - Middleware implementation
+                   - Request validation
+                   - Response formatting
+                   - Status code usage
+                   - Query parameter handling
+                   - Pagination implementation
+                   - Search and filter patterns
+
+                4. Security Implementation:
+                   - JWT authentication with refresh tokens
+                   - Password hashing (bcrypt)
+                   - Request validation
+                   - Data sanitization
+                   - XSS protection
+                   - SQL injection prevention
+                   - Rate limiting
+                   - CORS configuration
+                   - Secure headers (helmet)
+
+                5. Database Operations:
+                   - Efficient queries
+                   - Transaction handling
+                   - Error handling
+                   - Connection management
+                   - Query optimization
+                   - Proper indexing
+                   - Data validation
+
+                6. Error Handling:
+                   - Global error handler
+                   - Custom error classes
+                   - Proper error messages
+                   - Error logging
+                   - Status code mapping
+                   - Client-safe error responses
+
+                7. Performance:
+                   - Efficient database queries
+                   - Proper caching
+                   - Request optimization
+                   - Response optimization
+                   - Memory management
+                   - Connection pooling
+
+                8. Code Organization:
+                   - Service layer pattern
+                   - Repository pattern for data access
+                   - Middleware organization
+                   - Route organization
+                   - Controller organization
+                   - Model organization
+                   - Utility functions
+                """
+            },
+            {
+                "role": "user",
+                "content": f"""Based on:
+                Given the project description: {find_project(body.project_id, is_tech=False)}, 
+                the list of tasks: {find_list_of_tasks(body.project_id)}, 
+                the file structure: {dir_structure}, 
+                the user input: {body.user_input},
+                and the kick-off code: {get_kickoff(body.project_id)},
+
+                Generate production-quality code for: {path}
+
+                REQUIREMENTS:
+                1. Follow Node.js best practices
+                2. Implement proper error handling
+                3. Include security measures
+                4. Use efficient database operations
+                5. Implement proper validation
+                6. Follow consistent patterns
+                7. Write clean, maintainable code
+                8. Use proper naming conventions
+                9. Include necessary comments
+                10. Implement proper error responses
+
+                The code should be:
+                - Production-ready
+                - Efficient
+                - Secure
+                - Well-structured
+                - Easy to maintain
+                - Following best practices
+                - Properly documented
+                - Error handled
+                - Properly validated
+                - Consistently formatted
+                """
+            } #help me setup the project for coding"}
             ],
-            model="gpt-4o-mini"
+            model="gpt-4o",
+            temperature=0.2,
         )
         content = chat_completion.choices[0].message.content
-        return content
+        trimmed = extract_directory_structure(content)
+        print("trimmed:",trimmed)
+        return trimmed
+    
+
+# also Implement Security Measures like Password Hashing and Encryption and Decryption of API Calls etc. in the respective files.
