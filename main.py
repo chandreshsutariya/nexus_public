@@ -1424,7 +1424,7 @@ class DirectoryGenerator:
                 - Properly validated
                 - Consistently formatted
 
-                Additionally, write in  API_README.md with:
+                Additionally (BUT COUMPLSORY), write in  API_README.md with:
                                - A list of all API endpoints used in the running project {body.project_id}.
                                - HTTP methods (GET, POST, PUT, DELETE).
                                - Example response payloads.
