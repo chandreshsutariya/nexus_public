@@ -1283,7 +1283,7 @@ class DirectoryGenerator:
 
     def get_content(self, path, body):
         dir_structure = extract_directory_structure(find_file_structure(body.project_id))
-        # api_readme_path = os.path.join(self.backend_dir, "API_README.md")  # Define path for API_README.md
+        api_readme_path = os.path.join(self.backend_dir, "API_README.md")  # Define path for API_README.md
 
         chat_completion = client.chat.completions.create(
         messages=[
@@ -1374,7 +1374,7 @@ class DirectoryGenerator:
                 the file structure: {dir_structure}, 
                 the user input: {body.user_input},
                 and the kick-off code: {get_kickoff(body.project_id)},
-
+                and the API documentation: {api_readme_path},
                 Generate production-quality code for: {path}
 
                 REQUIREMENTS:
@@ -1400,6 +1400,12 @@ class DirectoryGenerator:
                 - Error handled
                 - Properly validated
                 - Consistently formatted
+
+                Additionally, write in  API_README.md with:
+                               - A list of all API endpoints used in the running project {body.project_id}.
+                               - HTTP methods (GET, POST, PUT, DELETE).
+                               - Example response payloads.
+                               - Proper CURL examples.
                 """
             } #help me setup the project for coding"}
             ],
