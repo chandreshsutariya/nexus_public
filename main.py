@@ -941,6 +941,9 @@ async def download_project(body: DownloadProject):
         except Exception as e:
             print(f"Error creating 'API_README.md': {e}")
 
+        # Let the generator know where the backend folder is
+        generator.backend_dir = backend_dir
+
         # # Step 4: Navigate into the 'backend' folder
         # os.chdir(backend_dir)
         # print(f"Current working directory: {os.getcwd()}")
@@ -1132,6 +1135,7 @@ class DirectoryGenerator:
     def __init__(self,body):
         self.paths = []
         self.body = body
+        self.backend_dir = None
 
     def _get_level(self, line: str) -> int:
         """Get the nesting level of a line"""
@@ -1282,9 +1286,22 @@ class DirectoryGenerator:
                     pass
 
     def get_content(self, path, body):
-        dir_structure = extract_directory_structure(find_file_structure(body.project_id))
-        api_readme_path = os.path.join(self.backend_dir, "API_README.md")  # Define path for API_README.md
 
+        api_readme_content = ""
+        if self.backend_dir:
+            api_readme_full_path = os.path.join(self.backend_dir, "API_README.md")
+            if os.path.exists(api_readme_full_path):
+                try:
+                    with open(api_readme_full_path, "r") as f:
+                        api_readme_content = f.read()
+                except Exception as e:
+                    print(f"Error reading API_README.md: {e}")
+                    api_readme_content = ""
+
+        dir_structure = extract_directory_structure(find_file_structure(body.project_id))
+        # api_readme_path = os.path.join(self.backend_dir, "API_README.md")  # Define path for API_README.md
+
+        
         chat_completion = client.chat.completions.create(
         messages=[
             {
@@ -1374,7 +1391,7 @@ class DirectoryGenerator:
                 the file structure: {dir_structure}, 
                 the user input: {body.user_input},
                 and the kick-off code: {get_kickoff(body.project_id)},
-                and the API documentation: {api_readme_path},
+                and the API documentation: {api_readme_content},
                 Generate production-quality code for: {path}
 
                 REQUIREMENTS:
@@ -1412,6 +1429,7 @@ class DirectoryGenerator:
             model="gpt-4o",
             temperature=0.2,
         )
+        
         content = chat_completion.choices[0].message.content
         trimmed = extract_directory_structure(content)
         print("trimmed:",trimmed)
