@@ -1271,6 +1271,12 @@ class DirectoryGenerator:
                         # Handle other files normally
                     content = self.get_content(full_path, self.body)
 
+                    if os.path.basename(full_path) == "API_README.md" or not os.path.exists(full_path):
+                        with open(full_path, 'w') as f:
+                            if content is None:
+                                content = ""
+                            f.write(content)
+        
                     # Create file only if it doesn't exist
                     if not os.path.exists(full_path):
                         with open(full_path, 'w') as f:
