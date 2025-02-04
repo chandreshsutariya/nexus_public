@@ -895,7 +895,30 @@ def extract_bash_commands(text):
 #         except Exception as e:
 #             print(f"Error reading content for {path}: {e}")
 #             return ""
-
+def remove_empty_files_and_folders(path):
+    """
+    Recursively removes empty files and folders in the provided directory path.
+    """
+    # Remove empty files
+    if os.path.isfile(path) and os.path.getsize(path) == 0:
+        os.remove(path)
+        print(f"Removed empty file: {path}")
+        return True  # Indicate that the file was removed
+    
+    # Recursively remove empty folders
+    if os.path.isdir(path):
+        # Check if the directory is empty
+        if not os.listdir(path):
+            os.rmdir(path)
+            print(f"Removed empty folder: {path}")
+            return True  # Indicate that the folder was removed
+        
+        # Recurse into subdirectories
+        for sub_item in os.listdir(path):
+            sub_path = os.path.join(path, sub_item)
+            remove_empty_files_and_folders(sub_path)
+    
+    return False  # Indicate that nothing was removed
 
 @app.post('/downloadproject/')
 async def download_project(body: DownloadProject):
@@ -916,92 +939,96 @@ async def download_project(body: DownloadProject):
         base_name = f"./{body.project_id}"
         generator.create_structure(base_name, dir_structure)
 
-
+        # Step 3: Remove empty files and folders
+        project_dir = os.path.join(projects_dir, body.project_id)
+        remove_empty_files_and_folders(project_dir)
+        
         projects_dir = os.path.join(projects_dir, body.project_id)
-        # Step 3: Search for 'backend' folder
-        backend_dir = None
-        for line in dir_structure.splitlines():
-            if "backend" in line:
-                backend_dir = os.path.join(projects_dir, "backend")
-                break
+###########################################################################################################################################
+        # # Step 3: Search for 'backend' folder
+        # backend_dir = None
+        # for line in dir_structure.splitlines():
+        #     if "backend" in line:
+        #         backend_dir = os.path.join(projects_dir, "backend")
+        #         break
 
-        # Create 'backend' folder if not found
-        if not backend_dir:
-            backend_dir = os.path.join(projects_dir, "backend")
-            os.makedirs(backend_dir, exist_ok=True)
-            print(f"'backend' directory created at: {backend_dir}")
-        else:
-            print(f"'backend' directory found in structure at: {backend_dir}")
+        # # Create 'backend' folder if not found
+        # if not backend_dir:
+        #     backend_dir = os.path.join(projects_dir, "backend")
+        #     os.makedirs(backend_dir, exist_ok=True)
+        #     print(f"'backend' directory created at: {backend_dir}")
+        # else:
+        #     print(f"'backend' directory found in structure at: {backend_dir}")
 
-        # Step 4: Create an empty API_README.md in the backend folder
-        # api_readme_path = os.path.join(backend_dir, "API_README.md")
-        # try:
-        #     # Create the file and leave it empty
-        #     with open(api_readme_path, "w") as api_readme:
-        #         pass  # No content is written, creating an empty file
+        # # Step 4: Create an empty API_README.md in the backend folder
+        # # api_readme_path = os.path.join(backend_dir, "API_README.md")
+        # # try:
+        # #     # Create the file and leave it empty
+        # #     with open(api_readme_path, "w") as api_readme:
+        # #         pass  # No content is written, creating an empty file
 
-        #     print(f"'API_README.md' file created successfully at: {api_readme_path}")
-        # except Exception as e:
-        #     print(f"Error creating 'API_README.md': {e}")
+        # #     print(f"'API_README.md' file created successfully at: {api_readme_path}")
+        # # except Exception as e:
+        # #     print(f"Error creating 'API_README.md': {e}")
 
-        # Let the generator know where the backend folder is
-        generator.backend_dir = backend_dir
+        # # Let the generator know where the backend folder is
+        
 
-        # # Step 4: Navigate into the 'backend' folder
-        # os.chdir(backend_dir)
-        # print(f"Current working directory: {os.getcwd()}")
+        # # # Step 4: Navigate into the 'backend' folder
+        # # os.chdir(backend_dir)
+        # # print(f"Current working directory: {os.getcwd()}")
 
-        # Step 5: Run Node commands (if project type is 'node')
-        # if body.project_type == "node":
-        #     os.chdir(backend_dir)
-        #     print(f"Current working directory: {os.getcwd()}")
-        #     print("Running Node.js commands...")
-        #     result = subprocess.run("npm init -y", shell=True, check=False, text=True)
-        #     if result.returncode != 0:
-        #         print(f"Warning: Command 'npm init -y' failed. Continuing...")
-        #     print("Completed 'npm init -y'")
+        # # Step 5: Run Node commands (if project type is 'node')
+        # # if body.project_type == "node":
+        # #     os.chdir(backend_dir)
+        # #     print(f"Current working directory: {os.getcwd()}")
+        # #     print("Running Node.js commands...")
+        # #     result = subprocess.run("npm init -y", shell=True, check=False, text=True)
+        # #     if result.returncode != 0:
+        # #         print(f"Warning: Command 'npm init -y' failed. Continuing...")
+        # #     print("Completed 'npm init -y'")
 
-        #     result = subprocess.run("npm install express", shell=True, check=False, text=True)
-        #     if result.returncode != 0:
-        #         print(f"Warning: Command 'npm install express' failed. Continuing...")
-        #     print("Completed 'npm install express'")
-        # Step 5: Run Node commands (if project type is 'node')
+        # #     result = subprocess.run("npm install express", shell=True, check=False, text=True)
+        # #     if result.returncode != 0:
+        # #         print(f"Warning: Command 'npm install express' failed. Continuing...")
+        # #     print("Completed 'npm install express'")
+        # # Step 5: Run Node commands (if project type is 'node')
 
         
-        if body.project_type == "node":
-            # Change working directory to 'backend'
-            print('backend_dir: ', backend_dir)
-            os.chdir(backend_dir)
-            print(f"Changed working directory to: {os.getcwd()}")
+        # if body.project_type == "node":
+        #     # Change working directory to 'backend'
+        #     print('backend_dir: ', backend_dir)
+        #     os.chdir(backend_dir)
+        #     print(f"Changed working directory to: {os.getcwd()}")
 
-            # Step: Create API_README.md in backend directory
-            # api_readme_path = os.path.join(backend_dir, "API_README.md")
-            # try:
-            #     with open(api_readme_path, "w") as api_readme:
-            #         # Write basic content to the file
-            #         api_readme.write("# API Documentation\n\n")
-            #         api_readme.write("This file contains all API keys used in the project along with example CURL requests and responses.\n\n")
-            #         print(f"'API_README.md' created successfully at: {api_readme_path}")
-            # except Exception as e:
-            #     print(f"Error creating 'API_README.md': {e}")
+        #     # Step: Create API_README.md in backend directory
+        #     # api_readme_path = os.path.join(backend_dir, "API_README.md")
+        #     # try:
+        #     #     with open(api_readme_path, "w") as api_readme:
+        #     #         # Write basic content to the file
+        #     #         api_readme.write("# API Documentation\n\n")
+        #     #         api_readme.write("This file contains all API keys used in the project along with example CURL requests and responses.\n\n")
+        #     #         print(f"'API_README.md' created successfully at: {api_readme_path}")
+        #     # except Exception as e:
+        #     #     print(f"Error creating 'API_README.md': {e}")
 
-            # Run Node.js commands
-            print("Running Node.js commands...")
+        #     # Run Node.js commands
+        #     print("Running Node.js commands...")
 
-            def is_package_json_present(projects_dir):
-                for root, dirs, files in os.walk(projects_dir):
-                    if "package.json" in files:
-                        return True
-                return False
+        #     def is_package_json_present(projects_dir):
+        #         for root, dirs, files in os.walk(projects_dir):
+        #             if "package.json" in files:
+        #                 return True
+        #         return False
             
-            if is_package_json_present(backend_dir):
-                print("package.json file already exists in the structure. Skipping 'npm init -y'.")
-            else:
-                result = subprocess.run("npm init -y", shell=True, check=True, text=True)
-                if result.returncode == 0:
-                    print("Completed 'npm init -y'")
-                else:
-                    print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}")
+        #     if is_package_json_present(backend_dir):
+        #         print("package.json file already exists in the structure. Skipping 'npm init -y'.")
+        #     else:
+        #         result = subprocess.run("npm init -y", shell=True, check=True, text=True)
+        #         if result.returncode == 0:
+        #             print("Completed 'npm init -y'")
+        #         else:
+        #             print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}")
 
         #     result = subprocess.run("npm install express", shell=True, check=True, text=True)
         #     if result.returncode == 0:
@@ -1103,7 +1130,7 @@ async def download_project(body: DownloadProject):
         # else:
         #     print(f"'middleware' directory not found in: {backend_dir}")
 ################################# Middleware files ######################################################################################################      
-
+##############################################################################################################################################
 
         os.chdir(cwd)
         # Initialize generator and create structure in temp directory
