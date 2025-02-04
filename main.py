@@ -652,7 +652,7 @@ async def setup(body: Setup):
                                  user input {body.user_input}, help me set up the project for the first time by providing a complete directory \
                                  structure with all required files, configurations, and best practices for a production-ready application. \
                                  Ensure the directory includes essential modules, configurations, database setup, security measures, \
-                                 environment variables, logging, and deployment scripts."}
+                                 environment variables, logging, and deployment scripts and create an API_README.md file(Important) for Documenting the API's Used in the project."}
 ]
 ,
             model="gpt-4o"
@@ -931,15 +931,15 @@ async def download_project(body: DownloadProject):
             print(f"'backend' directory found in structure at: {backend_dir}")
 
         # Step 4: Create an empty API_README.md in the backend folder
-        api_readme_path = os.path.join(backend_dir, "API_README.md")
-        try:
-            # Create the file and leave it empty
-            with open(api_readme_path, "w") as api_readme:
-                pass  # No content is written, creating an empty file
+        # api_readme_path = os.path.join(backend_dir, "API_README.md")
+        # try:
+        #     # Create the file and leave it empty
+        #     with open(api_readme_path, "w") as api_readme:
+        #         pass  # No content is written, creating an empty file
 
-            print(f"'API_README.md' file created successfully at: {api_readme_path}")
-        except Exception as e:
-            print(f"Error creating 'API_README.md': {e}")
+        #     print(f"'API_README.md' file created successfully at: {api_readme_path}")
+        # except Exception as e:
+        #     print(f"Error creating 'API_README.md': {e}")
 
         # Let the generator know where the backend folder is
         generator.backend_dir = backend_dir
@@ -1292,17 +1292,6 @@ class DirectoryGenerator:
                     pass
 
     def get_content(self, path, body):
-
-        api_readme_content = ""
-        if self.backend_dir:
-            api_readme_full_path = os.path.join(self.backend_dir, "API_README.md")
-            if os.path.exists(api_readme_full_path):
-                try:
-                    with open(api_readme_full_path, "r") as f:
-                        api_readme_content = f.read()
-                except Exception as e:
-                    print(f"Error reading API_README.md: {e}")
-                    api_readme_content = ""
 
         dir_structure = extract_directory_structure(find_file_structure(body.project_id))
         # api_readme_path = os.path.join(self.backend_dir, "API_README.md")  # Define path for API_README.md
