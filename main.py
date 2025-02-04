@@ -646,13 +646,16 @@ async def setup(body: Setup):
         # Use OpenAI API with `ChatCompletion` to generate small code snippets
         chat_completion = client.chat.completions.create(
             messages=[
-                        {"role": "system", "content": "Please provide a concise and specific directory structure for a production-ready project \
-                                based on the given tech stack, including all necessary files and configurations."},
-                        {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
-                                 user input {body.user_input}, help me set up the project for the first time by providing a complete directory \
-                                 structure with all required files, configurations, and best practices for a production-ready application. \
-                                 Ensure the directory includes essential modules, configurations, database setup, security measures, \
-                                 environment variables, logging, and deployment scripts and create an API_README.md file(IMPORTANT)every time for every project COMPULSORY."}
+                        {"role": "system", "content": """Please provide a concise and specific directory structure for a production-ready project \
+                                based on the given tech stack, including all necessary files and configurations. \
+                                Follow best practices for modularity, security, and maintainability. \
+                                **Ensure an `API_README.md` file is always created** in the backend folder (or root if no backend exists)."""},
+                        {"role": "user", "content": f"""Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
+                                user input {body.user_input}, help me set up the project for the first time by providing a complete directory \
+                                structure with all required files, configurations, and best practices for a production-ready application. \
+                                Ensure the directory includes essential modules, configurations, database setup, security measures, \
+                                environment variables, logging, and deployment scripts.\
+                                **Mandatory:** Include `API_README.md` inside backend (or root if backend is absent)."""}
 ]
 ,
             model="gpt-4o"
