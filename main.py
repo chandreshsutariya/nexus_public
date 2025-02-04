@@ -652,7 +652,7 @@ async def setup(body: Setup):
                                  user input {body.user_input}, help me set up the project for the first time by providing a complete directory \
                                  structure with all required files, configurations, and best practices for a production-ready application. \
                                  Ensure the directory includes essential modules, configurations, database setup, security measures, \
-                                 environment variables, logging, and deployment scripts and create an API_README.md file(Important) for Documenting the API's Used in the project."}
+                                 environment variables, logging, and deployment scripts and create an API_README.md file(IMPORTANT)every time for every project COMPULSORY."}
 ]
 ,
             model="gpt-4o"
