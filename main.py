@@ -648,14 +648,12 @@ async def setup(body: Setup):
             messages=[
                         {"role": "system", "content": """Please provide a concise and specific directory structure for a production-ready project \
                                 based on the given tech stack, including all necessary files and configurations. \
-                                Follow best practices for modularity, security, and maintainability. \
-                                **Ensure an `API_README.md` file is always created** in the backend folder (or root if no backend exists)."""},
+                                Follow best practices for modularity, security, and maintainability."""},
                         {"role": "user", "content": f"""Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
                                 user input {body.user_input}, help me set up the project for the first time by providing a complete directory \
                                 structure with all required files, configurations, and best practices for a production-ready application. \
                                 Ensure the directory includes essential modules, configurations, database setup, security measures, \
-                                environment variables, logging, and deployment scripts.\
-                                **Mandatory:** Include `API_README.md` inside backend (or root if backend is absent)."""}
+                                environment variables, logging, and deployment scripts."""}
 ]
 ,
             model="gpt-4o"
@@ -807,7 +805,9 @@ def extract_directory_structure(text):
         # # print("structure: \n:", structure)
     except Exception as e:
         return None
-    
+
+    if "API_README.md" not in structure:
+        structure += "\nbackend/API_README.md\n"
     # delete the file
     try:
         os.remove(f"{uuid_str}")
@@ -1389,7 +1389,6 @@ class DirectoryGenerator:
                 the file structure: {dir_structure}, 
                 the user input: {body.user_input},
                 and the kick-off code: {get_kickoff(body.project_id)},
-                and the API documentation: {api_readme_content},
                 Generate production-quality code for: {path}
 
                 REQUIREMENTS:
