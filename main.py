@@ -914,9 +914,9 @@ def remove_empty_files_and_folders(path):
             return True  # Indicate that the folder was removed
         
         # Recurse into subdirectories
-        for sub_item in os.listdir(path):
-            sub_path = os.path.join(path, sub_item)
-            remove_empty_files_and_folders(sub_path)
+        # for sub_item in os.listdir(path):
+        #     sub_path = os.path.join(path, sub_item)
+        #     remove_empty_files_and_folders(sub_path)
     
     return False  # Indicate that nothing was removed
 
@@ -1331,7 +1331,7 @@ class DirectoryGenerator:
         messages=[
             {
                 "role": "system",
-                "content": """You are a senior Node.js developer with extensive experience building production applications. 
+                "content": """You are a senior flutter developer with extensive experience building production applications. 
                 Generate clean, efficient, and properly structured code following current best practices.
 
                 CORE DEVELOPMENT PRINCIPLES:
@@ -1419,7 +1419,7 @@ class DirectoryGenerator:
                 Generate production-quality code for: {path}
 
                 REQUIREMENTS:
-                1. Follow Node.js best practices
+                1. Follow Flutter best practices
                 2. Implement proper error handling
                 3. Include security measures
                 4. Use efficient database operations
@@ -1442,11 +1442,6 @@ class DirectoryGenerator:
                 - Properly validated
                 - Consistently formatted
 
-                Additionally (BUT COUMPLSORY), write in  API_README.md with:
-                               - A list of all API endpoints used in the running project {body.project_id}.
-                               - HTTP methods (GET, POST, PUT, DELETE).
-                               - Example response payloads.
-                               - Proper CURL examples.
                 """
             } #help me setup the project for coding"}
             ],
