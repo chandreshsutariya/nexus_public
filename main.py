@@ -551,7 +551,7 @@ async def task_assistant(body: TaskList):
         },
         {
             "role": "user",
-            "content": f"""Using this dating app documentation: {find_project(body.project_id)}
+            "content": f"""Using this project description: {find_project(body.project_id)}
 
             Create a comprehensive task list that:
 
@@ -806,8 +806,8 @@ def extract_directory_structure(text):
     except Exception as e:
         return None
 
-    if "API_README.md" not in structure:
-        structure += "\nbackend/API_README.md\n"
+    # if "API_README.md" not in structure:
+    #     structure += "\nbackend/API_README.md\n"
     # delete the file
     try:
         os.remove(f"{uuid_str}")
@@ -942,7 +942,7 @@ async def download_project(body: DownloadProject):
         # Step 3: Remove empty files and folders
         project_dir = os.path.join(projects_dir, body.project_id)
         remove_empty_files_and_folders(project_dir)
-        
+
         projects_dir = os.path.join(projects_dir, body.project_id)
 ###########################################################################################################################################
         # # Step 3: Search for 'backend' folder
@@ -1301,11 +1301,11 @@ class DirectoryGenerator:
                         # Handle other files normally
                     content = self.get_content(full_path, self.body)
 
-                    if os.path.basename(full_path) == "API_README.md" or not os.path.exists(full_path):
-                        with open(full_path, 'w') as f:
-                            if content is None:
-                                content = ""
-                            f.write(content)
+                    # if os.path.basename(full_path) == "API_README.md" or not os.path.exists(full_path):
+                    #     with open(full_path, 'w') as f:
+                    #         if content is None:
+                    #             content = ""
+                    #         f.write(content)
         
                     # Create file only if it doesn't exist
                     if not os.path.exists(full_path):
