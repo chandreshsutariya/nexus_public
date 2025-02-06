@@ -580,7 +580,7 @@ async def task_assistant(body: TaskList):
                - Add essential security measures
                - Include necessary integrations
                
-            Generate comprehensive task list now, Don't skip any backend related task ensuring COMPLETE feature coverage with intelligent additions."""
+            Generate comprehensive task list now, Don't skip any backend, frontend related task ensuring COMPLETE feature coverage with intelligent additions."""
         }
                                             #             "Given the project description: {find_project(body.project_id)}, and the \
                                             # features list: {find_features(body.project_id)}, give me the list of coding\
@@ -723,10 +723,6 @@ async def setup(body: Kickoff):
 #         raise HTTPException(status_code=500, detail=str(e))
 
 # to download any directory structure.
-
-
-
-
 
 
 # Example usage
@@ -1165,7 +1161,6 @@ class DirectoryGenerator:
     def __init__(self,body):
         self.paths = []
         self.body = body
-        self.backend_dir = None
 
     def _get_level(self, line: str) -> int:
         """Get the nesting level of a line"""
@@ -1336,15 +1331,15 @@ class DirectoryGenerator:
 
                 CORE DEVELOPMENT PRINCIPLES:
                 1. Project Structure:
-                   - Clear folder organization (controllers, routes, models, middleware)
+                   - Clear folder organization 
                    - Modular code structure
                    - Clean separation of concerns
                    - Well-organized imports
                    - Consistent file naming
 
                 2. Code Quality:
-                   - Use modern ES6+ features
-                   - Implement proper async/await patterns
+                   - Use modern features
+                   - Implement proper  patterns
                    - Follow consistent error handling
                    - Use proper validation patterns
                    - Write clean, readable code
@@ -1363,7 +1358,6 @@ class DirectoryGenerator:
                    - Search and filter patterns
 
                 4. Security Implementation:
-                   - JWT authentication with refresh tokens
                    - Password hashing (bcrypt)
                    - Request validation
                    - Data sanitization
