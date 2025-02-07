@@ -1426,11 +1426,6 @@ class DirectoryGenerator:
                 - Error handled
                 - Properly validated
                 - Consistently formatted
-                Additionally (BUT COUMPLSORY), write in  API_README.md with:
-                               - A list of all API endpoints used in the running project {body.project_id}.
-                               - HTTP methods (GET, POST, PUT, DELETE).
-                               - Example response payloads.
-                               - Proper CURL examples.
                 """
             } #help me setup the project for coding"}
             ],
@@ -1443,5 +1438,3 @@ class DirectoryGenerator:
         print("trimmed:",trimmed)
         return trimmed
     
-
-# also Implement Security Measures like Password Hashing and Encryption and Decryption of API Calls etc. in the respective files.
