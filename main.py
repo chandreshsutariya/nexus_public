@@ -1319,15 +1319,14 @@ class DirectoryGenerator:
     def get_content(self, path, body):
 
         dir_structure = extract_directory_structure(find_file_structure(body.project_id))
-        # api_readme_path = os.path.join(self.backend_dir, "API_README.md")  # Define path for API_README.md
-
         
         chat_completion = client.chat.completions.create(
         messages=[
             {
                 "role": "system",
-                "content": """You are a senior Node.js developer with extensive experience building production applications. 
-                Generate clean, efficient, and properly structured code following current best practices.
+                "content": """
+                    You are a senior developer with extensive experience building production applications in: the given tech stack {body.project_type}. 
+                    Generate clean, efficient, and properly structured code following current best practices.
                 CORE DEVELOPMENT PRINCIPLES:
                 1. Project Structure:
                    - Clear folder organization (controllers, routes, models, middleware)
@@ -1336,15 +1335,15 @@ class DirectoryGenerator:
                    - Well-organized imports
                    - Consistent file naming
                 2. Code Quality:
-                   - Use modern ES6+ features
-                   - Implement proper async/await patterns
+                   - Use modern features, techniques
+                   - Implement proper file connections according to the file structure
                    - Follow consistent error handling
-                   - Use proper validation patterns
+                   - Use proper validation patterns(if needed)
                    - Write clean, readable code
                    - Use meaningful variable/function names
                    - Implement proper comments for complex logic
                 3. API Development:
-                   - RESTful API best practices
+                   - Implement best API practices
                    - Proper route handling
                    - Middleware implementation
                    - Request validation
@@ -1354,7 +1353,7 @@ class DirectoryGenerator:
                    - Pagination implementation
                    - Search and filter patterns
                 4. Security Implementation:
-                   - JWT authentication with refresh tokens
+                   - Proper authentication with refresh tokens
                    - Password hashing (bcrypt)
                    - Request validation
                    - Data sanitization
@@ -1402,10 +1401,11 @@ class DirectoryGenerator:
                 the list of tasks: {find_list_of_tasks(body.project_id)}, 
                 the file structure: {dir_structure}, 
                 the user input: {body.user_input},
+                the project tech stack user wants to use is: {body.project_type}
                 and the kick-off code: {get_kickoff(body.project_id)},
                 Generate production-quality code for: {path}
                 REQUIREMENTS:
-                1. Follow Node.js best practices
+                1. Follow best practices for given tech stack
                 2. Implement proper error handling
                 3. Include security measures
                 4. Use efficient database operations
