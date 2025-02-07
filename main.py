@@ -1319,12 +1319,22 @@ class DirectoryGenerator:
     def get_content(self, path, body):
 
         dir_structure = extract_directory_structure(find_file_structure(body.project_id))
-        
+        print(f"Project type being passed: {body.project_type}")  # Debug print
+        print("DEBUG - Incoming parameters:")
+        print(f"Path: {path}")
+        print(f"Project Type: {body.project_type}")
+        print(f"Project ID: {body.project_id}")
+
+        print("\nDEBUG - Values being inserted into prompt:")
+        print(f"User Input: {body.user_input}")
+        print(f"Project Type: {body.project_type}")
+
+
         chat_completion = client.chat.completions.create(
         messages=[
             {
                 "role": "system",
-                "content": """
+                "content": f"""
                     You are a senior developer with extensive experience building production applications in: the given tech stack {body.project_type}. 
                     Generate clean, efficient, and properly structured code following current best practices.
                 CORE DEVELOPMENT PRINCIPLES:
