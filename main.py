@@ -646,7 +646,7 @@ async def setup(body: Setup):
         # Use OpenAI API with `ChatCompletion` to generate small code snippets
         chat_completion = client.chat.completions.create(
             messages=[
-                        {"role": "system", "content": """Please provide a concise and specific directory structure for a production-ready project \
+                        {"role": "system", "content": """You are Senior Experienced Software Developer. Please provide a concise and specific directory structure for a production-ready project \
                                 based on the given tech stack, including all necessary files and configurations. \
                                 Follow best practices for modularity, security, and maintainability."""},
                         {"role": "user", "content": f"""Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
@@ -1326,26 +1326,23 @@ class DirectoryGenerator:
         messages=[
             {
                 "role": "system",
-                "content": """You are a senior flutter developer with extensive experience building production applications. 
+                "content": """You are a senior Node.js developer with extensive experience building production applications. 
                 Generate clean, efficient, and properly structured code following current best practices.
-
                 CORE DEVELOPMENT PRINCIPLES:
                 1. Project Structure:
-                   - Clear folder organization 
+                   - Clear folder organization (controllers, routes, models, middleware)
                    - Modular code structure
                    - Clean separation of concerns
                    - Well-organized imports
                    - Consistent file naming
-
                 2. Code Quality:
-                   - Use modern features
-                   - Implement proper  patterns
+                   - Use modern ES6+ features
+                   - Implement proper async/await patterns
                    - Follow consistent error handling
                    - Use proper validation patterns
                    - Write clean, readable code
                    - Use meaningful variable/function names
                    - Implement proper comments for complex logic
-
                 3. API Development:
                    - RESTful API best practices
                    - Proper route handling
@@ -1356,8 +1353,8 @@ class DirectoryGenerator:
                    - Query parameter handling
                    - Pagination implementation
                    - Search and filter patterns
-
                 4. Security Implementation:
+                   - JWT authentication with refresh tokens
                    - Password hashing (bcrypt)
                    - Request validation
                    - Data sanitization
@@ -1366,7 +1363,6 @@ class DirectoryGenerator:
                    - Rate limiting
                    - CORS configuration
                    - Secure headers (helmet)
-
                 5. Database Operations:
                    - Efficient queries
                    - Transaction handling
@@ -1375,7 +1371,6 @@ class DirectoryGenerator:
                    - Query optimization
                    - Proper indexing
                    - Data validation
-
                 6. Error Handling:
                    - Global error handler
                    - Custom error classes
@@ -1383,7 +1378,6 @@ class DirectoryGenerator:
                    - Error logging
                    - Status code mapping
                    - Client-safe error responses
-
                 7. Performance:
                    - Efficient database queries
                    - Proper caching
@@ -1391,7 +1385,6 @@ class DirectoryGenerator:
                    - Response optimization
                    - Memory management
                    - Connection pooling
-
                 8. Code Organization:
                    - Service layer pattern
                    - Repository pattern for data access
@@ -1411,9 +1404,8 @@ class DirectoryGenerator:
                 the user input: {body.user_input},
                 and the kick-off code: {get_kickoff(body.project_id)},
                 Generate production-quality code for: {path}
-
                 REQUIREMENTS:
-                1. Follow Flutter best practices
+                1. Follow Node.js best practices
                 2. Implement proper error handling
                 3. Include security measures
                 4. Use efficient database operations
@@ -1423,7 +1415,6 @@ class DirectoryGenerator:
                 8. Use proper naming conventions
                 9. Include necessary comments
                 10. Implement proper error responses
-
                 The code should be:
                 - Production-ready
                 - Efficient
@@ -1435,7 +1426,11 @@ class DirectoryGenerator:
                 - Error handled
                 - Properly validated
                 - Consistently formatted
-
+                Additionally (BUT COUMPLSORY), write in  API_README.md with:
+                               - A list of all API endpoints used in the running project {body.project_id}.
+                               - HTTP methods (GET, POST, PUT, DELETE).
+                               - Example response payloads.
+                               - Proper CURL examples.
                 """
             } #help me setup the project for coding"}
             ],
