@@ -1354,6 +1354,7 @@ class DirectoryGenerator:
                    - Search and filter patterns
                    - Must Create all necessar API's before calling them in the code.
                 4. Security Implementation:
+                   - Must Call encryption and Decryption in main files only.
                    - Proper authentication with refresh tokens
                    - Implement Password hashing (bcrypt) everywhere needed
                    - Request validation
