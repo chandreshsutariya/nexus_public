@@ -874,7 +874,7 @@ def get_middleware_file_content(path: str) -> str:
         print('866',path)
         try:
             # Check if the path corresponds to a middleware file
-            base_middleware_dir = os.getenv(r'/home/nexus_test/middleware')  # Default for Linux
+            base_middleware_dir = os.path.join(os.getcwd(), "middleware")  # Default for Linux
             print('870',base_middleware_dir)
 
             filename = os.path.basename(path)
@@ -885,7 +885,16 @@ def get_middleware_file_content(path: str) -> str:
                 local_file_path = os.path.join(base_middleware_dir, filename)
                 with open(local_file_path, "r") as f:
                     return f.read()
-
+            
+                if os.path.exists(local_file_path):  # Check if file exists
+                    with open(local_file_path, "r") as f:
+                        content = f.read()
+                        print(f"Content length: {len(content)}")  # Debug print
+                        return content
+                else:
+                    print(f"File not found: {local_file_path}")
+                    return ""
+            
             # For other files, return empty content
             return ""
         except Exception as e:
