@@ -1083,7 +1083,7 @@ async def download_project(body: DownloadProject):
                 except FileNotFoundError:
                     print(f"Source file not found for: {filename}")
                 except Exception as e:
-                    print(f"Error processing file {filename}: {e}
+                    print(f"Error processing file {filename}: {e}")
 
 ###########################################################################################################################################
         # # Step 3: Search for 'backend' folder
