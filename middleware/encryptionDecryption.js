@@ -1,4 +1,3 @@
-// backend/middlewares/encryptionDecryption.js
 
 const crypto = require('crypto');
 
