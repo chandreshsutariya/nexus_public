@@ -1006,7 +1006,7 @@ async def download_project(body: DownloadProject):
 
             # Create 'middleware' folder 
             middleware_dir = None
-            for line in dir_structure.splitlines():
+            for line in backend_dir.splitlines():
                 if "middlewares" in line or "middleware" in line:
                     middleware_dir = os.path.join(backend_dir, "middlewares")
                     break
@@ -1015,10 +1015,10 @@ async def download_project(body: DownloadProject):
                     src_dir = os.path.join(backend_dir, "src")
                     if os.path.exists(src_dir) and os.path.isdir(src_dir):
                         # If 'src' directory exists, create 'middleware' inside 'src'
-                        middleware_dir = os.path.join(src_dir, "middleware")
+                        middleware_dir = os.path.join(src_dir, "middlewares")
                     else:
                         # Otherwise, create 'middleware' directly inside 'backend'
-                        middleware_dir = os.path.join(backend_dir, "middleware")
+                        middleware_dir = os.path.join(backend_dir, "middlewares")
 
                     # middleware_dir = os.path.join(backend_dir, "middlewares")
                     os.makedirs(middleware_dir, exist_ok=True)
