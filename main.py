@@ -926,7 +926,7 @@ def remove_empty_files_and_folders(path):
     return False  # Indicate that nothing was removed
 
 def find_and_delete_middleware(start_path):
-            middleware_names = ['middleware', 'middlewares', 'middle']
+            middleware_names = ['middleware', 'middlewares', 'middle-ware', 'middleware_files', 'middleware_file']
             for root, dirs, files in os.walk(start_path):
                 for dir_name in dirs:
                     if any(middleware_name in dir_name.lower() for middleware_name in middleware_names):
@@ -1006,7 +1006,7 @@ async def download_project(body: DownloadProject):
 
             # Create 'middleware' folder 
             middleware_dir = None
-            middleware_dir = os.path.join(src_dir, "middleware_file")
+            middleware_dir = os.path.join(src_dir, "middlewares")
             os.makedirs(middleware_dir, exist_ok=True)
             print(f"'middleware' directory created at: {middleware_dir}")
 
