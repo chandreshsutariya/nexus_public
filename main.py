@@ -1492,7 +1492,7 @@ class DirectoryGenerator:
                     - Environment-specific settings
                     - Properly documented
                     - All required environment variables should be listed that used in the code.
-                    - Provide every environment variables with example key's not with text understand by this example: ENC_KEY_SERVER='9e61842717ae34b973a660232d1af25dff6803c4beb90a037d349a87345f3ba5'.
+                    - Provide every environment variables with dummy key's not with text, understand by this example: ENC_KEY_SERVER='9e61842717ae34b973a660232d1af25dff6803c4beb90a037d349a87345f3ba5', for all the environment variables in .env file .
 
                 **IMPORTANT NOTE:** Before Showing the Final Output Make Sure You have implemented all the above points in the code. and haven't missed anything so that developer can directly use the code for production. Read every file and code properly before showing the final output.
                 """
