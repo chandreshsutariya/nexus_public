@@ -869,28 +869,63 @@ def extract_bash_commands(text):
 # directory_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
 # # print(directory_structure)
 
+# def get_middleware_file_content(path: str) -> str:
+#         """Fetch content for middleware files or return an empty string for others."""
+#         print('866',path)
+#         try:
+#             # Check if the path corresponds to a middleware file
+#             base_middleware_dir = os.getenv('middleware')  # Default for Linux
+#             print('870',base_middleware_dir)
+
+#             filename = os.path.basename(path)
+#             middleware = ["encryptionDecryption.js"]
+
+#             if filename in middleware:
+#                 # Read content from the corresponding file in the local `middleware_files` folder
+#                 local_file_path = os.path.join(base_middleware_dir, filename)
+#                 with open(local_file_path, "r") as f:
+#                     return f.read()
+
+#             # For other files, return empty content
+#             return ""
+#         except Exception as e:
+#             print(f"Error reading content for {path}: {e}")
+#             return ""
+
 def get_middleware_file_content(path: str) -> str:
-        """Fetch content for middleware files or return an empty string for others."""
-        print('866',path)
-        try:
-            # Check if the path corresponds to a middleware file
-            base_middleware_dir = os.getenv('middleware')  # Default for Linux
-            print('870',base_middleware_dir)
-
-            filename = os.path.basename(path)
-            middleware = ["encryptionDecryption.js"]
-
-            if filename in middleware:
-                # Read content from the corresponding file in the local `middleware_files` folder
-                local_file_path = os.path.join(base_middleware_dir, filename)
-                with open(local_file_path, "r") as f:
-                    return f.read()
-
-            # For other files, return empty content
-            return ""
-        except Exception as e:
-            print(f"Error reading content for {path}: {e}")
-            return ""
+    """Fetch content for middleware files or return an empty string for others."""
+    print('866', path)
+    try:
+        # Check if the path corresponds to a middleware file
+        base_middleware_dir = os.getenv('middleware')  # Get middleware directory from env
+        print('870', base_middleware_dir)
+        
+        # Add debug prints to help diagnose the issue
+        print(f"Base middleware directory: {base_middleware_dir}")
+        if base_middleware_dir is None:
+            raise ValueError("Environment variable 'middleware' is not set")
+            
+        filename = os.path.basename(path)
+        middleware = ["encryptionDecryption.js"]
+        
+        if filename in middleware:
+            local_file_path = os.path.join(base_middleware_dir, filename)
+            print(f"Attempting to read from: {local_file_path}")
+            
+            # Check if file exists before trying to read it
+            if not os.path.exists(local_file_path):
+                raise FileNotFoundError(f"Source file not found: {local_file_path}")
+                
+            with open(local_file_path, "r") as f:
+                content = f.read()
+                print(f"Content length: {len(content)}")
+                return content
+                
+        return ""
+    except Exception as e:
+        print(f"Error reading content for {path}: {e}")
+        return ""
+    
 def remove_empty_files_and_folders(path):
     """
     Recursively removes empty files and folders in the provided directory path.
@@ -996,31 +1031,59 @@ async def download_project(body: DownloadProject):
                 print(f"Current working directory: {os.getcwd()}")
 
             # Create 'middleware' folder 
-            middleware_dir = None
-            middleware_dir = os.path.join(src_dir, "middleware")
+            # middleware_dir = None
+            # middleware_dir = os.path.join(src_dir, "middleware_file")
+            # os.makedirs(middleware_dir, exist_ok=True)
+            # print(f"'middleware' directory created at: {middleware_dir}")
+
+            # # Step 7: Navigate into the 'middleware' folder
+            # os.chdir(middleware_dir)
+            # print(f"Current working directory: {os.getcwd()}")
+
+            # # Step 8: Fetch or generate middleware files with content
+            # for filename in ["encryptionDecryption.js"]:
+            #     target_path = os.path.join(middleware_dir, filename)
+            #     try:
+            #         # Fetch the content using the provided function
+            #         content = get_middleware_file_content(target_path)
+
+            #         # Write the content to the target path
+            #         with open(target_path, "w") as target_file:
+            #             target_file.write(content)
+            #         print(f"Copied file: {filename} to {target_path}")
+            #     except FileNotFoundError:
+            #         print(f"Source file not found for: {filename}")
+            #     except Exception as e:
+            #         print(f"Error processing file {filename}: {e}")
+
+
+            middleware_dir = os.path.join(src_dir, "middleware_file")
             os.makedirs(middleware_dir, exist_ok=True)
             print(f"'middleware' directory created at: {middleware_dir}")
 
-            # Step 7: Navigate into the 'middleware' folder
+            # Change directory
             os.chdir(middleware_dir)
             print(f"Current working directory: {os.getcwd()}")
 
-            # Step 8: Fetch or generate middleware files with content
+            # Process middleware files
             for filename in ["encryptionDecryption.js"]:
                 target_path = os.path.join(middleware_dir, filename)
                 try:
-                    # Fetch the content using the provided function
+                    # Debug print to show what path we're using
+                    print(f"Processing file: {target_path}")
+                    
                     content = get_middleware_file_content(target_path)
-
-                    # Write the content to the target path
+                    
+                    # Debug print to show content length
+                    print(f"Content length to write: {len(content)}")
+                    
                     with open(target_path, "w") as target_file:
                         target_file.write(content)
                     print(f"Copied file: {filename} to {target_path}")
                 except FileNotFoundError:
                     print(f"Source file not found for: {filename}")
                 except Exception as e:
-                    print(f"Error processing file {filename}: {e}")
-
+                    print(f"Error processing file {filename}: {e}
 
 ###########################################################################################################################################
         # # Step 3: Search for 'backend' folder
