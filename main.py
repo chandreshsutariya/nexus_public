@@ -1037,16 +1037,19 @@ async def download_project(body: DownloadProject):
                     break
 
             # Step 4.2: If no middleware folder is found, check for 'src'
-            if not middleware_dir:
-                src_dir = os.path.join(backend_dir, "src")
-                if os.path.exists(src_dir) and os.path.isdir(src_dir):
-                    middleware_dir = os.path.join(src_dir, "middlewares")
-                else:
-                    middleware_dir = os.path.join(backend_dir, "middlewares")
+                if not middleware_dir:
+                    src_dir = os.path.join(backend_dir, "src")
+                    if os.path.exists(src_dir) and os.path.isdir(src_dir):
+                        middleware_dir = os.path.join(src_dir, "middlewares")
+                    else:
+                        middleware_dir = os.path.join(backend_dir, "middlewares")
 
-                # Create the middleware directory only if it does not exist
-                os.makedirs(middleware_dir, exist_ok=True)
-                print(f"'middlewares' directory created at: {middleware_dir}")    
+                    # Create the middleware directory only if it does not exist
+                    os.makedirs(middleware_dir, exist_ok=True)
+                    print(f"'middlewares' directory created at: {middleware_dir}")   
+
+                else:
+                    print(f"'middlewares' directory found at: {middleware_dir}") 
 
 
             # Step 7: Navigate into the 'middleware' folder
