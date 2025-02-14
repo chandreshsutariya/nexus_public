@@ -1030,9 +1030,9 @@ async def download_project(body: DownloadProject):
             middleware_dir = None
 
             # Step 4.1: Check if middleware exists in backend
-            for item in os.listdir(backend_dir):
-                if item in middleware_variants:
-                    middleware_dir = os.path.join(backend_dir, item)
+            for line in dir_structure.splitlines():
+                if middleware_variants in line:
+                    middleware_dir = os.path.join(backend_dir, "middlewares")
                     print(f"'middleware' directory found at 1036: {middleware_dir}")
                     break
                 else:    
