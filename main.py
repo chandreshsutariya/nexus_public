@@ -1007,11 +1007,12 @@ async def download_project(body: DownloadProject):
             # Create 'middleware' folder 
             middleware_dir = None
             for line in backend_dir.splitlines():
-                if "middlewares" in line or "middleware" in line:
+                middleware_variants = ['middleware', 'middlewares', 'middle-ware', 'middleware_files', 'middleware_file']
+                if any(variant in line for variant in middleware_variants):
                     middleware_dir = os.path.join(backend_dir, "middlewares")
                     break
                 
-                if not middleware_dir: 
+                elif not middleware_dir: 
                     src_dir = os.path.join(backend_dir, "src")
                     if os.path.exists(src_dir) and os.path.isdir(src_dir):
                         # If 'src' directory exists, create 'middleware' inside 'src'
@@ -1023,7 +1024,8 @@ async def download_project(body: DownloadProject):
                     # middleware_dir = os.path.join(backend_dir, "middlewares")
                     os.makedirs(middleware_dir, exist_ok=True)
                     print(f"'middleware' directory created at: {middleware_dir}")
-                    
+                else:
+                    print(f"'middleware' directory found in structure at: {middleware_dir}")    
 
 
             # Step 7: Navigate into the 'middleware' folder
