@@ -925,19 +925,19 @@ def remove_empty_files_and_folders(path):
     
     return False  # Indicate that nothing was removed
 
-def find_and_delete_middleware(start_path):
-            middleware_names = ['middleware', 'middlewares', 'middle-ware', 'middleware_files', 'middleware_file']
-            for root, dirs, files in os.walk(start_path):
-                for dir_name in dirs:
-                    if any(middleware_name in dir_name.lower() for middleware_name in middleware_names):
-                        middleware_path = os.path.join(root, dir_name)
-                        print(f"Found middleware directory at: {middleware_path}")
-                        try:
-                            shutil.rmtree(middleware_path)
-                            dirs.remove(dir_name)  # Remove from dirs list after deletion
-                            print(f"Successfully deleted middleware directory at: {middleware_path}")
-                        except Exception as e:
-                            print(f"Error deleting middleware directory: {e}")
+# def find_and_delete_middleware(start_path):
+#             middleware_names = ['middleware', 'middlewares', 'middle-ware', 'middleware_files', 'middleware_file']
+#             for root, dirs, files in os.walk(start_path):
+#                 for dir_name in dirs:
+#                     if any(middleware_name in dir_name.lower() for middleware_name in middleware_names):
+#                         middleware_path = os.path.join(root, dir_name)
+#                         print(f"Found middleware directory at: {middleware_path}")
+#                         try:
+#                             shutil.rmtree(middleware_path)
+#                             dirs.remove(dir_name)  # Remove from dirs list after deletion
+#                             print(f"Successfully deleted middleware directory at: {middleware_path}")
+#                         except Exception as e:
+#                             print(f"Error deleting middleware directory: {e}")
 
 @app.post('/downloadproject/')
 async def download_project(body: DownloadProject):
@@ -963,7 +963,7 @@ async def download_project(body: DownloadProject):
         remove_empty_files_and_folders(project_dir)
 
         # Call the function to find and delete middleware directory
-        find_and_delete_middleware(project_dir)
+        # find_and_delete_middleware(project_dir)
 
         projects_dir = os.path.join(projects_dir, body.project_id)
         
@@ -986,29 +986,45 @@ async def download_project(body: DownloadProject):
                 os.chdir(backend_dir)
                 print(f"Current working directory: {os.getcwd()}")
 
-            src_dir = None
-            for line in dir_structure.splitlines():
-                if "src" in line:
-                    src_dir = os.path.join(backend_dir, "src")
-                    break
+            # src_dir = None
+            # for line in dir_structure.splitlines():
+            #     if "src" in line:
+            #         src_dir = os.path.join(backend_dir, "src")
+            #         break
 
-            # Create 'backend' folder if not found
-            if not src_dir:
-                src_dir = os.path.join(backend_dir, "src")
-                os.makedirs(src_dir, exist_ok=True)
-                print(f"'src' directory created at: {src_dir}")
-            else:
-                print(f"'src' directory found in structure at: {src_dir}")
+            # # Create 'backend' folder if not found
+            # if not src_dir:
+            #     src_dir = os.path.join(backend_dir, "src")
+            #     os.makedirs(src_dir, exist_ok=True)
+            #     print(f"'src' directory created at: {src_dir}")
+            # else:
+            #     print(f"'src' directory found in structure at: {src_dir}")
 
-            if os.getcwd() != src_dir:
-                os.chdir(src_dir)
-                print(f"Current working directory: {os.getcwd()}")
+            # if os.getcwd() != src_dir:
+            #     os.chdir(src_dir)
+            #     print(f"Current working directory: {os.getcwd()}")
 
             # Create 'middleware' folder 
             middleware_dir = None
-            middleware_dir = os.path.join(src_dir, "middlewares")
-            os.makedirs(middleware_dir, exist_ok=True)
-            print(f"'middleware' directory created at: {middleware_dir}")
+            for line in dir_structure.splitlines():
+                if "middlewares" in line or "middleware" in line:
+                    middleware_dir = os.path.join(backend_dir, "middlewares")
+                    break
+                
+                if not middleware_dir: 
+                    src_dir = os.path.join(backend_dir, "src")
+                    if os.path.exists(src_dir) and os.path.isdir(src_dir):
+                        # If 'src' directory exists, create 'middleware' inside 'src'
+                        middleware_dir = os.path.join(src_dir, "middleware")
+                    else:
+                        # Otherwise, create 'middleware' directly inside 'backend'
+                        middleware_dir = os.path.join(backend_dir, "middleware")
+
+                    # middleware_dir = os.path.join(backend_dir, "middlewares")
+                    os.makedirs(middleware_dir, exist_ok=True)
+                    print(f"'middleware' directory created at: {middleware_dir}")
+                    
+
 
             # Step 7: Navigate into the 'middleware' folder
             os.chdir(middleware_dir)
