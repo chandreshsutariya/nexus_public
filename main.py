@@ -874,7 +874,7 @@ def get_middleware_file_content(path: str) -> str:
         print('866',path)
         try:
             # Check if the path corresponds to a middleware file
-            base_middleware_dir = os.getenv('middleware')  # Default for Linux
+            base_middleware_dir = os.getenv(r'/home/nexus_test/middleware')  # Default for Linux
             print('870',base_middleware_dir)
 
             filename = os.path.basename(path)
