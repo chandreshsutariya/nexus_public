@@ -959,8 +959,8 @@ async def download_project(body: DownloadProject):
         generator.create_structure(base_name, dir_structure)
 
         # Step 3: Remove empty files and folders
-        project_dir = os.path.join(projects_dir, body.project_id)
-        remove_empty_files_and_folders(project_dir)
+        # project_dir = os.path.join(projects_dir, body.project_id)
+        # remove_empty_files_and_folders(project_dir)
 
         # Call the function to find and delete middleware directory
         # find_and_delete_middleware(project_dir)
@@ -1072,6 +1072,9 @@ async def download_project(body: DownloadProject):
                 except Exception as e:
                     print(f"Error processing file {filename}: {e}")
 
+            os.chdir(projects_dir)
+            project_dir = os.path.join(projects_dir, body.project_id)
+            remove_empty_files_and_folders(project_dir)
 
 ###########################################################################################################################################
         # # Step 3: Search for 'backend' folder
