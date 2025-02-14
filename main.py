@@ -1033,23 +1033,38 @@ async def download_project(body: DownloadProject):
             for item in os.listdir(backend_dir):
                 if item in middleware_variants:
                     middleware_dir = os.path.join(backend_dir, item)
-                    print(f"'middleware' directory found at: {middleware_dir}")
+                    print(f"'middleware' directory found at 1036: {middleware_dir}")
                     break
-
-            # Step 4.2: If no middleware folder is found, check for 'src'
-                if not middleware_dir:
+                else:    
                     src_dir = os.path.join(backend_dir, "src")
                     if os.path.exists(src_dir) and os.path.isdir(src_dir):
                         middleware_dir = os.path.join(src_dir, "middlewares")
+                        os.makedirs(middleware_dir, exist_ok=True)
+                        print(f"'middlewares' directory created at: {middleware_dir}")
+                        break
                     else:
                         middleware_dir = os.path.join(backend_dir, "middlewares")
+                        os.makedirs(middleware_dir, exist_ok=True)
+                        print(f"'middlewares' directory created at: {middleware_dir}")
+                        break
 
                     # Create the middleware directory only if it does not exist
-                    os.makedirs(middleware_dir, exist_ok=True)
-                    print(f"'middlewares' directory created at: {middleware_dir}")   
+            
 
-                else:
-                    print(f"'middlewares' directory found at: {middleware_dir}") 
+            # Step 4.2: If no middleware folder is found, check for 'src'
+            # if not middleware_dir:
+            #     src_dir = os.path.join(backend_dir, "src")
+            #     if os.path.exists(src_dir) and os.path.isdir(src_dir):
+            #         middleware_dir = os.path.join(src_dir, "middlewares")
+            #     else:
+            #         middleware_dir = os.path.join(backend_dir, "middlewares")
+
+            #     # Create the middleware directory only if it does not exist
+            #     os.makedirs(middleware_dir, exist_ok=True)
+            #     print(f"'middlewares' directory created at: {middleware_dir}")   
+
+            # else:
+            #     print(f"'middlewares' directory found at: {middleware_dir}") 
 
 
             # Step 7: Navigate into the 'middleware' folder
