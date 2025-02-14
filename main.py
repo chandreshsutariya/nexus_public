@@ -874,7 +874,7 @@ def get_middleware_file_content(path: str) -> str:
         print('866',path)
         try:
             # Check if the path corresponds to a middleware file
-            base_middleware_dir = os.path.join(os.getcwd(), "middleware")  # Default for Linux
+            base_middleware_dir = os.getenv('middleware', '/home/nexus_test/middleware') # Default for Linux
             print('870',base_middleware_dir)
 
             filename = os.path.basename(path)
@@ -1005,7 +1005,7 @@ async def download_project(body: DownloadProject):
                 print(f"Current working directory: {os.getcwd()}")
 
             # Create 'middleware' folder 
-            # middleware_dir = None
+            middleware_dir = None
             middleware_dir = os.path.join(src_dir, "middleware_file")
             os.makedirs(middleware_dir, exist_ok=True)
             print(f"'middleware' directory created at: {middleware_dir}")
