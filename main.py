@@ -1054,18 +1054,18 @@ async def download_project(body: DownloadProject):
                     middleware_dir = os.path.join(backend_dir, "middlewares" if "middlewares" in line else "middleware")
                     print(f"'middleware' directory found at 1036: {middleware_dir}")
                     break
-            else:  # This block executes if the loop completes without finding a match
-                src_dir = os.path.join(backend_dir, "src")
-                if os.path.exists(src_dir) and os.path.isdir(src_dir):
-                    # Default to "middlewares" if neither exists
-                    middleware_dir = os.path.join(src_dir, "middlewares")
-                    os.makedirs(middleware_dir, exist_ok=True)
-                    print(f"'middlewares' directory created at: {middleware_dir}")
-                else:
-                    # Fallback to creating in backend_dir if src_dir doesn't exist
-                    middleware_dir = os.path.join(backend_dir, "middlewares")
-                    os.makedirs(middleware_dir, exist_ok=True)
-                    print(f"'middlewares' directory created at: {middleware_dir}")
+                else:  # This block executes if the loop completes without finding a match
+                    src_dir = os.path.join(backend_dir, "src")
+                    if os.path.exists(src_dir) and os.path.isdir(src_dir):
+                        # Default to "middlewares" if neither exists
+                        middleware_dir = os.path.join(src_dir, "middlewares")
+                        os.makedirs(middleware_dir, exist_ok=True)
+                        print(f"'middlewares' directory created at: {middleware_dir}")
+                    else:
+                        # Fallback to creating in backend_dir if src_dir doesn't exist
+                        middleware_dir = os.path.join(backend_dir, "middlewares")
+                        os.makedirs(middleware_dir, exist_ok=True)
+                        print(f"'middlewares' directory created at: {middleware_dir}")
             
 
             # Step 4.2: If no middleware folder is found, check for 'src'
