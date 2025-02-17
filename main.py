@@ -1030,25 +1030,42 @@ async def download_project(body: DownloadProject):
             middleware_dir = None
 
             # Step 4.1: Check if middleware exists in backend
+            # for line in dir_structure.splitlines():
+            #     if middleware_variants in line:     #ERROR Coming here expecting string giving list
+            #         middleware_dir = os.path.join(backend_dir, "middlewares" or "middleware")
+            #         print(f"'middleware' directory found at 1036: {middleware_dir}")
+            #         break
+            #     else:    
+            #         src_dir = os.path.join(backend_dir, "src")
+            #         if os.path.exists(src_dir) and os.path.isdir(src_dir):
+            #             middleware_dir = os.path.join(src_dir, "middlewares" or "middleware")
+            #             os.makedirs(middleware_dir, exist_ok=True)
+            #             print(f"'middlewares' directory created at: {middleware_dir}")
+            #             break
+            #         else:
+            #             middleware_dir = os.path.join(backend_dir, "middlewares" or "middleware")
+            #             os.makedirs(middleware_dir, exist_ok=True)
+            #             print(f"'middlewares' directory created at: {middleware_dir}")
+            #             break
+
             for line in dir_structure.splitlines():
-                if middleware_variants in line:
-                    middleware_dir = os.path.join(backend_dir, "middlewares")
+                # Check if any middleware variant exists in the current line
+                if any(variant in line for variant in middleware_variants):
+                    middleware_dir = os.path.join(backend_dir, "middlewares" if "middlewares" in line else "middleware")
                     print(f"'middleware' directory found at 1036: {middleware_dir}")
                     break
-                else:    
-                    src_dir = os.path.join(backend_dir, "src")
-                    if os.path.exists(src_dir) and os.path.isdir(src_dir):
-                        middleware_dir = os.path.join(src_dir, "middlewares")
-                        os.makedirs(middleware_dir, exist_ok=True)
-                        print(f"'middlewares' directory created at: {middleware_dir}")
-                        break
-                    else:
-                        middleware_dir = os.path.join(backend_dir, "middlewares")
-                        os.makedirs(middleware_dir, exist_ok=True)
-                        print(f"'middlewares' directory created at: {middleware_dir}")
-                        break
-
-                    # Create the middleware directory only if it does not exist
+            else:  # This block executes if the loop completes without finding a match
+                src_dir = os.path.join(backend_dir, "src")
+                if os.path.exists(src_dir) and os.path.isdir(src_dir):
+                    # Default to "middlewares" if neither exists
+                    middleware_dir = os.path.join(src_dir, "middlewares")
+                    os.makedirs(middleware_dir, exist_ok=True)
+                    print(f"'middlewares' directory created at: {middleware_dir}")
+                else:
+                    # Fallback to creating in backend_dir if src_dir doesn't exist
+                    middleware_dir = os.path.join(backend_dir, "middlewares")
+                    os.makedirs(middleware_dir, exist_ok=True)
+                    print(f"'middlewares' directory created at: {middleware_dir}")
             
 
             # Step 4.2: If no middleware folder is found, check for 'src'
