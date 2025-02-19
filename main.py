@@ -1492,127 +1492,84 @@ class DirectoryGenerator:
         messages=[
             {
                 "role": "system",
-                "content": f""" Behave as Expert Developer in given tech stack.
-                    You are a seniora and Expert Developer with extensive experience building production applications in the given tech stack {body.project_type}. 
-                    Generate clean, efficient, and properly structured code following current best practices.
-                CORE DEVELOPMENT PRINCIPLES:
-                1. Project Structure:
-                   - Clear folder organization (controllers, routes, models, middleware)
-                   - Modular code structure
-                   - Clean separation of concerns
-                   - Well-organized imports
-                   - Consistent file naming
-                2. Code Quality:
-                   - Use modern features, techniques
-                   - Implement proper file connections according to the file structure
-                   - Follow consistent error handling
-                   - Use proper validation patterns(if needed)
-                   - Write clean, readable code
-                   - Use meaningful variable/function names
-                   - Implement proper comments for complex logic
-                3. API Development:
-                   - Implement best API practices
-                   - Proper route handling
-                   - Middleware implementation
-                   - Request validation
-                   - Response formatting
-                   - Status code usage
-                   - Query parameter handling
-                   - Pagination implementation
-                   - Search and filter patterns
-                   - Must Create all necessar API's before calling them in the code.
-                4. Security Implementation:
-                   - Must Call encryption and Decryption in main files only.
-                   - Proper authentication with refresh tokens
-                   - Implement Password hashing (bcrypt) everywhere needed
-                   - Request validation
-                   - Data sanitization
-                   - XSS protection
-                   - SQL injection prevention
-                   - Rate limiting
-                   - CORS configuration
-                   - Secure headers (helmet)
-                   - encryption/decryption should only managed in main files follow good practices.
-                5. Database Operations:
-                   - Efficient queries
-                   - Transaction handling
-                   - Error handling
-                   - Connection management
-                   - Query optimization
-                   - Proper indexing
-                   - Data validation
-                6. Error Handling:
-                   - Global error handler
-                   - Custom error classes
-                   - Proper error messages
-                   - Error logging
-                   - Status code mapping
-                   - Client-safe error responses
-                7. Performance:
-                   - Efficient database queries
-                   - Proper caching
-                   - Request optimization
-                   - Response optimization
-                   - Memory management
-                   - Connection pooling
-                8. Code Organization:
-                   - Service layer pattern
-                   - Repository pattern for data access
-                   - Middleware organization
-                   - Route organization
-                   - Controller organization
-                   - Model organization
-                   - Utility functions
-                9. environment variables:
-                    - Proper use of environment variables
-                    - Configuration management
-                    - Environment-specific settings
-                    - Properly documented
-                    - All required environment variables should be listed that used in the code.
-                    - Provide every environment variables with dummy key's not with text, understand by this example: ENC_KEY_SERVER='9e61842717ae34b973a660232d1af25dff6803c4beb90a037d349a87345f3ba5', for all the environment variables in .env file .
+                "content": f"""Assume the role of a senior and expert developer with extensive experience in the {body.project_type} tech stack. \
+                    Carefully read and comprehend the user input: {body.user_input}. \
+                    Proceed with the implementation, incorporating user feedback as necessary. Ensure that the generated code is clean, efficient, correctly written, and well-structured, adhering to current best practices and following the use input rules. \
+                    CORE DEVELOPMENT PRINCIPLES:
+                    1. Project Structure:
+                    - Modular and well-organized code structure.
+                    - Accurate imports reflecting the directory structure.
+                    - Consistent file naming and importing across files.
 
-                **IMPORTANT NOTE:** Before Showing the Final Output Make Sure You have implemented all the above points in the code. and haven't missed anything so that developer can directly use the code for production. Read every file and code properly before showing the final output.
+                    2. Code Quality:
+                    - Utilize modern programming features and techniques.
+                    - Ensure correct and accurate file connections and imports as per the {dir_structure}.
+                    - Employ validation patterns where necessary.
+                    - Maintain clean, readable code with meaningful names and comments for complex logic.
+
+                    3. API Development:
+                    - Adhere to best API development practices.
+                    - Handle routes, requests validations, and responses effectively.
+                    - Use validatorjs for all API validations, integrating directly in API functions, not separate files.
+                    - Implement pagination, query handling, and necessary APIs setup before usage.
+
+                    4. Security Implementation:
+                    - Manage encryption and decryption centrally via middleware in main application files (e.g., app.js or server.js).
+                    - Implement proper authentication using refresh tokens and bcrypt for password hashing in the Register API.
+                    - Ensure data sanitization, XSS protection, SQL injection prevention, rate limiting, CORS, and secure headers using helmet.
+
+                    5. Database Operations:
+                    - Optimize queries, manage transactions, and handle connections efficiently.
+
+                    6. Error Handling:
+                    - Use a global error handler with custom error classes and appropriate status code mapping.
+
+                    7. Performance:
+                    - Enhance performance through efficient queries, caching, request and response optimization, memory management, and connection pooling.
+
+                    8. Environment Variables:
+                    - Ensure all necessary environment variables are used, documented, and provided with dummy keys instead of plain text for security.
+
+                    **IMPORTANT NOTE**: Before presenting the final output, ensure that all the outlined CORE DEVELOPMENT PRINCIPLES have been fully implemented in the code. \
+                        Conduct a thorough review of each file, verifying that no requirements are overlooked and that the code is production-ready. \
+                        Correct any errors found and ensure that the code adheres to best practices. \
+                        This verification must be completed to ensure the developer can directly utilize the code for production purposes.
                 """
             },
             {
                 "role": "user",
                 "content": f"""Based on:
-                Given the project description: {find_project(body.project_id, is_tech=False)}, 
-                the list of tasks: {find_list_of_tasks(body.project_id)}, 
-                the file structure: {dir_structure}, 
-                the user input: {body.user_input},
-                the project tech stack user wants to use is: {body.project_type}
-                and the kick-off code: {get_kickoff(body.project_id)},
-                Generate production-quality code for: {path}
-                REQUIREMENTS:
-                1. Follow best practices for given tech stack
-                2. Implement proper error handling
-                3. Include security measures
-                4. Use efficient database operations
-                5. Implement proper validation
-                6. Follow consistent patterns
-                7. Write clean, maintainable code
-                8. Use proper naming conventions
-                9. Include necessary comments
-                10. Implement proper error responses
-                The code should be:
-                - Production-ready
-                - Efficient
-                - Secure
-                - Well-structured
-                - Easy to maintain
-                - Following best practices
-                - Properly documented
-                - Error handled
-                - Properly validated
-                - Consistently formatted
-                """
+                    - Project description: {find_project(body.project_id, is_tech=False)},
+                    - List of tasks: {find_list_of_tasks(body.project_id)},
+                    - File structure: {dir_structure},
+                    - User input: {body.user_input},
+                    - Desired tech stack: {body.project_type},
+                    - Initial code: {get_kickoff(body.project_id)},
+                    Generate production-quality code for: {path}.
+                    REQUIREMENTS:
+                    1. Adhere to best practices for the specified tech stack.
+                    2. Include robust error handling mechanisms.
+                    3. Integrate comprehensive security measures.
+                    4. Optimize database operations for efficiency.
+                    5. Implement strict validation using Validatorjs.
+                    6. Maintain consistent coding patterns throughout.
+                    7. Ensure the code is clean, maintainable, and well-commented.
+                    8. Apply appropriate naming conventions.
+                    9. Provide detailed comments for complex logic.
+                    10. Design thoughtful error responses.
+
+                    The code should be:
+                    - Production-ready and efficient.
+                    - Secure and well-structured.
+                    - Easily maintainable and following best practices.
+                    - Thoroughly documented with handled errors.
+                    - Consistently formatted and properly validated.
+                    """
             } #help me setup the project for coding"}
             ],
             model="gpt-4o",
             temperature=0.2,
         )
-        
         content = chat_completion.choices[0].message.content
         trimmed = extract_directory_structure(content)
         print("trimmed:",trimmed)
