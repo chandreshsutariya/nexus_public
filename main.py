@@ -1529,7 +1529,8 @@ class DirectoryGenerator:
                     - Enhance performance through efficient queries, caching, request and response optimization, memory management, and connection pooling.
 
                     8. Environment Variables:
-                    - Ensure all necessary environment variables are used, documented, and provided with dummy keys instead of plain text for security.
+                    - Ensure all necessary environment variables are used, documented, and provided with **realistic, randomized secure values** for all configuration keys (e.g., `PAYPAL_CLIENT_ID=Nsblsbdiaknasjhvlkdjajdashaojwdifejh` instead of `your_paypal_client_id`).
+                    - Each key in the .env file should be populated with unique, non-repeating dummy secure values.
 
                     **IMPORTANT NOTE**: Before presenting the final output, ensure that all the outlined CORE DEVELOPMENT PRINCIPLES have been fully implemented in the code. \
                         Conduct a thorough review of each file, verifying that no requirements are overlooked and that the code is production-ready. \
