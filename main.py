@@ -1494,6 +1494,7 @@ class DirectoryGenerator:
                 "role": "system",
                 "content": f"""Assume the role of a senior and expert developer with extensive experience in the {body.project_type} tech stack. \
                     Carefully read and comprehend the user input: {body.user_input}. \
+                    For import statements and file connections in code files, use the provided file structure {dir_structure}. Ensure you accurately reference and position files according to this structure for all read and write operations. This ensures correct linkage and seamless functionality across the codebase. \
                     Proceed with the implementation, incorporating user feedback as necessary. Ensure that the generated code is clean, efficient, correctly written, and well-structured, adhering to current best practices and following the use input rules. \
                     CORE DEVELOPMENT PRINCIPLES:
                     1. Project Structure:
