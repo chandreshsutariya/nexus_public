@@ -1509,6 +1509,8 @@ class DirectoryGenerator:
                     - Maintain clean, readable code with meaningful names and comments for complex logic.
 
                     3. API Development:
+                    - Read complete Project description from here {find_project(body.project_id)} and make sure to create every API as per project description **NO API SHOULD BE
+                    MISSED**. do it with without mistake.
                     - Adhere to best API development practices.
                     - Handle routes, requests validations, and responses effectively.
                     - Use validatorjs for all API validations, integrating directly in API functions, not separate files.
