@@ -1488,6 +1488,103 @@ class DirectoryGenerator:
 
         dir_structure = extract_directory_structure(find_file_structure(body.project_id))
 
+        detailed_prompt = f"""
+            You are a senior Node.js backend developer with expert-level skills in API development, architecture, and best practices. Based on the following project description for a "Security Management ERP SaaS Application", generate a complete Node.js backend codebase using Express. The generated project must implement every API endpoint, follow production-ready standards, and use the directory structure provided below.
+
+            Project Description:
+            --------------------
+            1. Security Guards’ Page:
+            • Asset Handover & Reception: Endpoint to exchange assets with documentation and photos; data is logged in the admin or site management page.
+            • Attendance Registration: Endpoint for guards to check in using a site-specific QR Code.
+            • Attendance Confirmation: Endpoint that prompts guards to confirm presence with a geotagged selfie periodically (marking absence if not confirmed within 15 minutes).
+            • Visitor & Vehicle Management: Endpoint to register visitor and vehicle details and issue entry stickers.
+            • SOS (Emergency Request): Endpoint that triggers notifications to on-site security guards, site management, supervisors, and operations room when pressed.
+            • Incident Handling: Endpoint for reporting incidents and providing step-by-step handling instructions.
+            • General Instructions: Endpoint to display site-specific instructions and daily routines.
+            • Maintenance & Cleaning Requests: Endpoint for submitting maintenance or cleaning requests (with optional photo attachments, messages, location, and request origin details).
+            • Penalties: Endpoint to notify and record penalties imposed on guards with issuer details.
+            • Location Sharing: Endpoint for real-time location sharing among network members.
+            • Peer Verification: Endpoint that allows a colleague to capture a photo for additional verification.
+            • Task Tracking: Endpoint for real-time tracking of task execution and reporting.
+            • Notes & Feedback: Endpoint for guards to report system errors or conditions preventing task completion.
+            • Shipment Documentation: Endpoint to capture and forward photos of deliveries or shipments.
+            • Leave Management: Endpoint for requesting and managing annual/medical leave.
+            • Complaints & Appeals: Endpoint for guards to submit complaints or feedback directly to the company.
+            • Patrol System: Endpoint for guards to conduct site patrols using RFID or NFC technology.
+
+            2. Patrol & Transport System:
+            • Site & Task Assignment: Endpoint to assign patrol locations and tasks with GPS coordinates.
+            • Patrol Tracking: Endpoint for real-time tracking of patrols and transport buses via GPS.
+            • Reports: Endpoint for submission of patrol reports with photos, videos, and timestamps.
+            • Task Execution Monitoring: Endpoint to record task execution status and outcomes.
+            • Shared Tasks: Endpoint for sharing tasks among the patrol team.
+
+            3. Supervisors & Operations:
+            • Site Management: Endpoint to access all assigned sites, guard names, and working hours.
+            • Task Monitoring: Endpoint to track guard tasks and receive instant reports.
+            • Instructions: Endpoint to view site-specific guidelines and assigned duties.
+            • Report Handling: Endpoint to receive and forward incident reports.
+            • Cleanliness & Compliance Checks: Endpoint to conduct random inspections, capture guard photos upon arrival (with automatic alerts for non-compliance).
+            • Penalties: Endpoint for supervisors to issue violations with preset fines.
+            • Communication: Endpoint for sending general messages and notes.
+            • Random Supervision: Endpoint for assigning random site visits to ensure supervisory quality.
+            • Site Takeover Process: Endpoints for receiving site takeover requests, organizing workforce, confirming “Site Readiness”, and registering supervisor attendance via GPS or QR Code.
+            • Operations Handover: Endpoint to document site handover and transition supervision.
+
+            4. Company Management (Administration):
+            • Comprehensive Management: Endpoints for full control over pages and tasks.
+            • Payroll Management: Endpoint for attendance tracking, handling absences, deductions, bonuses, and generating payroll reports.
+            • Ticket Module: Endpoint for managing and responding to service requests.
+            • Complaint Management: Endpoint for escalating complaints from guards (with a 48-hour escalation window).
+            • Archiving: Endpoint for searching reports, attendance, and shift records.
+            • Contract Management: Endpoint for tracking contracts, contract values, and site details.
+            • Marketing: Endpoint to monitor and track marketing campaign details.
+            • Site Management: Endpoint for overseeing all site requests and decisions.
+
+            5. Site Management (Clients):
+            • Guard Management: Endpoint for imposing or revoking penalties on guards.
+            • Reports: Endpoint for receiving/submitting daily reports, monthly invoices, and attendance reports.
+            • Leave & Absence Management: Endpoint to track and approve or deny leave applications.
+            • Task Monitoring: Endpoint for assigning tasks with instant notifications.
+            • Entry Reports: Endpoint to view reports on visitors, vehicles, and shipments.
+            • Asset Management: Endpoint for logging asset handover and reception with photo evidence.
+            • Communication: Endpoint for messaging between guards and cleaning/maintenance departments.
+            • Emergency: Endpoint for receiving SOS alerts from guards and sending client-initiated alerts.
+            • Multi-Site Management: Endpoint for managing multiple sites under a single account.
+            • Archiving & Ticket Module: Endpoints for searching archives and managing service tickets.
+
+            6. Sales Department:
+            • Visit Management: Endpoint for recording full details during site visits (site type, number of entrances, electrical panel locations, number of floors, contact person, current security provider).
+            • Quotation Management: Endpoint for sending price quotes and adding follow-up notes with alerts.
+            • Task Tracking: Endpoint for monitoring sales activities and ensuring task completion.
+            • Contract Management: Endpoint for handling contract negotiations, awarding notifications, and tracking contract signing.
+            • Site Handover: Endpoint for transferring responsibility to operations upon contract signing.
+            • Follow-Up Visits: Endpoint for random follow-up visits with arrival confirmation and notes.
+
+            7. Cleaning & Maintenance Companies:
+            • Task Management: Endpoint for receiving notifications of assigned tasks and confirming reception (with “Receive Task”, “Start Work”, and “Complete Work” actions).
+            • Documentation: Endpoint for uploading photos, videos, or written reports and adding clarifying notes.
+            • Tracking: Endpoint for searching for completed or overdue tasks.
+            • Safety Measures: Endpoint for SOS activation and technical support requests.
+            • Integration with Management: Endpoint to log all operations within the site and company management systems.
+
+            Project Requirements:
+            ---------------------
+            - Use Node.js with Express for the backend.
+
+            The generated Node.js code must include:
+            - All necessary API endpoint implementations as described above.
+            - A modular, production-ready codebase that emphasizes:
+            • Good project structure and modular design.
+            • High code quality and maintainability.
+            • Robust security measures and proper use of environment variables.
+            • Efficient database operations.
+            • Comprehensive error handling and logging.
+            • Performance optimizations.
+            • Detailed comments and documentation for clarity.
+            Return the complete code (all files and content) as a single output.
+        """
+
         chat_completion = client.chat.completions.create(
         messages=[
             {
@@ -1568,7 +1665,7 @@ class DirectoryGenerator:
                     - Easily maintainable and following best practices.
                     - Thoroughly documented with handled errors.
                     - Consistently formatted and properly validated.
-                    """
+                    must consider these details: {detailed_prompt}"""
             } #help me setup the project for coding"}
             ],
             model="gpt-4o",
