@@ -1668,7 +1668,7 @@ class DirectoryGenerator:
                     must consider these details: {detailed_prompt}"""
             } #help me setup the project for coding"}
             ],
-            model="gpt-4o",
+            model="gpt-4",
             temperature=0.2,
         )
         content = chat_completion.choices[0].message.content
