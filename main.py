@@ -1509,78 +1509,13 @@ class DirectoryGenerator:
                     - Maintain clean, readable code with meaningful names and comments for complex logic.
 
                     3. API Development:
-                    **Your API generation MUST:**
-                        
-                        1. **Security Guards’ Page**  
-                        - **Asset Handover & Reception:** Endpoint to exchange assets with documentation and photos.  
-                        - **Attendance Registration:** Endpoint for guards to check in using a site-specific QR Code.  
-                        - **Attendance Confirmation:** Endpoint for guards to confirm presence via a geotagged selfie (with a 15-minute confirmation window).  
-                        - **Visitor & Vehicle Management:** Endpoint to register visitor and vehicle details and issue entry stickers.  
-                        - **SOS (Emergency Request):** Endpoint to trigger SOS notifications to on-site guards, site management, supervisors, and operations.  
-                        - **Incident Handling:** Endpoint for reporting incidents with step-by-step handling instructions.  
-                        - **General Instructions:** Endpoint to display site-specific instructions and daily routines.  
-                        - **Maintenance & Cleaning Requests:** Endpoint for submitting maintenance or cleaning requests (with photo attachments and location info).  
-                        - **Penalties:** Endpoint for recording penalties with details of the issuer.  
-                        - **Location Sharing:** Endpoint for guards to share their real-time location.  
-                        - **Peer Verification:** Endpoint for a colleague to verify a guard’s presence via photo capture.  
-                        - **Task Tracking:** Endpoint for real-time tracking and reporting of guard tasks.  
-                        - **Notes & Feedback:** Endpoint for guards to report system issues or feedback.  
-                        - **Shipment Documentation:** Endpoint to capture and forward photos of deliveries.  
-                        - **Leave Management:** Endpoint for requesting and managing leave (annual/medical).  
-                        - **Complaints & Appeals:** Endpoint for submitting complaints or appeals.
-
-                        2. **Patrol & Transport System**  
-                        - **Site & Task Assignment:** Endpoint to assign patrol locations with GPS coordinates.  
-                        - **Patrol Tracking:** Endpoint to track patrols and transport vehicles via GPS.  
-                        - **Reports:** Endpoint to submit patrol reports with photos/videos and timestamps.  
-                        - **Task Execution Monitoring:** Endpoint to record task status and outcomes.  
-                        - **Shared Tasks:** Endpoint for sharing tasks among patrol team members.
-
-                        3. **Supervisors & Operations**  
-                        - **Site Management:** Endpoint to access details of assigned sites and guard work hours.  
-                        - **Task Monitoring:** Endpoint to monitor guard tasks and receive instant reports.  
-                        - **Incident Reporting:** Endpoint to receive and forward incident reports.  
-                        - **Cleanliness & Compliance Checks:** Endpoint for conducting random inspections and triggering alerts.  
-                        - **Penalties:** Endpoint for issuing fines for violations.  
-                        - **Communication:** Endpoint for sending general messages and notes to the team.  
-                        - **Random Supervision:** Endpoint to assign random site visits for quality checks.  
-                        - **Site Takeover Process:** Endpoints to initiate site takeover, register attendance, and track supervisor movements.  
-                        - **Operations Handover:** Endpoint for documenting site handover and supervision transitions.
-
-                        4. **Company Management (Administration)**  
-                        - **Comprehensive Management:** Endpoints for overall control of all pages and tasks.  
-                        - **Payroll Management:** Endpoint for attendance tracking, deductions, bonuses, and payroll report generation.  
-                        - **Ticket Module:** Endpoint for managing service requests.  
-                        - **Complaint Management:** Endpoint for escalating unresolved complaints.  
-                        - **Archiving:** Endpoint for searching through reports and attendance records.  
-                        - **Contract Management:** Endpoint for tracking contracts and site details.  
-                        - **Marketing:** Endpoint to monitor marketing campaign details.  
-                        - **Site Management:** Endpoint for client site request handling.
-
-                        5. **Site Management (Clients)**  
-                        - **Guard Management:** Endpoint for imposing and revoking penalties.  
-                        - **Reports:** Endpoint for receiving and submitting daily and monthly reports.  
-                        - **Leave & Absence Management:** Endpoint to approve or deny leave applications.  
-                        - **Task Monitoring:** Endpoint for assigning tasks with instant notifications.  
-                        - **Entry Reports:** Endpoint for viewing reports on visitors, vehicles, and shipments.  
-                        - **Asset Management:** Endpoint for logging asset handover with photographic evidence.  
-                        - **Communication:** Endpoint for exchanging messages with guards and service departments.  
-                        - **Emergency (SOS):** Endpoint to receive SOS alerts from guards and clients.  
-                        - **Multi-Site Management:** Endpoint to manage multiple sites from a single account.  
-                        - **Archiving & Ticket Module:** Endpoints for report search and service ticket management.
-
-                        6. **Sales Department**  
-                        - **Visit Management:** Endpoint for recording detailed site visit information.  
-                        - **Quotation Management:** Endpoint to send price quotes and record follow-up notes.  
-                        - **Task Tracking:** Endpoint for monitoring sales activities and task completion.  
-                        - **Contract Management:** Endpoint to handle contract negotiations and handovers.  
-                        - **Site Handover & Follow-Up Visits:** Endpoints for notifying and confirming site handover and follow-up visits.
-
-                        7. **Cleaning & Maintenance Companies**  
-                        - **Task Management:** Endpoint for receiving and confirming maintenance/cleaning tasks.  
-                        - **Documentation:** Endpoint for uploading photos, videos, and reports.  
-                        - **Tracking:** Endpoint for tracking completed or overdue tasks.  
-                        - **Safety Measures:** Endpoint to trigger SOS alerts and request technical support.
+                    - Read complete Project description from here {find_project(body.project_id)} and make sure to create every API as per project description **NO API SHOULD BE
+                    MISSED**. do it with without mistake.
+                    - extract features mentioned in the project description that requires an API endpoint to be created, make a list of all these and make sure to implement all of them.
+                    - Adhere to best API development practices.
+                    - Handle routes, requests validations, and responses effectively.
+                    - Use validatorjs for all API validations, integrating directly in API functions, not separate files.
+                    - Implement pagination, query handling, and necessary APIs setup before usage.
 
                     4. Security Implementation:
                     - Manage encryption and decryption centrally via middleware in main application files (e.g., app.js or server.js).
