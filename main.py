@@ -1492,6 +1492,7 @@ class DirectoryGenerator:
             You are a senior Node.js backend developer with expert-level skills in API development, architecture, and best practices. Based on the following project description for a "Security Management ERP SaaS Application", generate a complete Node.js backend codebase using Express. The generated project must implement every API endpoint, follow production-ready standards, and use the directory structure provided below.
 
             Project Description:
+            --------------------
             1. Security Guards’ Page:
             • Asset Handover & Reception: Endpoint to exchange assets with documentation and photos; data is logged in the admin or site management page.
             • Attendance Registration: Endpoint for guards to check in using a site-specific QR Code.
@@ -1568,6 +1569,7 @@ class DirectoryGenerator:
             • Integration with Management: Endpoint to log all operations within the site and company management systems.
 
             Project Requirements:
+            ---------------------
             - Use Node.js with Express for the backend.
 
             The generated Node.js code must include:
@@ -1645,10 +1647,28 @@ class DirectoryGenerator:
                     - Desired tech stack: {body.project_type},
                     - Initial code: {get_kickoff(body.project_id)},
                     Generate production-quality code for: {path}.
-                     {detailed_prompt}"""
+                    REQUIREMENTS:
+                    1. Adhere to best practices for the specified tech stack.
+                    2. Include robust error handling mechanisms.
+                    3. Integrate comprehensive security measures.
+                    4. Optimize database operations for efficiency.
+                    5. Implement strict validation using Validatorjs.
+                    6. Maintain consistent coding patterns throughout.
+                    7. Ensure the code is clean, maintainable, and well-commented.
+                    8. Apply appropriate naming conventions.
+                    9. Provide detailed comments for complex logic.
+                    10. Design thoughtful error responses.
+
+                    The code should be:
+                    - Production-ready and efficient.
+                    - Secure and well-structured.
+                    - Easily maintainable and following best practices.
+                    - Thoroughly documented with handled errors.
+                    - Consistently formatted and properly validated.
+                    must consider these details: {detailed_prompt}"""
             } #help me setup the project for coding"}
             ],
-            model="gpt-4",
+            model="gpt-4o",
             temperature=0.2,
         )
         content = chat_completion.choices[0].message.content
