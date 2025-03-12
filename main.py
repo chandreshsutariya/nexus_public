@@ -1518,6 +1518,7 @@ class DirectoryGenerator:
                         6. Include security features such as authentication, authorization, encryption/decryption, validation, rate limiting, and error handling.
                         7. Clearly state each API with detailed method (GET, POST, PUT, DELETE), route, input/output fields, validation rules, and example responses.
                         8. Always provide full implementation details (routes, controllers, services, middleware, DB schema).
+                        9. There Can be no missing or incomplete API endpoints.
 
                     4. Security Implementation:
                     - Manage encryption and decryption centrally via middleware in main application files (e.g., app.js or server.js).
