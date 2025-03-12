@@ -1509,8 +1509,7 @@ class DirectoryGenerator:
                     - Maintain clean, readable code with meaningful names and comments for complex logic.
 
                     3. API Development:
-                    - Read complete Project description from here {find_project(body.project_id)} line by line and use your intelligence to find if the given line requires api or not for implementing in the project if it requires to create an api tehn make sure to create the API as per project description **NO API SHOULD BE
-                    MISSED**. do it with without mistake.
+                    - Read User input {body.user_input} given well, it contains list of api endpoints needed in the project. Implement all these api endpoints in the project. **DO NOT MISS ANY API ENDPOINT IMPLEMENTATION**.
                     - extract features mentioned in the project description that requires an API endpoint to be created, make a list of all these and make sure to implement all of them.
                     - Adhere to best API development practices.
                     - Handle routes, requests validations, and responses effectively.
