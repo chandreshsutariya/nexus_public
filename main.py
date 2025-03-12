@@ -1509,12 +1509,15 @@ class DirectoryGenerator:
                     - Maintain clean, readable code with meaningful names and comments for complex logic.
 
                     3. API Development:
-                    - Read complete Project description from here {find_project(body.project_id)} and make sure to create every API as per project description **NO API SHOULD BE
-                    MISSED**. do it with without mistake.
-                    - Adhere to best API development practices.
-                    - Handle routes, requests validations, and responses effectively.
-                    - Use validatorjs for all API validations, integrating directly in API functions, not separate files.
-                    - Implement pagination, query handling, and necessary APIs setup before usage.
+                    **Your API generation MUST:**
+                        1. Cover all listed features explicitly.
+                        2. Consider and integrate intelligent improvements and best practices.
+                        3. Create granular API endpoints with detailed logic.
+                        4. Include all required modules, APIs, routes, controllers, and validation logic.
+                        5. Ensure complete backend coverage, including admin, guard, supervisor, client, sales, and cleaning & maintenance panels as applicable.
+                        6. Include security features such as authentication, authorization, encryption/decryption, validation, rate limiting, and error handling.
+                        7. Clearly state each API with detailed method (GET, POST, PUT, DELETE), route, input/output fields, validation rules, and example responses.
+                        8. Always provide full implementation details (routes, controllers, services, middleware, DB schema).
 
                     4. Security Implementation:
                     - Manage encryption and decryption centrally via middleware in main application files (e.g., app.js or server.js).
