@@ -342,7 +342,7 @@ async def platform_suggestion(body: ProjectDescription):
                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id, is_tech=True)}, \
                                         platforms suggestions "}
             ],
-            model="gpt-4o"
+            model="gpt-4o-mini"
         )
         platforms = chat_completion.choices[0].message.content
         # print(platforms)
@@ -405,7 +405,7 @@ async def tools_and_lib_suggestions(body: ToolsAndLibSuggestions):
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id)}, tell tools and library to use."}
             ],
-            model="gpt-4o"
+            model="gpt-4o-mini"
         )
         tools_lib = chat_completion.choices[0].message.content
         # print(tools_lib)
@@ -435,7 +435,7 @@ async def module_assistant(body: ModuleRequest):
                 {"role": "user", "content": f"Using the project example context: {find_project(body.project_id, )} list the modules\
                  that could be used. only necessary modules in accroding to project development.keep the "}
             ],
-            model="gpt-4o"
+            model="gpt-4o-mini"
         )
         modules = chat_completion.choices[0].message.content
         # print(modules)
@@ -465,7 +465,7 @@ async def feature_assistant(body: FeatureAssistant):
                 {"role": "user", "content": f"Using the project example context: {find_project(body.project_id)}, provide\
                  modeul wise feature/s of following modules: {find_module(body.project_id, is_tech=True)}"}
             ],
-            model="gpt-4o"
+            model="gpt-4o-mini"
         )
         features = chat_completion.choices[0].message.content
         # print(features)
@@ -1509,7 +1509,7 @@ class DirectoryGenerator:
                     - Maintain clean, readable code with meaningful names and comments for complex logic.
 
                     3. API Development:
-                    - Read complete Project description from here {find_project(body.project_id)} and make sure to create every API as per project description **NO API SHOULD BE
+                    - Read complete Project description from here {find_project(body.project_id)} line by line and use your intelligence to find if the given line requires api or not for implementing in the project if it requires to create an api tehn make sure to create the API as per project description **NO API SHOULD BE
                     MISSED**. do it with without mistake.
                     - extract features mentioned in the project description that requires an API endpoint to be created, make a list of all these and make sure to implement all of them.
                     - Adhere to best API development practices.
