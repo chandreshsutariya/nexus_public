@@ -190,6 +190,22 @@ def get_kickoff(project_id):
 
         return kickoff
 
+def find_api_list(project_id):
+    if not project_id:
+        return "project_id is required."
+    else:
+
+        project = collection.find_one({'_id': ObjectId(project_id)})
+
+        try:
+            project_apis = project['project_apis']
+        except Exception as e:
+            # print("error extracting project[features]")
+            # print(f"{e}")
+            return(f"APIs ARE NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD features, SO ACCORDING TO THAT I CAN ANSWER:G {e}")
+
+        return project_apis
+    
 def count_astrick(string):
     count =0
     for i in string:
@@ -254,6 +270,10 @@ class Setup(BaseModel):
 class Kickoff(BaseModel):
     project_id: str
     user_input: str = None
+
+class project_apis(BaseModel):
+    project_id: str
+    user_input: str 
 
 
 class DownloadProject(BaseModel):
@@ -342,7 +362,7 @@ async def platform_suggestion(body: ProjectDescription):
                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id, is_tech=True)}, \
                                         platforms suggestions "}
             ],
-            model="gpt-4o-mini"
+            model="gpt-4o"
         )
         platforms = chat_completion.choices[0].message.content
         # print(platforms)
@@ -405,7 +425,7 @@ async def tools_and_lib_suggestions(body: ToolsAndLibSuggestions):
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id)}, tell tools and library to use."}
             ],
-            model="gpt-4o-mini"
+            model="gpt-4o"
         )
         tools_lib = chat_completion.choices[0].message.content
         # print(tools_lib)
@@ -435,7 +455,7 @@ async def module_assistant(body: ModuleRequest):
                 {"role": "user", "content": f"Using the project example context: {find_project(body.project_id, )} list the modules\
                  that could be used. only necessary modules in accroding to project development.keep the "}
             ],
-            model="gpt-4o-mini"
+            model="gpt-4o"
         )
         modules = chat_completion.choices[0].message.content
         # print(modules)
@@ -465,7 +485,7 @@ async def feature_assistant(body: FeatureAssistant):
                 {"role": "user", "content": f"Using the project example context: {find_project(body.project_id)}, provide\
                  modeul wise feature/s of following modules: {find_module(body.project_id, is_tech=True)}"}
             ],
-            model="gpt-4o-mini"
+            model="gpt-4o"
         )
         features = chat_completion.choices[0].message.content
         # print(features)
@@ -939,6 +959,51 @@ def remove_empty_files_and_folders(path):
 #                         except Exception as e:
 #                             print(f"Error deleting middleware directory: {e}")
 
+@app.post('/project_apis/')
+async def setup(body: project_apis):
+    try:
+        # Use OpenAI API with `ChatCompletion` to generate small code snippets
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "You are an expert in API design with a deep understanding of software architecture."},
+                {"role": "user", "content": f"""Based on the given Project Description, list all required APIs that need to be implemented, grouped by modules or functional areas (e.g., Security Guards, Supervisors, Site Management). For each module, provide a list of APIs with:
+
+                - Endpoint (e.g., `/users`)
+                - HTTP Method (e.g., GET, POST, PUT, DELETE)
+                - Brief Description of what the API does
+                - Key Parameters (if any)
+
+                Project Description: {find_project(body.project_id, is_tech=True)}
+
+                Format the output as follows:
+
+                **Module Name:**
+                1. API: [API Name]
+                - Endpoint: [HTTP_METHOD] [ENDPOINT]
+                - Description: [DESCRIPTION]
+                - Parameters: [PARAMETERS or None]
+
+                Ensure the list is comprehensive, covering all functionalities mentioned in the description. Do not skip any feature or role-specific requirement. Use RESTful conventions and logical endpoint naming."""} #help me setup the project for coding"}
+            ],
+            model="gpt-4o-mini"
+        )
+        project_apis = chat_completion.choices[0].message.content
+        # print(kickoff)
+        ################################################################ we are storing the response in the database #########################################################################
+        result = collection.update_one(
+            {'_id': ObjectId(body.project_id)},  # Filter by _id
+            {'$set': {f'project_apis': project_apis}}  # /Update the technology field
+        )
+        if result.modified_count > 0:
+            # print("kickoff field added successfully.")
+            pass
+        else:
+            # print("No document found or no changes made.")
+            pass
+        return JSONResponse(content={"project_apis": project_apis})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
 @app.post('/downloadproject/')
 async def download_project(body: DownloadProject):
     try:
@@ -1488,103 +1553,6 @@ class DirectoryGenerator:
 
         dir_structure = extract_directory_structure(find_file_structure(body.project_id))
 
-        detailed_prompt = f"""
-            You are a senior Node.js backend developer with expert-level skills in API development, architecture, and best practices. Based on the following project description for a "Security Management ERP SaaS Application", generate a complete Node.js backend codebase using Express. The generated project must implement every API endpoint, follow production-ready standards, and use the directory structure provided below.
-
-            Project Description:
-            --------------------
-            1. Security Guards’ Page:
-            • Asset Handover & Reception: Endpoint to exchange assets with documentation and photos; data is logged in the admin or site management page.
-            • Attendance Registration: Endpoint for guards to check in using a site-specific QR Code.
-            • Attendance Confirmation: Endpoint that prompts guards to confirm presence with a geotagged selfie periodically (marking absence if not confirmed within 15 minutes).
-            • Visitor & Vehicle Management: Endpoint to register visitor and vehicle details and issue entry stickers.
-            • SOS (Emergency Request): Endpoint that triggers notifications to on-site security guards, site management, supervisors, and operations room when pressed.
-            • Incident Handling: Endpoint for reporting incidents and providing step-by-step handling instructions.
-            • General Instructions: Endpoint to display site-specific instructions and daily routines.
-            • Maintenance & Cleaning Requests: Endpoint for submitting maintenance or cleaning requests (with optional photo attachments, messages, location, and request origin details).
-            • Penalties: Endpoint to notify and record penalties imposed on guards with issuer details.
-            • Location Sharing: Endpoint for real-time location sharing among network members.
-            • Peer Verification: Endpoint that allows a colleague to capture a photo for additional verification.
-            • Task Tracking: Endpoint for real-time tracking of task execution and reporting.
-            • Notes & Feedback: Endpoint for guards to report system errors or conditions preventing task completion.
-            • Shipment Documentation: Endpoint to capture and forward photos of deliveries or shipments.
-            • Leave Management: Endpoint for requesting and managing annual/medical leave.
-            • Complaints & Appeals: Endpoint for guards to submit complaints or feedback directly to the company.
-            • Patrol System: Endpoint for guards to conduct site patrols using RFID or NFC technology.
-
-            2. Patrol & Transport System:
-            • Site & Task Assignment: Endpoint to assign patrol locations and tasks with GPS coordinates.
-            • Patrol Tracking: Endpoint for real-time tracking of patrols and transport buses via GPS.
-            • Reports: Endpoint for submission of patrol reports with photos, videos, and timestamps.
-            • Task Execution Monitoring: Endpoint to record task execution status and outcomes.
-            • Shared Tasks: Endpoint for sharing tasks among the patrol team.
-
-            3. Supervisors & Operations:
-            • Site Management: Endpoint to access all assigned sites, guard names, and working hours.
-            • Task Monitoring: Endpoint to track guard tasks and receive instant reports.
-            • Instructions: Endpoint to view site-specific guidelines and assigned duties.
-            • Report Handling: Endpoint to receive and forward incident reports.
-            • Cleanliness & Compliance Checks: Endpoint to conduct random inspections, capture guard photos upon arrival (with automatic alerts for non-compliance).
-            • Penalties: Endpoint for supervisors to issue violations with preset fines.
-            • Communication: Endpoint for sending general messages and notes.
-            • Random Supervision: Endpoint for assigning random site visits to ensure supervisory quality.
-            • Site Takeover Process: Endpoints for receiving site takeover requests, organizing workforce, confirming “Site Readiness”, and registering supervisor attendance via GPS or QR Code.
-            • Operations Handover: Endpoint to document site handover and transition supervision.
-
-            4. Company Management (Administration):
-            • Comprehensive Management: Endpoints for full control over pages and tasks.
-            • Payroll Management: Endpoint for attendance tracking, handling absences, deductions, bonuses, and generating payroll reports.
-            • Ticket Module: Endpoint for managing and responding to service requests.
-            • Complaint Management: Endpoint for escalating complaints from guards (with a 48-hour escalation window).
-            • Archiving: Endpoint for searching reports, attendance, and shift records.
-            • Contract Management: Endpoint for tracking contracts, contract values, and site details.
-            • Marketing: Endpoint to monitor and track marketing campaign details.
-            • Site Management: Endpoint for overseeing all site requests and decisions.
-
-            5. Site Management (Clients):
-            • Guard Management: Endpoint for imposing or revoking penalties on guards.
-            • Reports: Endpoint for receiving/submitting daily reports, monthly invoices, and attendance reports.
-            • Leave & Absence Management: Endpoint to track and approve or deny leave applications.
-            • Task Monitoring: Endpoint for assigning tasks with instant notifications.
-            • Entry Reports: Endpoint to view reports on visitors, vehicles, and shipments.
-            • Asset Management: Endpoint for logging asset handover and reception with photo evidence.
-            • Communication: Endpoint for messaging between guards and cleaning/maintenance departments.
-            • Emergency: Endpoint for receiving SOS alerts from guards and sending client-initiated alerts.
-            • Multi-Site Management: Endpoint for managing multiple sites under a single account.
-            • Archiving & Ticket Module: Endpoints for searching archives and managing service tickets.
-
-            6. Sales Department:
-            • Visit Management: Endpoint for recording full details during site visits (site type, number of entrances, electrical panel locations, number of floors, contact person, current security provider).
-            • Quotation Management: Endpoint for sending price quotes and adding follow-up notes with alerts.
-            • Task Tracking: Endpoint for monitoring sales activities and ensuring task completion.
-            • Contract Management: Endpoint for handling contract negotiations, awarding notifications, and tracking contract signing.
-            • Site Handover: Endpoint for transferring responsibility to operations upon contract signing.
-            • Follow-Up Visits: Endpoint for random follow-up visits with arrival confirmation and notes.
-
-            7. Cleaning & Maintenance Companies:
-            • Task Management: Endpoint for receiving notifications of assigned tasks and confirming reception (with “Receive Task”, “Start Work”, and “Complete Work” actions).
-            • Documentation: Endpoint for uploading photos, videos, or written reports and adding clarifying notes.
-            • Tracking: Endpoint for searching for completed or overdue tasks.
-            • Safety Measures: Endpoint for SOS activation and technical support requests.
-            • Integration with Management: Endpoint to log all operations within the site and company management systems.
-
-            Project Requirements:
-            ---------------------
-            - Use Node.js with Express for the backend.
-
-            The generated Node.js code must include:
-            - All necessary API endpoint implementations as described above.
-            - A modular, production-ready codebase that emphasizes:
-            • Good project structure and modular design.
-            • High code quality and maintainability.
-            • Robust security measures and proper use of environment variables.
-            • Efficient database operations.
-            • Comprehensive error handling and logging.
-            • Performance optimizations.
-            • Detailed comments and documentation for clarity.
-            Return the complete code (all files and content) as a single output.
-        """
-
         chat_completion = client.chat.completions.create(
         messages=[
             {
@@ -1606,8 +1574,7 @@ class DirectoryGenerator:
                     - Maintain clean, readable code with meaningful names and comments for complex logic.
 
                     3. API Development:
-                    - Read User input {body.user_input} given well, it contains list of api endpoints needed in the project. Implement all these api endpoints in the project. **DO NOT MISS ANY API ENDPOINT IMPLEMENTATION**.
-                    - extract features mentioned in the project description that requires an API endpoint to be created, make a list of all these and make sure to implement all of them.
+                    - use API List {find_api_list(body.project_id)} from here and make sure to implement every api given here in the code files accurately.
                     - Adhere to best API development practices.
                     - Handle routes, requests validations, and responses effectively.
                     - Use validatorjs for all API validations, integrating directly in API functions, not separate files.
@@ -1645,19 +1612,20 @@ class DirectoryGenerator:
                     - File structure: {dir_structure},
                     - User input: {body.user_input},
                     - Desired tech stack: {body.project_type},
-                    - Initial code: {get_kickoff(body.project_id)},
+                    - API List: {find_api_list(body.project_id)},
                     Generate production-quality code for: {path}.
                     REQUIREMENTS:
                     1. Adhere to best practices for the specified tech stack.
-                    2. Include robust error handling mechanisms.
-                    3. Integrate comprehensive security measures.
-                    4. Optimize database operations for efficiency.
-                    5. Implement strict validation using Validatorjs.
-                    6. Maintain consistent coding patterns throughout.
-                    7. Ensure the code is clean, maintainable, and well-commented.
-                    8. Apply appropriate naming conventions.
-                    9. Provide detailed comments for complex logic.
-                    10. Design thoughtful error responses.
+                    2. Make sure to implement every api given here in the code files accurately.
+                    3. Include robust error handling mechanisms.
+                    4. Integrate comprehensive security measures.
+                    5. Optimize database operations for efficiency.
+                    6. Implement strict validation using Validatorjs.
+                    7. Maintain consistent coding patterns throughout.
+                    8. Ensure the code is clean, maintainable, and well-commented.
+                    9. Apply appropriate naming conventions.
+                    10. Provide detailed comments for complex logic.
+                    11. Design thoughtful error responses.
 
                     The code should be:
                     - Production-ready and efficient.
@@ -1665,7 +1633,7 @@ class DirectoryGenerator:
                     - Easily maintainable and following best practices.
                     - Thoroughly documented with handled errors.
                     - Consistently formatted and properly validated.
-                    must consider these details: {detailed_prompt}"""
+                    """
             } #help me setup the project for coding"}
             ],
             model="gpt-4o",
