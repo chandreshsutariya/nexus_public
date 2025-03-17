@@ -1637,6 +1637,79 @@ class DirectoryGenerator:
                     - Easily maintainable and following best practices.
                     - Thoroughly documented with handled errors.
                     - Consistently formatted and properly validated.
+
+                    API Development :
+                    - Giving the list of apis you need to implement them in the files accrodingly.
+
+                    API Modules & Endpoints
+                    1. Authentication & User Management
+                    POST /auth/login User login
+                    POST /auth/logout User logout
+                    POST /auth/register Register a new user
+                    GET /auth/me Get current user details
+                    POST /auth/forgot-password Request password reset
+                    POST /auth/reset-password Reset password
+                    
+                    2. Security Guards Management
+                    GET /guards List all guards
+                    POST /guards Add a new guard
+                    GET /guards/ (id) View a specific guard's details
+                    PUT /guards/ (id) Update guard details
+                    DELETE /guards/ (id) Remove a guard
+                    Attendance & Location
+                    POST /guards/ (id)/check-in heck-in via QR code
+                    POST /guards/ (id)/check-out Check-out
+                    POST /guards/ (id)/location Update real-time location
+                    Tasks & Patrol System
+                    GET /guards/ (id)/tasks List assigned tasks
+                    POST /guards/ (id)/tasks/ (taskid)/complete Mark task as completed
+                    POST /guards/ (id)/patrol/checkpoint Log patrol checkpoint
+                    Visitor & Vehicle Management
+                    POST /visitors Register a new visitor
+                    GET /visitors List all visitors
+                    POST /vehicles Register a new vehicle
+                    GET /vehicles List all vehicles
+                    Incident Reporting & Emergency
+                    POST /guards/ (id)/incident Report an incident
+                    GET /incidents List all reported incidents
+                    POST /guards/ (id)/sos Trigger an emergency alert
+                    Leave Management
+                    POST /guards/ (id)/leave Request leave
+                    GET /guards/ (id)/leave View leave status
+
+                    3. Patrol & Transport System
+                    GET /patrol/routes Get patrol routes
+                    POST /patrol/check-in Log patrol attendance
+                    GET /transport/buses List available transport
+
+                    4. Supervisors & Operations
+                    GET /supervisors List all supervisors
+                    POST /supervisors/ (id)/assign-site Assign a site
+                    GET /supervisors/ (id)/tasks List supervisor tasks
+                    POST /supervisors/ (id)/report Submit a supervisor report
+
+                    5. Company Management (Admin)
+                    GET /admin/dashboard Get system overview
+                    POST /admin/payroll/generate Generate payroll
+                    GET /admin/contracts View contracts
+                    POST /admin/contracts Create a new contract
+                    POST /admin/tickets Create support tickets
+
+                    6. Site Management (Clients)
+                    GET /clients/sites List managed sites
+                    GET /clients/sites/ (id) View site details
+                    POST /clients/sites/ (id)/task Assign a task
+                    GET /clients/sites/ (id)/reports Get reports
+
+                    7. Sales Department
+                    POST /sales/leads  Add a new lead
+                    GET /sales/leads View all leads
+                    POST /sales/quotes Generate a quotation
+                    GET /sales/quotes/ (id) View quotation details
+
+                    8. Cleaning & Maintenance Companies
+                    GET /maintenance/tasks List all assigned tasks
+                    POST /maintenance/tasks/ (id)/complete   Mark task as completed
                     """
             } #help me setup the project for coding"}
             ],
