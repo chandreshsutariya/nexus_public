@@ -966,14 +966,18 @@ async def setup(body: project_apis):
         chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": "You are an expert in API design with a deep understanding of software architecture."},
-                {"role": "user", "content": f"""Based on the given Project Description, list all required APIs that need to be implemented, grouped by modules or functional areas (e.g., Security Guards, Supervisors, Site Management). For each module, provide a list of APIs with:
+                {"role": "user", "content": f"""Based on the given Project Description, list all required APIs that need to be implemented, grouped by modules or functional areas (e.g., Security Guards, Supervisors, Site Management). \
+                 For each module, provide a list of APIs with:
 
                 - Endpoint (e.g., `/users`)
                 - HTTP Method (e.g., GET, POST, PUT, DELETE)
                 - Brief Description of what the API does
                 - Key Parameters (if any)
-
+                 
+                *** Read user input and project description carefully to ensure all functionalities are covered. ***
+                 
                 Project Description: {find_project(body.project_id, is_tech=True)}
+                user input: {body.user_input}
 
                 Format the output as follows:
 
@@ -1574,7 +1578,8 @@ class DirectoryGenerator:
                     - Maintain clean, readable code with meaningful names and comments for complex logic.
 
                     3. API Development:
-                    - use API List {find_api_list(body.project_id)} from here and make sure to implement every api given here in the code files accurately.
+                    - Read complete Project description from here {find_project(body.project_id)} and make sure to create every API as per project description **NO API SHOULD BE
+                    MISSED**. do it with without mistake.
                     - Adhere to best API development practices.
                     - Handle routes, requests validations, and responses effectively.
                     - Use validatorjs for all API validations, integrating directly in API functions, not separate files.
@@ -1612,20 +1617,19 @@ class DirectoryGenerator:
                     - File structure: {dir_structure},
                     - User input: {body.user_input},
                     - Desired tech stack: {body.project_type},
-                    - API List: {find_api_list(body.project_id)},
+                    - Initial code: {get_kickoff(body.project_id)},
                     Generate production-quality code for: {path}.
                     REQUIREMENTS:
                     1. Adhere to best practices for the specified tech stack.
-                    2. Make sure to implement every api given here in the code files accurately.
-                    3. Include robust error handling mechanisms.
-                    4. Integrate comprehensive security measures.
-                    5. Optimize database operations for efficiency.
-                    6. Implement strict validation using Validatorjs.
-                    7. Maintain consistent coding patterns throughout.
-                    8. Ensure the code is clean, maintainable, and well-commented.
-                    9. Apply appropriate naming conventions.
-                    10. Provide detailed comments for complex logic.
-                    11. Design thoughtful error responses.
+                    2. Include robust error handling mechanisms.
+                    3. Integrate comprehensive security measures.
+                    4. Optimize database operations for efficiency.
+                    5. Implement strict validation using Validatorjs.
+                    6. Maintain consistent coding patterns throughout.
+                    7. Ensure the code is clean, maintainable, and well-commented.
+                    8. Apply appropriate naming conventions.
+                    9. Provide detailed comments for complex logic.
+                    10. Design thoughtful error responses.
 
                     The code should be:
                     - Production-ready and efficient.
@@ -1633,11 +1637,14 @@ class DirectoryGenerator:
                     - Easily maintainable and following best practices.
                     - Thoroughly documented with handled errors.
                     - Consistently formatted and properly validated.
+
+                    **IMPORTANT**: Implement all these given API's in Cotroller directory files without any mistake **MOST IMPORTANT** API Modules & Endpoints 1. Authentication & User Management POST /auth/login – User login POST /auth/logout – User logout POST /auth/register – Register a new user GET /auth/me – Get current user details POST /auth/forgot-password – Request password reset POST /auth/reset-password – Reset password 2. Security Guards Management GET /guards – List all guards POST /guards – Add a new guard GET /guards/{id} – View a specific guard's details PUT /guards/{id} – Update guard details DELETE /guards/{id} – Remove a guard Attendance & Location POST /guards/{id}/check-in – Check-in via QR code POST /guards/{id}/check-out – Check-out POST /guards/{id}/location – Update real-time location Tasks & Patrol System GET /guards/{id}/tasks – List assigned tasks POST /guards/{id}/tasks/{taskId}/complete – Mark task as completed POST /guards/{id}/patrol/checkpoint – Log patrol checkpoint Visitor & Vehicle Management POST /visitors – Register a new visitor GET /visitors – List all visitors POST /vehicles – Register a new vehicle GET /vehicles – List all vehicles Incident Reporting & Emergency POST /guards/{id}/incident – Report an incident GET /incidents – List all reported incidents POST /guards/{id}/sos – Trigger an emergency alert Leave Management POST /guards/{id}/leave – Request leave GET /guards/{id}/leave – View leave status 3. Patrol & Transport System GET /patrol/routes – Get patrol routes POST /patrol/check-in – Log patrol attendance GET /transport/buses – List available transport 4. Supervisors & Operations GET /supervisors – List all supervisors POST /supervisors/{id}/assign-site – Assign a site GET /supervisors/{id}/tasks – List supervisor tasks POST /supervisors/{id}/report – Submit a supervisor report 5. Company Management (Admin) GET /admin/dashboard – Get system overview POST /admin/payroll/generate – Generate payroll GET /admin/contracts – View contracts POST /admin/contracts – Create a new contract POST /admin/tickets – Create support tickets 6. Site Management (Clients) GET /clients/sites – List managed sites GET /clients/sites/{id} – View site details POST /clients/sites/{id}/task – Assign a task GET /clients/sites/{id}/reports – Get reports 7. Sales Department POST /sales/leads – Add a new lead GET /sales/leads – View all leads POST /sales/quotes – Generate a quotation GET /sales/quotes/{id} – View quotation details 8. Cleaning & Maintenance Companies GET /maintenance/tasks – List all assigned tasks POST /maintenance/tasks/{id}/complete – Mark task as completed.
                     """
             } #help me setup the project for coding"}
             ],
             model="gpt-4o",
-            temperature=0.2,
+            temperature=0.6,
+            top_p= 0.7,
         )
         content = chat_completion.choices[0].message.content
         trimmed = extract_directory_structure(content)
