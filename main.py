@@ -1649,67 +1649,147 @@ class DirectoryGenerator:
                     GET /auth/me Get current user details
                     POST /auth/forgot-password Request password reset
                     POST /auth/reset-password Reset password
+
+                    2. Asset Management
+                    POST /api/assets/handover
+                    POST /api/assets/reception
+                    GET /api/assets/logs/ (guard_id)
+
+                    3. Attendance Management
+                    POST /api/attendance/check-in
+                    POST /api/attendance/selfie-confirmation
+                    GET /api/attendance/logs/ (guard_id)
+
+                    4. Visitor & Vehicle Management
+                    POST /api/visitor/register
+                    POST /api/vehicle/register
+                    GET /api/visitor/history/ (site_id)
+                    GET /api/vehicle/history/ (site_id)
+
+                    5. Emergency (SOS) Management
+                    POST /api/sos/trigger
+                    GET /api/sos/alerts
+
+                    6. Incident Handling
+                    GET /api/incidents/types
+                    POST /api/incidents/report
+                    GET /api/incidents/history/ (guard_id)
+
+                    7. General Instructions
+                    GET /api/instructions/site/ (site_id)
+
+                    8. Maintenance & Cleaning Requests
+                    POST /api/maintenance/request
+                    GET /api/maintenance/requests/ (site_id)
+
+                    9. Penalties Management
+                    GET /api/penalties/ (guard_id)
+                    POST /api/penalties/issue
+
+                    10. Task Tracking
+                    POST /api/tasks/start
+                    POST /api/tasks/complete
+                    GET /api/tasks/history/ (guard_id)
+
+                    11. Notes & Feedback
+                    POST /api/notes/submit
+                    GET /api/notes/ (site_id)
+
+                    12. Leave Management
+                    POST /api/leave/request
+                    GET /api/leave/status/ (guard_id)
+                    POST /api/leave/approve
+
+                    13. Complaints & Appeals
+                    POST /api/complaints/submit
+                    GET /api/complaints/ (guard_id)
+
+                    14. Patrol System
+                    POST /api/patrol/verify-checkpoint
+                    GET /api/patrol/logs/ (site_id)
+
+                    Patrol & Transport System APIs:
+                    1. Patrol Management
+                    POST /api/patrol/assign
+                    GET /api/patrol/tasks/ (guard_id)
+                    GET /api/patrol/reports/ (site_id)
+
+                    2. Transport Tracking
+                    GET /api/transport/track/ (bus_id)
+
+                    Supervisors & Operations APIs
+                    1. Site Management
+                    GET /api/sites/list
+
+                    2. Task Monitoring
+                    GET /api/tasks/site/ (site_id)
+
+                    3. Cleanliness & Compliance Checks
+                    POST /api/compliance/check
+                    GET /api/compliance/logs/ (site_id)
+
+                    4. Penalties Management
+                    POST /api/penalties/issue
+
+                    5. Site Takeover Process
+                    POST /api/site/takeover/start
+                    POST /api/site/takeover/complete
+
+                    Company Management APIs
+
+                    1. Payroll Management
+                    GET /api/payroll/generate
+
+                    2. Complaint Management
+                    GET /api/complaints/pending
+
+                    3. Contract Management
+                    GET /api/contracts/list
+
+                    4. Marketing
+                    GET /api/marketing/campaigns
+
+                    Site Management (Clients) APIs:
+                    1. Guard Management
+                    POST /api/penalties/revoke
+                    2. Reports & Monitoring
+                    GET /api/reports/daily/ (site_id)
+                    GET /api/reports/monthly/ (site_id)
+                    GET /api/attendance/logs/ (site_id)
+
+                    3. Leave & Absence Management
+                    GET /api/leave/requests/ (site_id)
+
+                    4. Emergency Management
+                    POST /api/emergency/sos/trigger
+
+                    Sales Department APIs:
+                    1. Visit Management
+                    POST /api/sales/visit/record
+                    GET /api/sales/visit/history
+
+                    2. Quotation Management
+                    POST /api/sales/quotation/send
+                    GET /api/sales/quotation/history
+
+                    3. Contract Management
+                    POST /api/sales/contract/submit
+
+                    4. Follow-Up Visits
+                    GET /api/sales/followup/list
+
+                    Cleaning & Maintenance Companies APIs:
+                    1. Task Management
+                    POST /api/maintenance/task/receive
+                    POST /api/maintenance/task/start
+                    POST /api/maintenance/task/complete
+
+                    2. Documentation
+                    POST /api/maintenance/task/upload
+
+                    3. Safety Measures
+                    POST /api/maintenance/sos
                     
-                    2. Security Guards Management
-                    GET /guards List all guards
-                    POST /guards Add a new guard
-                    GET /guards/ (id) View a specific guard's details
-                    PUT /guards/ (id) Update guard details
-                    DELETE /guards/ (id) Remove a guard
-                    Attendance & Location
-                    POST /guards/ (id)/check-in heck-in via QR code
-                    POST /guards/ (id)/check-out Check-out
-                    POST /guards/ (id)/location Update real-time location
-                    Tasks & Patrol System
-                    GET /guards/ (id)/tasks List assigned tasks
-                    POST /guards/ (id)/tasks/ (taskid)/complete Mark task as completed
-                    POST /guards/ (id)/patrol/checkpoint Log patrol checkpoint
-                    Visitor & Vehicle Management
-                    POST /visitors Register a new visitor
-                    GET /visitors List all visitors
-                    POST /vehicles Register a new vehicle
-                    GET /vehicles List all vehicles
-                    Incident Reporting & Emergency
-                    POST /guards/ (id)/incident Report an incident
-                    GET /incidents List all reported incidents
-                    POST /guards/ (id)/sos Trigger an emergency alert
-                    Leave Management
-                    POST /guards/ (id)/leave Request leave
-                    GET /guards/ (id)/leave View leave status
-
-                    3. Patrol & Transport System
-                    GET /patrol/routes Get patrol routes
-                    POST /patrol/check-in Log patrol attendance
-                    GET /transport/buses List available transport
-
-                    4. Supervisors & Operations
-                    GET /supervisors List all supervisors
-                    POST /supervisors/ (id)/assign-site Assign a site
-                    GET /supervisors/ (id)/tasks List supervisor tasks
-                    POST /supervisors/ (id)/report Submit a supervisor report
-
-                    5. Company Management (Admin)
-                    GET /admin/dashboard Get system overview
-                    POST /admin/payroll/generate Generate payroll
-                    GET /admin/contracts View contracts
-                    POST /admin/contracts Create a new contract
-                    POST /admin/tickets Create support tickets
-
-                    6. Site Management (Clients)
-                    GET /clients/sites List managed sites
-                    GET /clients/sites/ (id) View site details
-                    POST /clients/sites/ (id)/task Assign a task
-                    GET /clients/sites/ (id)/reports Get reports
-
-                    7. Sales Department
-                    POST /sales/leads  Add a new lead
-                    GET /sales/leads View all leads
-                    POST /sales/quotes Generate a quotation
-                    GET /sales/quotes/ (id) View quotation details
-
-                    8. Cleaning & Maintenance Companies
-                    GET /maintenance/tasks List all assigned tasks
-                    POST /maintenance/tasks/ (id)/complete   Mark task as completed
                     """
             } #help me setup the project for coding"}
             ],
