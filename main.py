@@ -1790,6 +1790,12 @@ class DirectoryGenerator:
                     3. Safety Measures
                     POST /api/maintenance/sos
                     
+                    **IMPORTANT** Route and Validation files proper connection:
+                    - Route directory contains all the routes for the application, while the validation directory contains all the validation rules for the routes. \
+                        The validation rules are used to validate the incoming requests and ensure that they match the expected format. \
+                        So when you are implementing validation files first refer to it's respective route file to understand the validation rules and functions \
+                        called in that file then implement the same validation rules and functions in the validation file. \
+                        to make the route and validation files properly connected.
                     """
             } #help me setup the project for coding"}
             ],
