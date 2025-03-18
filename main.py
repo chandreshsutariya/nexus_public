@@ -1602,6 +1602,18 @@ class DirectoryGenerator:
                     8. Environment Variables:
                     - Ensure all necessary environment variables are used, documented, and provided with **realistic, randomized secure values** for all configuration keys (e.g., `PAYPAL_CLIENT_ID=Nsblsbdiaknasjhvlkdjajdashaojwdifejh` instead of `your_paypal_client_id`).
                     - Each key in the .env file should be populated with unique, non-repeating dummy secure values.
+                    
+                    9. **IMPORTANT** Route directory files and Validation directory files proper connection:
+                    - First Implement all the route files in the route directory without any mistake and proper function naming.
+                    - Then  I want all route files to use the same method for function calls.
+                    - use route files for only routing not validation, their validation should be in the validation directory in their respective files \
+                    (for example [// Middleware for encryption and decryption router.use(validateRequest)] \
+                    [// POST /auth/login - User login router.post(/login, validateLogin, login)]) similarly for all the other route files and their validation should be in their validation files separately.
+                    - Now Begin Implementation of Validation files with exact function names used in their respective route files.
+                    - Make Sure Every called function in any route file must be created and exported in it's respective validation file.
+                    - Make Sure to Create and Use Common Response Structure for Every API you are Creating,
+
+                    **REMEMBER  ROUTE DIRECTORY FILES SHOULD CONTATIN ONLY ROUTING CODE WHILE VALIDATION DIRECTORY FILES SHOULD ONLY CONTAIN VALIDATION CODE**.
 
                     **IMPORTANT NOTE**: Before presenting the final output, ensure that all the outlined CORE DEVELOPMENT PRINCIPLES have been fully implemented in the code. \
                         Conduct a thorough review of each file, verifying that no requirements are overlooked and that the code is production-ready. \
@@ -1790,13 +1802,6 @@ class DirectoryGenerator:
                     3. Safety Measures
                     POST /api/maintenance/sos
                     
-                    **IMPORTANT** Route and Validation files proper connection:
-                    - Route directory contains all the routes for the application, while the validation directory contains all the validation rules for the routes. \
-                        The validation rules are used to validate the incoming requests and ensure that they match the expected format. \
-                        So when you are implementing validation files first refer to it's respective route file to understand the validation rules and functions \
-                        called in that file then implement the same validation rules and functions in the validation file. \
-                        to make the route and validation files properly connected. also make sure to follow point 4,5,6,7 from the user input. to make the route and validation files properly connected.
-
                     """
             } #help me setup the project for coding"}
             ],
