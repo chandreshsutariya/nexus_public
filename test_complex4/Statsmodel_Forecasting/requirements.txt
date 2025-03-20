@@ -1,8 +1,0 @@
-```plaintext
-Flask
-Flask-SQLAlchemy
-bcrypt
-face_recognition
-opencv-python
-dlib
-```
