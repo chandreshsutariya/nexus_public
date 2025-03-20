@@ -551,7 +551,7 @@ async def task_assistant(body: TaskList):
         },
         {
             "role": "user",
-            "content": f"""Using this dating app documentation: {find_project(body.project_id)}
+            "content": f"""Using this project description: {find_project(body.project_id)}
 
             Create a comprehensive task list that:
 
@@ -580,7 +580,7 @@ async def task_assistant(body: TaskList):
                - Add essential security measures
                - Include necessary integrations
                
-            Generate comprehensive task list now, Don't skip any backend related task ensuring COMPLETE feature coverage with intelligent additions."""
+            Generate comprehensive task list now, Don't skip any backend, frontend related task ensuring COMPLETE feature coverage with intelligent additions."""
         }
                                             #             "Given the project description: {find_project(body.project_id)}, and the \
                                             # features list: {find_features(body.project_id)}, give me the list of coding\
@@ -646,13 +646,14 @@ async def setup(body: Setup):
         # Use OpenAI API with `ChatCompletion` to generate small code snippets
         chat_completion = client.chat.completions.create(
             messages=[
-                        {"role": "system", "content": "Please provide a concise and specific directory structure for a production-ready project \
-                                based on the given tech stack, including all necessary files and configurations."},
-                        {"role": "user", "content": f"Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
-                                 user input {body.user_input}, help me set up the project for the first time by providing a complete directory \
-                                 structure with all required files, configurations, and best practices for a production-ready application. \
-                                 Ensure the directory includes essential modules, configurations, database setup, security measures, \
-                                 environment variables, logging, and deployment scripts."}
+                        {"role": "system", "content": """You are Senior Experienced Software Developer. Please provide a concise and specific directory structure for a production-ready project \
+                                based on the given tech stack, including all necessary files and configurations. \
+                                Follow best practices for modularity, security, and maintainability."""},
+                        {"role": "user", "content": f"""Given the project description: {find_project(body.project_id, is_tech = True)}, and the \
+                                user input {body.user_input}, help me set up the project for the first time by providing a complete directory \
+                                structure with all required files, configurations, and best practices for a production-ready application. \
+                                Ensure the directory includes essential modules, configurations, database setup, security measures, \
+                                environment variables, logging, and deployment scripts."""}
 ]
 ,
             model="gpt-4o"
@@ -722,10 +723,6 @@ async def setup(body: Kickoff):
 #         raise HTTPException(status_code=500, detail=str(e))
 
 # to download any directory structure.
-
-
-
-
 
 
 # Example usage
@@ -804,7 +801,9 @@ def extract_directory_structure(text):
         # # print("structure: \n:", structure)
     except Exception as e:
         return None
-    
+
+    # if "API_README.md" not in structure:
+    #     structure += "\nbackend/API_README.md\n"
     # delete the file
     try:
         os.remove(f"{uuid_str}")
@@ -870,29 +869,75 @@ def extract_bash_commands(text):
 # directory_structure = extract_directory_structure(find_file_structure("677e76c21eb70fc947b11686"))
 # # print(directory_structure)
 
-# def get_middleware_file_content(path: str) -> str:
-#         """Fetch content for middleware files or return an empty string for others."""
-#         print('866',path)
-#         try:
-#             # Check if the path corresponds to a middleware file
-#             base_middleware_dir = os.getenv('middleware_files')  # Default for Linux
-#             print('870',base_middleware_dir)
+def get_middleware_file_content(path: str) -> str:
+        """Fetch content for middleware files or return an empty string for others."""
+        print('866',path)
+        try:
+            # Check if the path corresponds to a middleware file
+            base_middleware_dir = os.getenv('middleware', '/home/nexus_test/middleware') # Default for Linux
+            print('870',base_middleware_dir)
 
-#             filename = os.path.basename(path)
-#             middleware_files = ["auth.middleware.ts", "decryption.middleware.ts", "encryption.middleware.ts"]
+            filename = os.path.basename(path)
+            middleware = ["encryptionDecryption.js"]
 
-#             if filename in middleware_files:
-#                 # Read content from the corresponding file in the local `middleware_files` folder
-#                 local_file_path = os.path.join(base_middleware_dir, filename)
-#                 with open(local_file_path, "r") as f:
-#                     return f.read()
+            if filename in middleware:
+                # Read content from the corresponding file in the local `middleware_files` folder
+                local_file_path = os.path.join(base_middleware_dir, filename)
+                with open(local_file_path, "r") as f:
+                    return f.read()
+            
+                if os.path.exists(local_file_path):  # Check if file exists
+                    with open(local_file_path, "r") as f:
+                        content = f.read()
+                        print(f"Content length: {len(content)}")  # Debug print
+                        return content
+                else:
+                    print(f"File not found: {local_file_path}")
+                    return ""
+            
+            # For other files, return empty content
+            return ""
+        except Exception as e:
+            print(f"Error reading content for {path}: {e}")
+            return ""
+def remove_empty_files_and_folders(path):
+    """
+    Recursively removes empty files and folders in the provided directory path.
+    """
+    # Remove empty files
+    if os.path.isfile(path) and os.path.getsize(path) == 0:
+        os.remove(path)
+        print(f"Removed empty file: {path}")
+        return True  # Indicate that the file was removed
+    
+    # Recursively remove empty folders
+    if os.path.isdir(path):
+        # Check if the directory is empty
+        if not os.listdir(path):
+            os.rmdir(path)
+            print(f"Removed empty folder: {path}")
+            return True  # Indicate that the folder was removed
+        
+        # Recurse into subdirectories
+        # for sub_item in os.listdir(path):
+        #     sub_path = os.path.join(path, sub_item)
+        #     remove_empty_files_and_folders(sub_path)
+    
+    return False  # Indicate that nothing was removed
 
-#             # For other files, return empty content
-#             return ""
-#         except Exception as e:
-#             print(f"Error reading content for {path}: {e}")
-#             return ""
-
+# def find_and_delete_middleware(start_path):
+#             middleware_names = ['middleware', 'middlewares', 'middle-ware', 'middleware_files', 'middleware_file']
+#             for root, dirs, files in os.walk(start_path):
+#                 for dir_name in dirs:
+#                     if any(middleware_name in dir_name.lower() for middleware_name in middleware_names):
+#                         middleware_path = os.path.join(root, dir_name)
+#                         print(f"Found middleware directory at: {middleware_path}")
+#                         try:
+#                             shutil.rmtree(middleware_path)
+#                             dirs.remove(dir_name)  # Remove from dirs list after deletion
+#                             print(f"Successfully deleted middleware directory at: {middleware_path}")
+#                         except Exception as e:
+#                             print(f"Error deleting middleware directory: {e}")
 
 @app.post('/downloadproject/')
 async def download_project(body: DownloadProject):
@@ -913,78 +958,241 @@ async def download_project(body: DownloadProject):
         base_name = f"./{body.project_id}"
         generator.create_structure(base_name, dir_structure)
 
+        # Step 3: Remove empty files and folders
+        # project_dir = os.path.join(projects_dir, body.project_id)
+        # remove_empty_files_and_folders(project_dir)
+
+        # Call the function to find and delete middleware directory
+        # find_and_delete_middleware(project_dir)
 
         projects_dir = os.path.join(projects_dir, body.project_id)
-        # Step 3: Search for 'backend' folder
-        backend_dir = None
-        for line in dir_structure.splitlines():
-            if "backend" in line:
+        
+        if body.project_type in ["node", "Node.js", "nodejs", "Node", "Nodejs"]:
+            backend_dir = None
+            for line in dir_structure.splitlines():
+                if "backend" in line:
+                    backend_dir = os.path.join(projects_dir, "backend")
+                    break
+
+            # Create 'backend' folder if not found
+            if not backend_dir:
                 backend_dir = os.path.join(projects_dir, "backend")
-                break
+                os.makedirs(backend_dir, exist_ok=True)
+                print(f"'backend' directory created at: {backend_dir}")
+            else:
+                print(f"'backend' directory found in structure at: {backend_dir}")
 
-        # Create 'backend' folder if not found
-        if not backend_dir:
-            backend_dir = os.path.join(projects_dir, "backend")
-            os.makedirs(backend_dir, exist_ok=True)
-            print(f"'backend' directory created at: {backend_dir}")
-        else:
-            print(f"'backend' directory found in structure at: {backend_dir}")
+            if os.getcwd() != backend_dir:
+                os.chdir(backend_dir)
+                print(f"Current working directory: {os.getcwd()}")
 
-        # # Step 4: Navigate into the 'backend' folder
-        # os.chdir(backend_dir)
-        # print(f"Current working directory: {os.getcwd()}")
+            # src_dir = None
+            # for line in dir_structure.splitlines():
+            #     if "src" in line:
+            #         src_dir = os.path.join(backend_dir, "src")
+            #         break
 
-        # Step 5: Run Node commands (if project type is 'node')
-        # if body.project_type == "node":
-        #     os.chdir(backend_dir)
-        #     print(f"Current working directory: {os.getcwd()}")
-        #     print("Running Node.js commands...")
-        #     result = subprocess.run("npm init -y", shell=True, check=False, text=True)
-        #     if result.returncode != 0:
-        #         print(f"Warning: Command 'npm init -y' failed. Continuing...")
-        #     print("Completed 'npm init -y'")
+            # # Create 'backend' folder if not found
+            # if not src_dir:
+            #     src_dir = os.path.join(backend_dir, "src")
+            #     os.makedirs(src_dir, exist_ok=True)
+            #     print(f"'src' directory created at: {src_dir}")
+            # else:
+            #     print(f"'src' directory found in structure at: {src_dir}")
 
-        #     result = subprocess.run("npm install express", shell=True, check=False, text=True)
-        #     if result.returncode != 0:
-        #         print(f"Warning: Command 'npm install express' failed. Continuing...")
-        #     print("Completed 'npm install express'")
-        # Step 5: Run Node commands (if project type is 'node')
+            # if os.getcwd() != src_dir:
+            #     os.chdir(src_dir)
+            #     print(f"Current working directory: {os.getcwd()}")
+
+            # Create 'middleware' folder 
+            # middleware_dir = None
+            # for line in backend_dir.splitlines():
+            #     middleware_variants = ['middleware', 'middlewares', 'middle-ware', 'middleware_files', 'middleware_file']
+            #     if any(variant in line for variant in middleware_variants):
+            #         middleware_dir = os.path.join(backend_dir, "middlewares")
+            #         break
+                
+            #     elif not middleware_dir: 
+            #         src_dir = os.path.join(backend_dir, "src")
+            #         if os.path.exists(src_dir) and os.path.isdir(src_dir):
+            #             # If 'src' directory exists, create 'middleware' inside 'src'
+            #             middleware_dir = os.path.join(src_dir, "middlewares")
+            #         else:
+            #             # Otherwise, create 'middleware' directly inside 'backend'
+            #             middleware_dir = os.path.join(backend_dir, "middlewares")
+
+            #         # middleware_dir = os.path.join(backend_dir, "middlewares")
+            #         os.makedirs(middleware_dir, exist_ok=True)
+            #         print(f"'middleware' directory created at: {middleware_dir}")
+            #     else:
+            #         print(f"'middleware' directory found in structure at: {middleware_dir}")
+            middleware_variants = ['middleware', 'middlewares', 'middle-ware', 'middleware_files', 'middleware_file']
+            middleware_dir = None
+
+            # Step 4.1: Check if middleware exists in backend
+            # for line in dir_structure.splitlines():
+            #     if middleware_variants in line:     #ERROR Coming here expecting string giving list
+            #         middleware_dir = os.path.join(backend_dir, "middlewares" or "middleware")
+            #         print(f"'middleware' directory found at 1036: {middleware_dir}")
+            #         break
+            #     else:    
+            #         src_dir = os.path.join(backend_dir, "src")
+            #         if os.path.exists(src_dir) and os.path.isdir(src_dir):
+            #             middleware_dir = os.path.join(src_dir, "middlewares" or "middleware")
+            #             os.makedirs(middleware_dir, exist_ok=True)
+            #             print(f"'middlewares' directory created at: {middleware_dir}")
+            #             break
+            #         else:
+            #             middleware_dir = os.path.join(backend_dir, "middlewares" or "middleware")
+            #             os.makedirs(middleware_dir, exist_ok=True)
+            #             print(f"'middlewares' directory created at: {middleware_dir}")
+            #             break
+
+            for line in dir_structure.splitlines():
+                # Check if any middleware variant exists in the current line
+                if any(variant in line for variant in middleware_variants):
+                    middleware_dir = os.path.join(backend_dir, "middlewares" if "middlewares" in line else "middleware")
+                    print(f"'middleware' directory found at 1036: {middleware_dir}")
+                    break
+                else:  # This block executes if the loop completes without finding a match
+                    src_dir = os.path.join(backend_dir, "src")
+                    if os.path.exists(src_dir) and os.path.isdir(src_dir):
+                        # Default to "middlewares" if neither exists
+                        middleware_dir = os.path.join(src_dir, "middlewares")
+                        os.makedirs(middleware_dir, exist_ok=True)
+                        print(f"'middlewares' directory created at: {middleware_dir}")
+                    else:
+                        # Fallback to creating in backend_dir if src_dir doesn't exist
+                        middleware_dir = os.path.join(backend_dir, "middlewares")
+                        os.makedirs(middleware_dir, exist_ok=True)
+                        print(f"'middlewares' directory created at: {middleware_dir}")
+            
+
+            # Step 4.2: If no middleware folder is found, check for 'src'
+            # if not middleware_dir:
+            #     src_dir = os.path.join(backend_dir, "src")
+            #     if os.path.exists(src_dir) and os.path.isdir(src_dir):
+            #         middleware_dir = os.path.join(src_dir, "middlewares")
+            #     else:
+            #         middleware_dir = os.path.join(backend_dir, "middlewares")
+
+            #     # Create the middleware directory only if it does not exist
+            #     os.makedirs(middleware_dir, exist_ok=True)
+            #     print(f"'middlewares' directory created at: {middleware_dir}")   
+
+            # else:
+            #     print(f"'middlewares' directory found at: {middleware_dir}") 
+
+
+            # Step 7: Navigate into the 'middleware' folder
+            os.chdir(middleware_dir)
+            print(f"Current working directory: {os.getcwd()}")
+
+            # Step 8: Fetch or generate middleware files with content
+            for filename in ["encryptionDecryption.js"]:
+                target_path = os.path.join(middleware_dir, filename)
+                try:
+                    # Fetch the content using the provided function
+                    content = get_middleware_file_content(target_path)
+
+                    # Write the content to the target path
+                    with open(target_path, "w") as target_file:
+                        target_file.write(content)
+                    print(f"Copied file: {filename} to {target_path}")
+                except FileNotFoundError:
+                    print(f"Source file not found for: {filename}")
+                except Exception as e:
+                    print(f"Error processing file {filename}: {e}")
+
+            os.chdir(projects_dir)
+            project_dir = os.path.join(projects_dir, body.project_id)
+            remove_empty_files_and_folders(project_dir)
+
+###########################################################################################################################################
+        # # Step 3: Search for 'backend' folder
+        # backend_dir = None
+        # for line in dir_structure.splitlines():
+        #     if "backend" in line:
+        #         backend_dir = os.path.join(projects_dir, "backend")
+        #         break
+
+        # # Create 'backend' folder if not found
+        # if not backend_dir:
+        #     backend_dir = os.path.join(projects_dir, "backend")
+        #     os.makedirs(backend_dir, exist_ok=True)
+        #     print(f"'backend' directory created at: {backend_dir}")
+        # else:
+        #     print(f"'backend' directory found in structure at: {backend_dir}")
+
+        # # Step 4: Create an empty API_README.md in the backend folder
+        # # api_readme_path = os.path.join(backend_dir, "API_README.md")
+        # # try:
+        # #     # Create the file and leave it empty
+        # #     with open(api_readme_path, "w") as api_readme:
+        # #         pass  # No content is written, creating an empty file
+
+        # #     print(f"'API_README.md' file created successfully at: {api_readme_path}")
+        # # except Exception as e:
+        # #     print(f"Error creating 'API_README.md': {e}")
+
+        # # Let the generator know where the backend folder is
+        
+
+        # # # Step 4: Navigate into the 'backend' folder
+        # # os.chdir(backend_dir)
+        # # print(f"Current working directory: {os.getcwd()}")
+
+        # # Step 5: Run Node commands (if project type is 'node')
+        # # if body.project_type == "node":
+        # #     os.chdir(backend_dir)
+        # #     print(f"Current working directory: {os.getcwd()}")
+        # #     print("Running Node.js commands...")
+        # #     result = subprocess.run("npm init -y", shell=True, check=False, text=True)
+        # #     if result.returncode != 0:
+        # #         print(f"Warning: Command 'npm init -y' failed. Continuing...")
+        # #     print("Completed 'npm init -y'")
+
+        # #     result = subprocess.run("npm install express", shell=True, check=False, text=True)
+        # #     if result.returncode != 0:
+        # #         print(f"Warning: Command 'npm install express' failed. Continuing...")
+        # #     print("Completed 'npm install express'")
+        # # Step 5: Run Node commands (if project type is 'node')
 
         
-        if body.project_type == "node":
-            # Change working directory to 'backend'
-            print('backend_dir: ', backend_dir)
-            os.chdir(backend_dir)
-            print(f"Changed working directory to: {os.getcwd()}")
+        # if body.project_type == "node":
+        #     # Change working directory to 'backend'
+        #     print('backend_dir: ', backend_dir)
+        #     os.chdir(backend_dir)
+        #     print(f"Changed working directory to: {os.getcwd()}")
 
-            # Step: Create API_README.md in backend directory
-            # api_readme_path = os.path.join(backend_dir, "API_README.md")
-            # try:
-            #     with open(api_readme_path, "w") as api_readme:
-            #         # Write basic content to the file
-            #         api_readme.write("# API Documentation\n\n")
-            #         api_readme.write("This file contains all API keys used in the project along with example CURL requests and responses.\n\n")
-            #         print(f"'API_README.md' created successfully at: {api_readme_path}")
-            # except Exception as e:
-            #     print(f"Error creating 'API_README.md': {e}")
+        #     # Step: Create API_README.md in backend directory
+        #     # api_readme_path = os.path.join(backend_dir, "API_README.md")
+        #     # try:
+        #     #     with open(api_readme_path, "w") as api_readme:
+        #     #         # Write basic content to the file
+        #     #         api_readme.write("# API Documentation\n\n")
+        #     #         api_readme.write("This file contains all API keys used in the project along with example CURL requests and responses.\n\n")
+        #     #         print(f"'API_README.md' created successfully at: {api_readme_path}")
+        #     # except Exception as e:
+        #     #     print(f"Error creating 'API_README.md': {e}")
 
-            # Run Node.js commands
-            print("Running Node.js commands...")
+        #     # Run Node.js commands
+        #     print("Running Node.js commands...")
 
-            def is_package_json_present(projects_dir):
-                for root, dirs, files in os.walk(projects_dir):
-                    if "package.json" in files:
-                        return True
-                return False
+        #     def is_package_json_present(projects_dir):
+        #         for root, dirs, files in os.walk(projects_dir):
+        #             if "package.json" in files:
+        #                 return True
+        #         return False
             
-            if is_package_json_present(backend_dir):
-                print("package.json file already exists in the structure. Skipping 'npm init -y'.")
-            else:
-                result = subprocess.run("npm init -y", shell=True, check=True, text=True)
-                if result.returncode == 0:
-                    print("Completed 'npm init -y'")
-                else:
-                    print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}")
+        #     if is_package_json_present(backend_dir):
+        #         print("package.json file already exists in the structure. Skipping 'npm init -y'.")
+        #     else:
+        #         result = subprocess.run("npm init -y", shell=True, check=True, text=True)
+        #         if result.returncode == 0:
+        #             print("Completed 'npm init -y'")
+        #         else:
+        #             print(f"Warning: Command 'npm init -y' failed with return code {result.returncode}")
 
         #     result = subprocess.run("npm install express", shell=True, check=True, text=True)
         #     if result.returncode == 0:
@@ -1086,7 +1294,7 @@ async def download_project(body: DownloadProject):
         # else:
         #     print(f"'middleware' directory not found in: {backend_dir}")
 ################################# Middleware files ######################################################################################################      
-
+##############################################################################################################################################
 
         os.chdir(cwd)
         # Initialize generator and create structure in temp directory
@@ -1256,6 +1464,12 @@ class DirectoryGenerator:
                         # Handle other files normally
                     content = self.get_content(full_path, self.body)
 
+                    # if os.path.basename(full_path) == "API_README.md" or not os.path.exists(full_path):
+                    #     with open(full_path, 'w') as f:
+                    #         if content is None:
+                    #             content = ""
+                    #         f.write(content)
+        
                     # Create file only if it doesn't exist
                     if not os.path.exists(full_path):
                         with open(full_path, 'w') as f:
@@ -1271,123 +1485,90 @@ class DirectoryGenerator:
                     pass
 
     def get_content(self, path, body):
+
         dir_structure = extract_directory_structure(find_file_structure(body.project_id))
+
         chat_completion = client.chat.completions.create(
         messages=[
             {
                 "role": "system",
-                "content": """You are a senior Node.js developer with extensive experience building production applications. 
-                Generate clean, efficient, and properly structured code following current best practices.
+                "content": f"""Assume the role of a senior and expert developer with extensive experience in the {body.project_type} tech stack. \
+                    Carefully read and comprehend the user input: {body.user_input}. \
+                    For import statements and file connections in code files, use the provided file structure {dir_structure}. Ensure you accurately reference and position files according to this structure for all read and write operations. This ensures correct linkage and seamless functionality across the codebase. \
+                    Proceed with the implementation, incorporating user feedback as necessary. Ensure that the generated code is clean, efficient, correctly written, and well-structured, adhering to current best practices and following the use input rules. \
+                    CORE DEVELOPMENT PRINCIPLES:
+                    1. Project Structure:
+                    - Modular and well-organized code structure.
+                    - Accurate imports reflecting the directory structure.
+                    - Consistent file naming and importing across files.
 
-                CORE DEVELOPMENT PRINCIPLES:
-                1. Project Structure:
-                   - Clear folder organization (controllers, routes, models, middleware)
-                   - Modular code structure
-                   - Clean separation of concerns
-                   - Well-organized imports
-                   - Consistent file naming
+                    2. Code Quality:
+                    - Utilize modern programming features and techniques.
+                    - Ensure correct and accurate file connections and imports as per the {dir_structure}.
+                    - Employ validation patterns where necessary.
+                    - Maintain clean, readable code with meaningful names and comments for complex logic.
 
-                2. Code Quality:
-                   - Use modern ES6+ features
-                   - Implement proper async/await patterns
-                   - Follow consistent error handling
-                   - Use proper validation patterns
-                   - Write clean, readable code
-                   - Use meaningful variable/function names
-                   - Implement proper comments for complex logic
+                    3. API Development:
+                    - Read complete Project description from here {find_project(body.project_id)} and make sure to create every API as per project description **NO API SHOULD BE
+                    MISSED**. do it with without mistake.
+                    - Adhere to best API development practices.
+                    - Handle routes, requests validations, and responses effectively.
+                    - Use validatorjs for all API validations, integrating directly in API functions, not separate files.
+                    - Implement pagination, query handling, and necessary APIs setup before usage.
 
-                3. API Development:
-                   - RESTful API best practices
-                   - Proper route handling
-                   - Middleware implementation
-                   - Request validation
-                   - Response formatting
-                   - Status code usage
-                   - Query parameter handling
-                   - Pagination implementation
-                   - Search and filter patterns
+                    4. Security Implementation:
+                    - Manage encryption and decryption centrally via middleware in main application files (e.g., app.js or server.js).
+                    - Implement proper authentication using refresh tokens and bcrypt for password hashing in the Register API.
+                    - Ensure data sanitization, XSS protection, SQL injection prevention, rate limiting, CORS, and secure headers using helmet.
 
-                4. Security Implementation:
-                   - JWT authentication with refresh tokens
-                   - Password hashing (bcrypt)
-                   - Request validation
-                   - Data sanitization
-                   - XSS protection
-                   - SQL injection prevention
-                   - Rate limiting
-                   - CORS configuration
-                   - Secure headers (helmet)
+                    5. Database Operations:
+                    - Optimize queries, manage transactions, and handle connections efficiently.
 
-                5. Database Operations:
-                   - Efficient queries
-                   - Transaction handling
-                   - Error handling
-                   - Connection management
-                   - Query optimization
-                   - Proper indexing
-                   - Data validation
+                    6. Error Handling:
+                    - Use a global error handler with custom error classes and appropriate status code mapping.
 
-                6. Error Handling:
-                   - Global error handler
-                   - Custom error classes
-                   - Proper error messages
-                   - Error logging
-                   - Status code mapping
-                   - Client-safe error responses
+                    7. Performance:
+                    - Enhance performance through efficient queries, caching, request and response optimization, memory management, and connection pooling.
 
-                7. Performance:
-                   - Efficient database queries
-                   - Proper caching
-                   - Request optimization
-                   - Response optimization
-                   - Memory management
-                   - Connection pooling
+                    8. Environment Variables:
+                    - Ensure all necessary environment variables are used, documented, and provided with **realistic, randomized secure values** for all configuration keys (e.g., `PAYPAL_CLIENT_ID=Nsblsbdiaknasjhvlkdjajdashaojwdifejh` instead of `your_paypal_client_id`).
+                    - Each key in the .env file should be populated with unique, non-repeating dummy secure values.
 
-                8. Code Organization:
-                   - Service layer pattern
-                   - Repository pattern for data access
-                   - Middleware organization
-                   - Route organization
-                   - Controller organization
-                   - Model organization
-                   - Utility functions
+                    **IMPORTANT NOTE**: Before presenting the final output, ensure that all the outlined CORE DEVELOPMENT PRINCIPLES have been fully implemented in the code. \
+                        Conduct a thorough review of each file, verifying that no requirements are overlooked and that the code is production-ready. \
+                        Correct any errors found and ensure that the code adheres to best practices. \
+                        This verification must be completed to ensure the developer can directly utilize the code for production purposes.
                 """
             },
             {
                 "role": "user",
                 "content": f"""Based on:
-                Given the project description: {find_project(body.project_id, is_tech=False)}, 
-                the list of tasks: {find_list_of_tasks(body.project_id)}, 
-                the file structure: {dir_structure}, 
-                the user input: {body.user_input},
-                and the kick-off code: {get_kickoff(body.project_id)},
+                    - Project description: {find_project(body.project_id, is_tech=False)},
+                    - List of tasks: {find_list_of_tasks(body.project_id)},
+                    - File structure: {dir_structure},
+                    - User input: {body.user_input},
+                    - Desired tech stack: {body.project_type},
+                    - Initial code: {get_kickoff(body.project_id)},
+                    Generate production-quality code for: {path}.
+                    REQUIREMENTS:
+                    1. Adhere to best practices for the specified tech stack.
+                    2. Include robust error handling mechanisms.
+                    3. Integrate comprehensive security measures.
+                    4. Optimize database operations for efficiency.
+                    5. Implement strict validation using Validatorjs.
+                    6. Maintain consistent coding patterns throughout.
+                    7. Ensure the code is clean, maintainable, and well-commented.
+                    8. Apply appropriate naming conventions.
+                    9. Provide detailed comments for complex logic.
+                    10. Design thoughtful error responses.
 
-                Generate production-quality code for: {path}
-
-                REQUIREMENTS:
-                1. Follow Node.js best practices
-                2. Implement proper error handling
-                3. Include security measures
-                4. Use efficient database operations
-                5. Implement proper validation
-                6. Follow consistent patterns
-                7. Write clean, maintainable code
-                8. Use proper naming conventions
-                9. Include necessary comments
-                10. Implement proper error responses
-
-                The code should be:
-                - Production-ready
-                - Efficient
-                - Secure
-                - Well-structured
-                - Easy to maintain
-                - Following best practices
-                - Properly documented
-                - Error handled
-                - Properly validated
-                - Consistently formatted
-                """
+                    The code should be:
+                    - Production-ready and efficient.
+                    - Secure and well-structured.
+                    - Easily maintainable and following best practices.
+                    - Thoroughly documented with handled errors.
+                    - Consistently formatted and properly validated.
+                    """
             } #help me setup the project for coding"}
             ],
             model="gpt-4o",
@@ -1398,5 +1579,3 @@ class DirectoryGenerator:
         print("trimmed:",trimmed)
         return trimmed
     
-
-# also Implement Security Measures like Password Hashing and Encryption and Decryption of API Calls etc. in the respective files.
