@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 import os
 from openai import OpenAI
@@ -15,11 +16,20 @@ import uuid
 import subprocess
 
 
+from typing import List, Dict, Tuple,Any
+import shutil
+import tempfile
+from pathlib import Path
+import uuid
+import subprocess
+
+
 
 # Import variables from .env file
 load_dotenv()
 
 mongodb_path = os.getenv('mongo_connnection_string')
+# print(mongodb_path)
 # print(mongodb_path)
 app = FastAPI()
 
@@ -54,6 +64,21 @@ def find_project_name(project_id):
             pass
     return "default_project_name"
         
+
+def find_project_name(project_id):
+    if not project_id:
+        return "project_id is required."
+    else:
+        project = collection.find_one({'_id': ObjectId(project_id)})
+        try:
+            project_name = project['name']
+            return project_name
+        except Exception as e:
+            # # print("43: error extract ing project[name]")
+            # print(f"{e}")
+            pass
+    return "default_project_name"
+        
 def find_project(project_id, is_tech=None):
     if not project_id:
         return "project_id is required."
@@ -65,6 +90,9 @@ def find_project(project_id, is_tech=None):
             # # print("43: error extract ing project[name]")
             # print(f"{e}")
             pass
+            # # print("43: error extract ing project[name]")
+            # print(f"{e}")
+            pass
         
         try:
             project_description = project['description']
@@ -72,10 +100,14 @@ def find_project(project_id, is_tech=None):
             # print("49: error extract ing project[description]")
             # print(f"{e}")
             pass
+            # print("49: error extract ing project[description]")
+            # print(f"{e}")
+            pass
 
         try:
             if(not(is_tech) and project['tools']):
                 # tools = project['tools']
+                # print("55: extracted project name, id and tools")
                 # print("55: extracted project name, id and tools")
                 return project_name, project_description
         except:
@@ -86,10 +118,12 @@ def find_project(project_id, is_tech=None):
             if(is_tech and project['tools']):
                 tools = project['tools']
                 # print("64: extracted project name, id and tools")
+                # print("64: extracted project name, id and tools")
                 return project_name, project_id, tools
         except:
             pass
 
+        # print("line 69: extracted project name, description")
         # print("line 69: extracted project name, description")
         return project_name, project_description
 
@@ -104,6 +138,9 @@ def find_module(project_id, is_tech=None):
             # print("error extract ing project[name]")
             # print(f"{e}")
             pass
+            # print("error extract ing project[name]")
+            # print(f"{e}")
+            pass
         
         try:
             project_id = project['description']
@@ -111,10 +148,15 @@ def find_module(project_id, is_tech=None):
             # print("error extract ing project[description]")
             # print(f"{e}")
             pass
+            # print("error extract ing project[description]")
+            # print(f"{e}")
+            pass
         
         try:
             project_module = project['modules']
         except Exception as e:
+            # print("error extracting project[modules]")
+            # print(f"{e}")
             # print("error extracting project[modules]")
             # print(f"{e}")
             return(f"PROJECT MODULES ARE NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD MODULES, SO ACCORDING TO THAT I CAN ANSWER:G {e}")
@@ -139,6 +181,8 @@ def find_features(project_id, is_tech=None):
         except Exception as e:
             # print("error extracting project[features]")
             # print(f"{e}")
+            # print("error extracting project[features]")
+            # print(f"{e}")
             return(f"PROJECT features ARE NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD features, SO ACCORDING TO THAT I CAN ANSWER:G {e}")
 
         return project_features
@@ -154,6 +198,8 @@ def find_list_of_tasks(project_id):
         except Exception as e:
             # print("error extracting project[features]")
             # print(f"{e}")
+            # print("error extracting project[features]")
+            # print(f"{e}")
             return(f"TASK-LIST IS NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD features, SO ACCORDING TO THAT I CAN ANSWER:G {e}")
 
         return project_list
@@ -163,11 +209,14 @@ def find_file_structure(project_id):
         return "project_id is required."
     else:
 
+
         project = collection.find_one({'_id': ObjectId(project_id)})
 
         try:
             project_file_structure = project['setup']
         except Exception as e:
+            # print("error extracting project[features]")
+            # print(f"{e}")
             # print("error extracting project[features]")
             # print(f"{e}")
             return(f"PROJECT STURCTURE IS NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD features, SO ACCORDING TO THAT I CAN ANSWER:G {e}")
@@ -197,9 +246,47 @@ def count_astrick(string):
             count+=1
     return count
 
+def get_kickoff(project_id):
+    if not project_id:
+        return "project_id is required."
+    else:
+
+        project = collection.find_one({'_id': ObjectId(project_id)})
+
+        try:
+            kickoff = project['kickoff']
+        except Exception as e:
+            # print("error extracting project[features]")
+            # print(f"{e}")
+            return(f"KickOff IS NOT AVAILABLE IN THE DATABASE. PLEASE FIRST ADD features, SO ACCORDING TO THAT I CAN ANSWER:G {e}")
+
+        return kickoff
+
+def count_astrick(string):
+    count =0
+    for i in string:
+        if i == "*":
+            count+=1
+    return count
+
 def extract_tasks_without_asterisks(content):
     tasks = []
     # Match bullet points starting with "-" or numbers like "1."
+    content_ = content.split("\n")
+    # print("content: ", content)
+    for each in content_:
+        print(each)
+        if(count_astrick(each) == 1):
+            trip = each.split("]", 1)[1]
+            tasks.append(trip)
+    # print("len of content_:", len(content_))
+    # pattern = r"(?:\d+\.\s|\s*-\s)(.+)"
+    # matches = re.findall(pattern, content)
+    # for match in matches:
+    #     task = match.strip()
+    #     # Exclude lines containing '*'
+    #     if '#' not in task:
+    #         tasks.append(task)
     content_ = content.split("\n")
     # print("content: ", content)
     for each in content_:
@@ -255,6 +342,15 @@ class Kickoff(BaseModel):
     project_id: str
     user_input: str = None
 
+
+class DownloadProject(BaseModel):
+    project_id: str
+    user_input: Any
+    project_type: str           # shall be from "flutter", "react"
+
+class DownloadProject_test(BaseModel):
+    project_id: str
+    user_input: str
 
 class DownloadProject(BaseModel):
     project_id: str
@@ -332,6 +428,45 @@ class DownloadProject_test(BaseModel):
 #         # print(f"Error when suggesting platforms: {e}")  # Logging the error
 #         raise HTTPException(status_code=500, detail="An error occurred while generating the platform suggestion.")
     
+
+# @app.post('/project_explaination')
+# async def project_explanation(body: ProjectDescription):
+#     try:
+#         chat_completion = client.chat.completions.create(
+#             messages=[
+#                 {"role": "system", "content": "You are a highly intelligent assistant with expertise in understanding and elaborating on project descriptions. \
+#                                         You analyze provided descriptions carefully and generate detailed explanations, \
+#                                         tailoring each response uniquely to match the project's objectives and scope."},
+#                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id, is_tech=True)}, provide a comprehensive explanation of the project. Your response should include: \
+#                                         1. **Project Overview**: A concise summary of the project's objectives, purpose, and key features.  \
+#                                         2. **Detailed Working Flow**: Break down the workflow into clear steps, explaining how the system components interact and the sequence of operations. Highlight any unique technologies, algorithms, or methods used in the project. \
+#                                         3. **Database and Data Handling**: If applicable, describe the data structures or databases involved, including how data is stored, processed, and retrieved.  \
+#                                         4. **Security Features**: Explain any security measures implemented in the project, such as password protection, encryption, or access control.  \
+#                                         5. **User Interaction**: Highlight how users interact with the system, including interfaces, input methods, and output formats.  \
+#                                         6. **Deployment Suggestions**: Recommend deployment platforms (e.g., web, mobile, cloud) suitable for the project, considering its requirements. \
+#                                         7. **Advantages and Benefits**: Summarize the key benefits of the project, focusing on usability, performance, security, and scalability.  \
+#                                         Ensure your explanation is unique to the project description provided and does not follow a generic structure unless required by the nature of the project."}
+#             ],
+#             model="gpt-4o"
+#         )
+
+#         project_explanation = chat_completion.choices[0].message.content
+#         # print(platforms)
+#         result = collection.update_one(
+#             {'_id': ObjectId(body.project_id)},  # Filter by _id
+#             {'$set': {'project_explanation': project_explanation}}  # Add/Update the technology field
+#         )
+#         if result.modified_count > 0:
+#             # print("Platform field added successfully.")
+#             pass
+#         else:
+#             # print("No document found or no changes made.")
+#             pass
+#         return JSONResponse(content={"project_explanation":project_explanation})
+#     except Exception as e:
+#         # print(f"Error when suggesting platforms: {e}")  # Logging the error
+#         raise HTTPException(status_code=500, detail="An error occurred while generating the platform suggestion.")
+    
 @app.post('/platform_suggestion/')
 async def platform_suggestion(body: ProjectDescription):
     try:
@@ -341,10 +476,12 @@ async def platform_suggestion(body: ProjectDescription):
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Based on the project description: {find_project(body.project_id, is_tech=True)}, \
                                         platforms suggestions "}
+                                        platforms suggestions "}
             ],
             model="gpt-4o"
         )
         platforms = chat_completion.choices[0].message.content
+        # print(platforms)
         # print(platforms)
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
@@ -353,13 +490,22 @@ async def platform_suggestion(body: ProjectDescription):
         if result.modified_count > 0:
             # print("Platform field added successfully.")
             pass
+            # print("Platform field added successfully.")
+            pass
         else:
+            # print("No document found or no changes made.")
+            pass
             # print("No document found or no changes made.")
             pass
         return JSONResponse(content={"platform_suggestions": platforms})
     except Exception as e:
         # print(f"Error when suggesting platforms: {e}")  # Logging the error
+        # print(f"Error when suggesting platforms: {e}")  # Logging the error
         raise HTTPException(status_code=500, detail="An error occurred while generating the platform suggestion.")
+    
+
+    # If you are giving suggestion for mobile platform, adivse Native or Hybrid.
+
     
 
     # If you are giving suggestion for mobile platform, adivse Native or Hybrid.
@@ -379,6 +525,7 @@ async def panels(body: Panels):
         )
         panels = chat_completion.choices[0].message.content
         # print(panels)
+        # print(panels)
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
             {'$set': {'panels': panels}}  # Add/Update the technology field
@@ -386,11 +533,16 @@ async def panels(body: Panels):
         if result.modified_count > 0:
             # print("Panel field added successfully.")
             pass
+            # print("Panel field added successfully.")
+            pass
         else:
+            # print("No document found or no changes made.")
+            pass
             # print("No document found or no changes made.")
             pass
         return JSONResponse(content={"panels": panels})
     except Exception as e:
+        # print(f"Error when suggesting platforms: {e}")  # Logging the error
         # print(f"Error when suggesting platforms: {e}")  # Logging the error
         raise HTTPException(status_code=500, detail="An error occurred while generating the platform suggestion.")
 
@@ -409,6 +561,7 @@ async def tools_and_lib_suggestions(body: ToolsAndLibSuggestions):
         )
         tools_lib = chat_completion.choices[0].message.content
         # print(tools_lib)
+        # print(tools_lib)
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
             {'$set': {'tools': tools_lib}}  # Add/Update the technology field
@@ -416,11 +569,16 @@ async def tools_and_lib_suggestions(body: ToolsAndLibSuggestions):
         if result.modified_count > 0:
             # print("Tools & Lib field added successfully.")
             pass
+            # print("Tools & Lib field added successfully.")
+            pass
         else:
+            # print("No document found or no changes made.")
+            pass
             # print("No document found or no changes made.")
             pass
         return JSONResponse(content={"tools_lib": tools_lib})
     except Exception as e:
+        # print(f"Error when suggesting platforms: {e}")  # Logging the error
         # print(f"Error when suggesting platforms: {e}")  # Logging the error
         raise HTTPException(status_code=500, detail="An error occurred while generating the platform suggestion.")
 
@@ -434,10 +592,12 @@ async def module_assistant(body: ModuleRequest):
                 {"role": "system", "content": "Please provide concise and specific information about the project"},
                 {"role": "user", "content": f"Using the project example context: {find_project(body.project_id, )} list the modules\
                  that could be used. only necessary modules in accroding to project development.keep the "}
+                 that could be used. only necessary modules in accroding to project development.keep the "}
             ],
             model="gpt-4o"
         )
         modules = chat_completion.choices[0].message.content
+        # print(modules)
         # print(modules)
         # Add/update the technology field in the project document
         result = collection.update_one(
@@ -447,7 +607,11 @@ async def module_assistant(body: ModuleRequest):
         if result.modified_count > 0:
             # print("Modules field added successfully.")
             pass
+            # print("Modules field added successfully.")
+            pass
         else:
+            # print("No document found or no changes made.")
+            pass
             # print("No document found or no changes made.")
             pass
         return JSONResponse(content={"modules": modules})
@@ -469,6 +633,7 @@ async def feature_assistant(body: FeatureAssistant):
         )
         features = chat_completion.choices[0].message.content
         # print(features)
+        # print(features)
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
             {'$set': {f'features': features}}  # Add/Update the technology field
@@ -476,7 +641,11 @@ async def feature_assistant(body: FeatureAssistant):
         if result.modified_count > 0:
             # print("features field added successfully.")
             pass
+            # print("features field added successfully.")
+            pass
         else:
+            # print("No document found or no changes made.")
+            pass
             # print("No document found or no changes made.")
             pass
         return JSONResponse(content={"features": features})
@@ -498,13 +667,16 @@ async def feature_assistant(body: FeatureAssistant):
 #         )
 #         features = chat_completion.choices[0].message.content
 #         # print(features)
+#         # print(features)
 #         result = collection.update_one(
 #             {'_id': ObjectId(body.project_id)},  # Filter by _id
 #             {'$set': {f'features_{body.module}': features}}  # Add/Update the technology field
 #         )
 #         if result.modified_count > 0:
 #             # print("features field added successfully.")
+#             # print("features field added successfully.")
 #         else:
+#             # print("No document found or no changes made.")
 #             # print("No document found or no changes made.")
 #         return JSONResponse(content={"features": features})
 #     except Exception as e:
@@ -582,6 +754,71 @@ async def task_assistant(body: TaskList):
                
             Generate comprehensive task list now, Don't skip any backend, frontend related task ensuring COMPLETE feature coverage with intelligent additions."""
         }
+        {
+            "role": "system",
+            "content": """You are an expert technical project planner who breaks down features into comprehensive development tasks. 
+
+            Core Task Generation Rules:
+            1. Format: * [TaskNumber] [Label] Specific task description
+               Labels: [UI/UX], [AUTH], [API], [DB], [SECURITY], [TESTING], [INTEGRATION], [FEATURE]
+            2. Tasks MUST follow documentation order, NOT label order
+            3. Each feature requires:
+               - Essential UI/UX tasks (only where user interaction is needed)
+               - All implementation tasks (backend, frontend, database)
+               - Security and validation tasks
+               - Testing tasks for critical features
+            4. Use AI intelligence to:
+               - Add necessary tasks not explicitly mentioned
+               - Identify dependencies
+               - Include industry best practices
+               - Consider edge cases
+               - Add essential security measures
+
+            Task Generation Process:
+            1. Read feature and description completely
+            2. Break into smallest possible tasks
+            3. Include ALL implementation details
+            4. Add necessary UI tasks only where needed
+            5. Consider full development lifecycle
+            6. Add intelligent suggestions
+            7. Maintain sequential order based on natural development flow
+            8. Never group or order by labels
+
+            ALWAYS generate detailed tasks, never summarize."""
+        },
+        {
+            "role": "user",
+            "content": f"""Using this project description: {find_project(body.project_id)}
+
+            Create a comprehensive task list that:
+
+            1. Processes features IN DOCUMENTATION ORDER
+            2. For each feature and description:
+               - Generate multiple atomic tasks
+               - Include essential UI/UX tasks where needed
+               - Cover all implementation details
+               - Add security and validation
+               - Include testing for critical features
+               - Use AI intelligence to add necessary tasks
+               
+            3. Each task must:
+               - Start with sequential number
+               - Include appropriate label
+               - Be specific and actionable
+               - Be completable in 1-2 days
+               - Follow natural implementation order
+               
+            4. Requirements:
+               - Never skip any implementation detail
+               - Never group by labels
+               - Always maintain full coverage
+               - Include intelligent additions
+               - Consider user experience
+               - Add essential security measures
+               - Include necessary integrations
+               
+            Generate comprehensive task list now, Don't skip any backend, frontend related task ensuring COMPLETE feature coverage with intelligent additions."""
+        }
                                             #             "Given the project description: {find_project(body.project_id)}, and the \
                                             # features list: {find_features(body.project_id)}, give me the list of coding\
                                             #     tasks in series to implement features in list format. Please note that\
@@ -593,7 +830,10 @@ async def task_assistant(body: TaskList):
         task_list = chat_completion.choices[0].message.content
         # # print(task_list)
         # # print("################################################################")
+        # # print(task_list)
+        # # print("################################################################")
         extracted_tasks = extract_tasks_without_asterisks(task_list)
+        # print(extracted_tasks)
         # print(extracted_tasks)
         result = collection.update_one(
             {'_id': ObjectId(body.project_id)},  # Filter by _id
@@ -602,7 +842,11 @@ async def task_assistant(body: TaskList):
         if result.modified_count > 0:
             # print("tasks field added successfully.")
             pass
+            # print("tasks field added successfully.")
+            pass
         else:
+            # print("No document found or no changes made.")
+            pass
             # print("No document found or no changes made.")
             pass
         return JSONResponse(content={"tasks": extracted_tasks})
